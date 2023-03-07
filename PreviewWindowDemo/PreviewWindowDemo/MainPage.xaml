@@ -33,7 +33,7 @@
                 <TextBlock Text="What happens when you close the windows? Does the order matter?"/>
             </StackPanel>
         </SplitView>
-        <Popup Grid.Row="1" x:Name="PreviewPopup" Width="320" Height="500">
+        <Popup Grid.Row="1" x:Name="PreviewPopup" Width="320" Height="500" ShouldConstrainToRootBounds="False" >
             <Border Width="320" Height="500" Background="DarkGray" x:Name="PreviewPopupContents" CornerRadius="8" BorderThickness="2" BorderBrush="Black">
                 <Grid>
                     <Grid.RowDefinitions>
