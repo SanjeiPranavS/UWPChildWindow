@@ -13,27 +13,29 @@
             <RowDefinition/>
         </Grid.RowDefinitions>
         <CommandBar>
-            <AppBarToggleButton Icon="Play" x:Name="OpenPaneButton" Checked="ShowPreview" Unchecked="HidePreview"/>
+            <AppBarToggleButton Icon="Play" x:Name="OpenPaneButton" />
         </CommandBar>
         <SplitView x:Name="SplitView" Grid.Row="1" PanePlacement="Right" DisplayMode="Inline"  >
-            <SplitView.Pane>
-                <Grid Background="DarkGray">
-                    <local:PreviewControl Grid.Row="1" MaxHeight="500"/>
-                </Grid>
-            </SplitView.Pane>
             <StackPanel Margin="8">
-                <TextBlock FontWeight="Bold" Text="A secondary window can be displayed in three different ways:"/>
-                <TextBlock Text="1. Docked to a side of the UI: best for tablet mode.  Same UI Thread"/>
-                <TextBlock Text="2. Floating inside of the Window. good for both tablet mode and desktop mode. Same UI Thread."/>
-                <TextBlock Text="3. Floating independent window.  Best for desktop mode especially with mutliple screens. Different UI Thread."></TextBlock>
-                <TextBlock Text="Press the button in the upper right corner to experiment with different styles."/>
-                <TextBlock FontWeight="Bold" Margin="0,8,0,0" Text="Notice this:"/>
-                <TextBlock Text="What happens when you switch between tablet and desktop mode?"/>
-                <TextBlock Text="How are the windows for the desktop mode different?"/>
-                <TextBlock Text="What happens when you close the windows? Does the order matter?"/>
+                 <CheckBox IsChecked="{x:Bind TeachingTip.IsLightDismissEnabled,Mode=TwoWay}">IsLightDisMissEnabled</CheckBox>
+                <CheckBox IsChecked="{x:Bind TeachingTip.ShouldBoundToXamlRoot,Mode=TwoWay}"> ShouldBoundToXamlRoot</CheckBox>
+                <DropDownButton x:Name="PlacementPreferenceDropDownButton" >
+                    <DropDownButton.Flyout>
+                        <MenuFlyout Placement="Bottom"  >
+                                <MenuFlyoutItem Text="Left" Click="MenuFlyoutItem_OnClick" x:Name="PlacementPreferenceLeftITem"/>
+                                <MenuFlyoutItem Text="Right" Click="MenuFlyoutItem_OnClick" x:Name="PlacementPrefereneceRightItem"/>
+                            <MenuFlyoutItem Text="RightTop" Click="MenuFlyoutItem_OnClick" x:Name="PlacementPrefereneceRightTopItem"/>
+                                <MenuFlyoutItem Text="LeftTop" Click="MenuFlyoutItem_OnClick" x:Name="PlacementPrefereneceLeftTopItem"/>
+                                <MenuFlyoutItem Text="Top" Click="MenuFlyoutItem_OnClick" x:Name="PlacementPrefereneceTopItem"/>
+                                <MenuFlyoutItem Text="Bottom" Click="MenuFlyoutItem_OnClick" x:Name="PlacementPrefereneceBottomItem"/>
+                        </MenuFlyout>
+                    </DropDownButton.Flyout>
+                </DropDownButton>
+                <Button x:Name="PopupUpCheckButton" Click="PopupUpCheckButton_OnClick" HorizontalAlignment="Center">Target</Button>
+                <Button x:Name="ExtensionTestingBUtton" HorizontalAlignment="Center" Click="ExtensionTestingBUtton_OnClick" >Extension Testing Button</Button>
             </StackPanel>
         </SplitView>
-        <Popup Grid.Row="1" x:Name="PreviewPopup" Width="320" Height="500" ShouldConstrainToRootBounds="False" >
+        <!--<Popup Grid.Row="1" x:Name="PreviewPopup" Width="320" LightDismissOverlayMode="On" IsLightDismissEnabled="False"  MaxHeight="500" MinWidth="400" ShouldConstrainToRootBounds="True" >
             <Border Width="320" Height="500" Background="DarkGray" x:Name="PreviewPopupContents" CornerRadius="8" BorderThickness="2" BorderBrush="Black">
                 <Grid>
                     <Grid.RowDefinitions>
@@ -42,7 +44,7 @@
                     </Grid.RowDefinitions>
                     <local:PreviewControl Grid.Row="1"/>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" >
-                        <AppBarButton Icon="OpenPane" Click="OpenPane" IsCompact="True"/>
+                        <AppBarButton Icon="OpenPane"  IsCompact="True"/>
                         <AppBarButton Icon="NewWindow" Click="OnFloat" IsCompact="True"/>
                         <AppBarButton x:Name="ClosePreviewButton" IsCompact="True" Click="ClosePreviewPopup">
                             <AppBarButton.Icon>
@@ -52,6 +54,7 @@
                     </StackPanel>
                 </Grid>
             </Border>
-        </Popup>
+        </Popup>-->
+        
     </Grid>
 </Page>

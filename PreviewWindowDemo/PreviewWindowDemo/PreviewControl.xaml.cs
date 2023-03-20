@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
@@ -22,6 +23,20 @@ namespace PreviewWindowDemo
         public PreviewControl()
         {
             this.InitializeComponent();
+        }
+
+        public ObservableCollection<string> StringSource { get; }=new ObservableCollection<string>();
+
+        private void ButtonBase_OnClick(object sender, RoutedEventArgs e)
+        {
+           StringSource.Add(Guid.NewGuid().ToString());
+        }
+        private void RemoveItemButton_OnClick(object sender, RoutedEventArgs e)
+        {
+            if (StringSource.Count >= 1)
+            {
+                StringSource.RemoveAt(0);
+            }
         }
     }
 }

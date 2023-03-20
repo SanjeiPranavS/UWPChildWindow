@@ -10,6 +10,24 @@
     d:DesignWidth="400">
 
     <Grid Background="DarkGray">
-        <Border Margin="8" Background="Azure" BorderBrush="Black" BorderThickness="2" CornerRadius="8"></Border>
+        <Border Margin="8" Background="Azure" BorderBrush="Black"  BorderThickness="2" CornerRadius="8">
+            <StackPanel Orientation="Vertical">
+                <ListView HorizontalAlignment="Stretch" ItemsSource="{x:Bind StringSource,Mode=OneWay}">
+
+                </ListView>
+               <Button HorizontalAlignment="Stretch">
+                <Button.Flyout>
+                    <DatePickerFlyout LightDismissOverlayMode="On">
+                    </DatePickerFlyout>
+                </Button.Flyout>
+                   FlyoutButton
+            </Button>  
+                <Button HorizontalAlignment="Stretch"
+                        Click="ButtonBase_OnClick"
+                        >Add item</Button>
+                <Button HorizontalAlignment="Stretch"
+                        Click="RemoveItemButton_OnClick">Remove Item</Button>
+            </StackPanel>
+        </Border>
     </Grid>
 </UserControl>
