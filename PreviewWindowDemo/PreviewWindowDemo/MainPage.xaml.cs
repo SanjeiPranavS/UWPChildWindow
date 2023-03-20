@@ -288,7 +288,7 @@ namespace PreviewWindowDemo
                 LayoutRoot.Children.Add(ExistingExterntionClassTesting);
             }
             
-            ExistingExterntionClassTesting.TryShowNear(sender as FrameworkElement,default ,PlacementPreferenceOrders.Right, VerticalAlignmentPreferenceOrders.CenterTopBottom, HorizontalAlignmentPreferenceOrders.Center, default, false);
+            ExistingExterntionClassTesting.TryShowNear(sender as FrameworkElement,default ,PlacementPreferenceOrders.Right, VerticalAlignmentPreferenceOrders.CenterBottomTop, HorizontalAlignmentPreferenceOrders.Center, 0, false);
         }
     }
 }

@@ -177,6 +177,10 @@ namespace PreviewWindowDemo
         {
             PositionPopUp();
         }
+        private void CoreWindowResizeCompleted(CoreWindow sender, object args)
+        {
+            PositionPopUp();
+        }
         #endregion
 
 
@@ -245,13 +249,18 @@ namespace PreviewWindowDemo
         private void UnSubscribeToSizeChangeNotification()
         {
             Window.Current.SizeChanged -= WindowSizeChanged;
+            CoreWindow.GetForCurrentThread().ResizeCompleted -= CoreWindowResizeCompleted;
 
         }
-       
+
         private void SubscribeToSizeChangeNotification()
         {
             Window.Current.SizeChanged += WindowSizeChanged;
+            CoreWindow.GetForCurrentThread().ResizeCompleted += CoreWindowResizeCompleted;
         }
+
+       
+
         private void ShouldBoundToXamlRootChanged()
         {
             if (!IsOpen)
@@ -388,7 +397,7 @@ namespace PreviewWindowDemo
             }
         }
         
-        #region OFfsetLOgic Region
+        #region OffsetLOgic Region
         //for Left and Right based preference Vertical Offset Calculation will be same
 
         //todo
@@ -455,8 +464,6 @@ namespace PreviewWindowDemo
             offset.VerticalOffSet = TargetCoordinates.Y+Target.ActualHeight - _deviation;
         }
 
-
-
         private double CalculateHorizontalOffsetForRightBasedPreference()
         {
             return TargetCoordinates.X + Target.ActualWidth;
@@ -469,13 +476,38 @@ namespace PreviewWindowDemo
 
         private double CalculateVerticalOffsetCenterForRightAndLeftPreference(double distanceY)
         {
-            return PopUpCoordinates.Y - distanceY - (Math.Abs(TeachingTipContent.ActualHeight - Target.ActualHeight) / 2) - _deviation;
+            var sizeDifference = Math.Abs(Target.ActualHeight - TeachingTipContent.ActualHeight) / 2;
+            double verticalOffset = default;
+
+            if (Target.ActualHeight.Equals( TeachingTipContent.ActualHeight))
+            {
+                verticalOffset = TargetCoordinates.Y;
+            }
+            if (Target.ActualHeight < TeachingTipContent.ActualHeight)
+            {
+                verticalOffset = TargetCoordinates.Y - sizeDifference;
+            }
+            if (Target.ActualHeight > TeachingTipContent.ActualHeight)
+            {
+                verticalOffset = TargetCoordinates.Y + sizeDifference;
+            }
+
+            return verticalOffset - _deviation;
         }
 
         private double CalculateHorizontalOffsetCenterForTopAndBottomPlacement(double distanceX)
         {
-            var sizeDifference = Math.Abs(Target.ActualWidth - TeachingTipContent.ActualWidth)/2;
-            return TargetCoordinates.X - sizeDifference;
+            var sizeDifference =Math.Abs( Target.ActualWidth - TeachingTipContent.ActualWidth)/2;
+
+            if (Target.ActualWidth < TeachingTipContent.ActualWidth)
+            {
+                return TargetCoordinates.X - sizeDifference;
+            }
+            if (Target.ActualWidth > TeachingTipContent.ActualWidth)
+            {
+                return TargetCoordinates.X + sizeDifference;
+            }
+            return TargetCoordinates.X;
 
         }
 

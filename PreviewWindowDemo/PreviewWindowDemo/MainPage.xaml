@@ -32,7 +32,7 @@
                     </DropDownButton.Flyout>
                 </DropDownButton>
                 <Button x:Name="PopupUpCheckButton" Click="PopupUpCheckButton_OnClick" HorizontalAlignment="Center">Target</Button>
-                <Button x:Name="ExtensionTestingBUtton" HorizontalAlignment="Center" Click="ExtensionTestingBUtton_OnClick" >Extension Testing Button</Button>
+                <Button x:Name="ExtensionTestingBUtton"  HorizontalAlignment="Center" Click="ExtensionTestingBUtton_OnClick" >Extension Testing Button</Button>
             </StackPanel>
         </SplitView>
         <!--<Popup Grid.Row="1" x:Name="PreviewPopup" Width="320" LightDismissOverlayMode="On" IsLightDismissEnabled="False"  MaxHeight="500" MinWidth="400" ShouldConstrainToRootBounds="True" >
