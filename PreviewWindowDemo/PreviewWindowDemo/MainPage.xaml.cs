@@ -271,6 +271,11 @@ namespace PreviewWindowDemo
                 TeachingTip.PreferredPlacement = ZTeachingTipPlacement.Bottom;
                 PlacementPreferenceDropDownButton.Content = "Bottom";
             }
+            if (sender == PlacementPrefereneceTopLeftItem)
+            {
+                TeachingTip.PreferredPlacement = ZTeachingTipPlacement.TopLeft;
+                PlacementPreferenceDropDownButton.Content = "Top Left";
+            }
         }
         private Popup ExistingExterntionClassTesting;
         private void ExtensionTestingBUtton_OnClick(object sender, RoutedEventArgs e)

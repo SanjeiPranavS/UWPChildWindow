@@ -309,7 +309,6 @@ namespace PreviewWindowDemo
         private void PositionPopUp()
         {
             var isTeachingTipFit = TeachingTipContent is null ? PositionPopUpUnTargeted() : PositionPopUpBasedOnTarget(Target);
-            
         }
 
 
@@ -320,10 +319,10 @@ namespace PreviewWindowDemo
         private bool PositionPopUpBasedOnTarget(FrameworkElement targetElement)
         {
             DeterminePossiblePlacementsWithTarget();
-            var prefferedOffset = PlacementOffsets[PreferredPlacement];
+            var preferredOffset = PlacementOffsets[PreferredPlacement];
             
-                ZTeachingTipPopUp.HorizontalOffset = prefferedOffset.HorizontalOffSet;
-                ZTeachingTipPopUp.VerticalOffset = prefferedOffset.VerticalOffSet;
+            ZTeachingTipPopUp.HorizontalOffset = preferredOffset.HorizontalOffSet; 
+            ZTeachingTipPopUp.VerticalOffset = preferredOffset.VerticalOffSet;
 
             //Debug.WriteLine("=========Target=========");
             //Debug.WriteLine($"target Actual Height = {targetElement.ActualHeight}");
@@ -337,7 +336,7 @@ namespace PreviewWindowDemo
             //Debug.WriteLine("=========Popup=========");
             //Debug.WriteLine($"PopUP Actual Height = {ZTeachingTipPopUp.ActualHeight}");
             //Debug.WriteLine($"POpUP Actual Width = {ZTeachingTipPopUp.ActualWidth}");
-            Debug.WriteLine($"{PreferredPlacement.ToString()} Has Space to Display : {prefferedOffset.IsFittingWithinBounds}");
+            //Debug.WriteLine($"{PreferredPlacement.ToString()} Has Space to Display : {prefferedOffset.IsFittingWithinBounds}");
             return true;
 
         }
@@ -365,6 +364,7 @@ namespace PreviewWindowDemo
                         AssignOffsetForTopPlacementPreference(placement.Value,distanceX,distanceY);
                         break;
                     case ZTeachingTipPlacement.TopLeft:
+                        AssignOffsetForTopLeftPlacementPreference(placement.Value,distanceX,distanceY);
                         break;
                     case ZTeachingTipPlacement.TopRight:
                         break;
@@ -396,7 +396,7 @@ namespace PreviewWindowDemo
                 }
             }
         }
-        
+ 
         #region OffsetLOgic Region
         //for Left and Right based preference Vertical Offset Calculation will be same
 
@@ -433,7 +433,7 @@ namespace PreviewWindowDemo
         {
             offset.HorizontalOffSet = CalculateHorizontalOffsetForRightBasedPreference();
             offset.VerticalOffSet = CalculateVerticalOffsetCenterForRightAndLeftPreference(distanceY);
-            //offset validation can done using spacearound target property and teaching tip size
+            //offset validation can done using spaceAround target property and teaching tip size
             offset.IsFittingWithinBounds = SpaceAroundTarget.Right>=TeachingTipContent.ActualWidth && (offset.VerticalOffSet + TeachingTipContent.ActualHeight) <= WindowBounds.Height;
         }
         
@@ -453,11 +453,22 @@ namespace PreviewWindowDemo
         /// </summary>
         private void AssignOffsetForTopPlacementPreference(ZTeachingTipOffset offset, double distanceX, double distanceY)
         {
-            offset.VerticalOffSet = TargetCoordinates.Y - TeachingTipContent.ActualHeight - _deviation;
+            offset.VerticalOffSet = CalculateVerticalOffsetForTopPlacementPreferences();
             offset.HorizontalOffSet = CalculateHorizontalOffsetCenterForTopAndBottomPlacement(distanceX);
         }
+        
+        /// <summary>
+        /// ZTeachingTipPlacement.TopLeft
+        /// </summary>
+        private void AssignOffsetForTopLeftPlacementPreference(ZTeachingTipOffset offset, double distanceX, double distanceY)
+        {
+            offset.VerticalOffSet = CalculateVerticalOffsetForTopPlacementPreferences();
+            offset.HorizontalOffSet = TargetCoordinates.X;
+        }
 
-
+        /// <summary>
+        /// ZTeachingTipPlacement.Bottom
+        /// </summary>
         private void AssignOffsetForBottomPlacementReference(ZTeachingTipOffset offset, double distanceX, double distanceY)
         {
             offset.HorizontalOffSet = CalculateHorizontalOffsetCenterForTopAndBottomPlacement(distanceX);
@@ -514,6 +525,10 @@ namespace PreviewWindowDemo
         private double CalculateVerticalOffsetTopForRightAndLeftPreference(double distanceY)
         {
             return TargetCoordinates.Y - _deviation;
+        }
+        private double CalculateVerticalOffsetForTopPlacementPreferences()
+        {
+            return TargetCoordinates.Y - TeachingTipContent.ActualHeight - _deviation;
         }
 
         #endregion

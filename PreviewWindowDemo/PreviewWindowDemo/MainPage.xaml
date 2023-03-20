@@ -27,6 +27,7 @@
                             <MenuFlyoutItem Text="RightTop" Click="MenuFlyoutItem_OnClick" x:Name="PlacementPrefereneceRightTopItem"/>
                                 <MenuFlyoutItem Text="LeftTop" Click="MenuFlyoutItem_OnClick" x:Name="PlacementPrefereneceLeftTopItem"/>
                                 <MenuFlyoutItem Text="Top" Click="MenuFlyoutItem_OnClick" x:Name="PlacementPrefereneceTopItem"/>
+                                <MenuFlyoutItem Text="TopLeft" Click="MenuFlyoutItem_OnClick" x:Name="PlacementPrefereneceTopLeftItem"/>
                                 <MenuFlyoutItem Text="Bottom" Click="MenuFlyoutItem_OnClick" x:Name="PlacementPrefereneceBottomItem"/>
                         </MenuFlyout>
                     </DropDownButton.Flyout>
