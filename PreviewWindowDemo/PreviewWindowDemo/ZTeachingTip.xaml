@@ -26,6 +26,9 @@
                               x:Name="RootContentPresenter"
                               HorizontalAlignment="Stretch"
                               VerticalAlignment="Stretch">
+                <ContentPresenter.Shadow>
+                    <ThemeShadow/>
+                </ContentPresenter.Shadow>
             </ContentPresenter>
         </Popup>
     </Grid>
