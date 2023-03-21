@@ -16,25 +16,29 @@
             <AppBarToggleButton Icon="Play" x:Name="OpenPaneButton" />
         </CommandBar>
         <SplitView x:Name="SplitView" Grid.Row="1" PanePlacement="Right" DisplayMode="Inline"  >
-            <StackPanel Margin="8">
+            <StackPanel Margin="0">
                  <CheckBox IsChecked="{x:Bind TeachingTip.IsLightDismissEnabled,Mode=TwoWay}">IsLightDisMissEnabled</CheckBox>
                 <CheckBox IsChecked="{x:Bind TeachingTip.ShouldBoundToXamlRoot,Mode=TwoWay}"> ShouldBoundToXamlRoot</CheckBox>
                 <DropDownButton x:Name="PlacementPreferenceDropDownButton" Content="Left" >
                     <DropDownButton.Flyout>
-                        <MenuFlyout Placement="Bottom"  >
+                        <MenuFlyout Placement="Bottom">
                                 <MenuFlyoutItem Text="Left" Click="MenuFlyoutItem_OnClick" x:Name="PlacementPreferenceLeftITem"/>
-                                <MenuFlyoutItem Text="Right" Click="MenuFlyoutItem_OnClick" x:Name="PlacementPrefereneceRightItem"/>
-                            <MenuFlyoutItem Text="RightTop" Click="MenuFlyoutItem_OnClick" x:Name="PlacementPrefereneceRightTopItem"/>
                                 <MenuFlyoutItem Text="LeftTop" Click="MenuFlyoutItem_OnClick" x:Name="PlacementPrefereneceLeftTopItem"/>
+                                <MenuFlyoutItem Text="Left Bottom" Click="MenuFlyoutItem_OnClick" x:Name="PlacementPrefereneceLeftBottomItem"/>
+                                <MenuFlyoutItem Text="Right" Click="MenuFlyoutItem_OnClick" x:Name="PlacementPrefereneceRightItem"/>
+                                <MenuFlyoutItem Text="RightTop" Click="MenuFlyoutItem_OnClick" x:Name="PlacementPrefereneceRightTopItem"/>
+                                <MenuFlyoutItem Text="Right Bottom" Click="MenuFlyoutItem_OnClick" x:Name="PlacementPrefereneceRightBottomItem"/>
                                 <MenuFlyoutItem Text="Top" Click="MenuFlyoutItem_OnClick" x:Name="PlacementPrefereneceTopItem"/>
                                 <MenuFlyoutItem Text="TopLeft" Click="MenuFlyoutItem_OnClick" x:Name="PlacementPrefereneceTopLeftItem"/>
+                                <MenuFlyoutItem Text="Top Right" Click="MenuFlyoutItem_OnClick" x:Name="PlacementPrefereneceTopRIghtItem"/>
                                 <MenuFlyoutItem Text="Bottom" Click="MenuFlyoutItem_OnClick" x:Name="PlacementPrefereneceBottomItem"/>
                                 <MenuFlyoutItem Text="Bottom Left" Click="MenuFlyoutItem_OnClick" x:Name="PlacementPrefereneceBottomLeftItem"/>
+                                <MenuFlyoutItem Text="Bottom Right" Click="MenuFlyoutItem_OnClick" x:Name="PlacementPrefereneceBottomRightItem"/>
                         </MenuFlyout>
                     </DropDownButton.Flyout>
                 </DropDownButton>
                 <Button x:Name="PopupUpCheckButton" Click="PopupUpCheckButton_OnClick" HorizontalAlignment="Center">Target</Button>
-                <Button x:Name="ExtensionTestingBUtton"  HorizontalAlignment="Center" Click="ExtensionTestingBUtton_OnClick" >Extension Testing Button</Button>
+                <Button x:Name="ExtensionTestingBUtton"   HorizontalAlignment="Center" Click="ExtensionTestingBUtton_OnClick" >Extension Testing Button</Button>
             </StackPanel>
         </SplitView>
         <!--<Popup Grid.Row="1" x:Name="PreviewPopup" Width="320" LightDismissOverlayMode="On" IsLightDismissEnabled="False"  MaxHeight="500" MinWidth="400" ShouldConstrainToRootBounds="True" >

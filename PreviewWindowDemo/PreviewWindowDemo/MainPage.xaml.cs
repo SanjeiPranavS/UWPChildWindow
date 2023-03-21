@@ -37,10 +37,7 @@ namespace PreviewWindowDemo
         {
             var viewSettings = UIViewSettings.GetForCurrentView();
 
-          
-
             this.InitializeComponent();
-
 
             //PreviewPopupContents.ManipulationMode = ManipulationModes.TranslateX | ManipulationModes.TranslateY;
             //PreviewPopupContents.ManipulationStarted += PreviewPopup_ManipulationStarted;
@@ -280,6 +277,26 @@ namespace PreviewWindowDemo
             {
                 TeachingTip.PreferredPlacement = ZTeachingTipPlacement.BottomLeft;
                 PlacementPreferenceDropDownButton.Content = "Bottom Left";
+            }
+            if (sender == PlacementPrefereneceRightTopItem)
+            {
+                TeachingTip.PreferredPlacement = ZTeachingTipPlacement.TopRight;
+                PlacementPreferenceDropDownButton.Content = "Top Right";
+            }
+            if (sender == PlacementPrefereneceBottomRightItem)
+            {
+                TeachingTip.PreferredPlacement = ZTeachingTipPlacement.BottomRight;
+                PlacementPreferenceDropDownButton.Content = "Bottom Right";
+            }
+            if (sender == PlacementPrefereneceRightBottomItem)
+            {
+                TeachingTip.PreferredPlacement = ZTeachingTipPlacement.RightBottom;
+                PlacementPreferenceDropDownButton.Content = "Right Bottom";
+            }
+            if (sender == PlacementPrefereneceLeftBottomItem)
+            {
+                TeachingTip.PreferredPlacement = ZTeachingTipPlacement.LeftBottom;
+                PlacementPreferenceDropDownButton.Content = "Left Bottom";
             }
         }
         private Popup ExistingExterntionClassTesting;

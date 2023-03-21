@@ -363,11 +363,13 @@ namespace PreviewWindowDemo
                         AssignOffsetForTopLeftPlacementPreference(placement.Value,distanceX,distanceY);
                         break;
                     case ZTeachingTipPlacement.TopRight:
+                        AssignOffsetForTopRightPlacementPreference(placement.Value, distanceX,distanceY);
                         break;
                     case ZTeachingTipPlacement.Bottom:
                         AssignOffsetForBottomPlacementReference(placement.Value,distanceX,distanceY);
                         break;
                     case ZTeachingTipPlacement.BottomRight:
+                        AssignOffsetForBottomRightPlacementPreference(placement.Value,distanceX,distanceY);
                         break;
                     case ZTeachingTipPlacement.BottomLeft:
                         AssignOffsetForBottomLeftPlacementPreference(placement.Value,distanceX,distanceY);
@@ -379,6 +381,7 @@ namespace PreviewWindowDemo
                         AssignOffsetForLeftTopPlacementPreference(placement.Value,distanceX,distanceY);
                         break;
                     case ZTeachingTipPlacement.LeftBottom:
+                        AssignOffsetForLeftBottomPlacementPreference(placement.Value,distanceX,distanceY);
                         break;
                     case ZTeachingTipPlacement.Right:
                         AssignOffsetForRightPlacementPreference(placement.Value,distanceX,distanceY);
@@ -387,13 +390,19 @@ namespace PreviewWindowDemo
                         AssignOffsetForRightTopPlacementPreference(placement.Value,distanceX,distanceY);
                         break;
                     case ZTeachingTipPlacement.RightBottom:
+                        AssignOffsetForRightBottomPlacementPreference(placement.Value, distanceX,distanceY);
                         break;
                     default:
-                        throw new ArgumentOutOfRangeException();
+                        continue;
                 }
             }
         }
-        
+        private void AssignOffsetForRightBottomPlacementPreference(ZTeachingTipOffset offset, double distanceX, double distanceY)
+        {
+            offset.HorizontalOffSet = CalculateHorizontalOffsetForRightBasedPreference();
+            offset.VerticalOffSet = CalculateVerticalOffsetForLeftBottomAndRightBottomBasedPreference(distanceY);
+        }
+
         #region OffsetLOgic Region
         //for Left and Right based preference Vertical Offset Calculation will be same
 
@@ -422,7 +431,15 @@ namespace PreviewWindowDemo
             offset.IsFittingWithinBounds = SpaceAroundTarget.Left >= TeachingTipContent.ActualWidth && (offset.VerticalOffSet + TeachingTipContent.ActualHeight) <= WindowBounds.Height;
         }
 
-
+        /// <summary>
+        /// ZTeachingTipPlacement.LeftBottom
+        /// </summary>
+        private void AssignOffsetForLeftBottomPlacementPreference(ZTeachingTipOffset offset, double distanceX, double distanceY)
+        {
+            offset.HorizontalOffSet = CalculateHorizontalOffsetForLeftBasedPreferences(distanceX);
+            offset.VerticalOffSet = CalculateVerticalOffsetForLeftBottomAndRightBottomBasedPreference(distanceY);
+        }
+        
         /// <summary>
         /// ZTeachingTipPlacement.Right
         /// </summary>
@@ -462,7 +479,15 @@ namespace PreviewWindowDemo
             offset.VerticalOffSet = CalculateVerticalOffsetForTopPlacementPreferences();
             offset.HorizontalOffSet = CalculateHorizontalOffsetForTopLeftAndBottomLeftPreference();
         }
-       
+        /// <summary>
+        /// ZTeachingTipPlacement.TopRight
+        /// </summary>
+        private void AssignOffsetForTopRightPlacementPreference(ZTeachingTipOffset offset, double distanceX, double distanceY)
+        {
+            offset.VerticalOffSet = CalculateVerticalOffsetForTopPlacementPreferences();
+            offset.HorizontalOffSet = CalculateHorizontalOffsetForTopRightAndBottomRightPlacementPreference();
+        }
+
         /// <summary>
         /// ZTeachingTipPlacement.Bottom
         /// </summary>
@@ -480,6 +505,34 @@ namespace PreviewWindowDemo
             offset.VerticalOffSet = CalCulateVerticalOffsetForBottomPlacementPreference();
             offset.HorizontalOffSet = CalculateHorizontalOffsetForTopLeftAndBottomLeftPreference();
         }
+
+        /// <summary>
+        /// ZTeachingTipPlacement.BottomRight
+        /// </summary>
+        private void AssignOffsetForBottomRightPlacementPreference(ZTeachingTipOffset offset, double distanceX, double distanceY)
+        {
+            offset.HorizontalOffSet = CalculateHorizontalOffsetForTopRightAndBottomRightPlacementPreference();
+            offset.VerticalOffSet = CalCulateVerticalOffsetForBottomPlacementPreference();
+        }
+        private double CalculateVerticalOffsetForLeftBottomAndRightBottomBasedPreference(double distanceY)
+        {
+            double verticalOffset = default;
+            var sizeDifference = Math.Abs(TeachingTipContent.ActualHeight - Target.ActualHeight);
+            if (Target.ActualHeight < TeachingTipContent.ActualHeight)
+            {
+               verticalOffset=  TargetCoordinates.Y - sizeDifference;
+            }
+            if (Target.ActualHeight > TeachingTipContent.ActualHeight)
+            {
+                verticalOffset= TargetCoordinates.Y + sizeDifference;
+            }
+            if (Target.ActualHeight.Equals(TeachingTipContent.ActualHeight))
+            {
+                verticalOffset = TargetCoordinates.Y;
+            }
+            return verticalOffset - _deviation;
+        }
+
         private double CalculateHorizontalOffsetForTopLeftAndBottomLeftPreference()
         {
             return TargetCoordinates.X;
@@ -539,6 +592,12 @@ namespace PreviewWindowDemo
         private double CalculateVerticalOffsetForTopPlacementPreferences()
         {
             return TargetCoordinates.Y - TeachingTipContent.ActualHeight - _deviation;
+        }
+
+        private double CalculateHorizontalOffsetForTopRightAndBottomRightPlacementPreference()
+        {
+
+            return (TargetCoordinates.X + Target.ActualWidth) - TeachingTipContent.ActualWidth;
         }
 
         private double CalCulateVerticalOffsetForBottomPlacementPreference()
