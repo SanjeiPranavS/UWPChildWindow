@@ -18,7 +18,7 @@
                VerticalAlignment="Center">
             <Popup.ChildTransitions>
                 <TransitionCollection>
-                    <PopupThemeTransition />
+                    <PopupThemeTransition/>
                 </TransitionCollection>
             </Popup.ChildTransitions>
             <ContentPresenter Content="{x:Bind TeachingTipContent}"

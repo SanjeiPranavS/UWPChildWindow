@@ -408,7 +408,7 @@ namespace PreviewWindowDemo
 
         //todo
         //Find The Root Cause Which Causes Deviation in Vertical Orientation
-        private readonly double _deviation = 18.5;  
+        private readonly double _deviation = 22.5;  
 
 
         /// <summary>

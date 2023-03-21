@@ -29,7 +29,7 @@ namespace PreviewWindowDemo
 
         private void ButtonBase_OnClick(object sender, RoutedEventArgs e)
         {
-           StringSource.Add(Guid.NewGuid().ToString());
+           StringSource.Add("Takes Any FrameWork Element As Content");
         }
         private void RemoveItemButton_OnClick(object sender, RoutedEventArgs e)
         {

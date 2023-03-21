@@ -278,7 +278,7 @@ namespace PreviewWindowDemo
                 TeachingTip.PreferredPlacement = ZTeachingTipPlacement.BottomLeft;
                 PlacementPreferenceDropDownButton.Content = "Bottom Left";
             }
-            if (sender == PlacementPrefereneceRightTopItem)
+            if (sender == PlacementPrefereneceTopRIghtItem)
             {
                 TeachingTip.PreferredPlacement = ZTeachingTipPlacement.TopRight;
                 PlacementPreferenceDropDownButton.Content = "Top Right";
