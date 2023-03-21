@@ -317,5 +317,19 @@ namespace PreviewWindowDemo
             
             ExistingExterntionClassTesting.TryShowNear(sender as FrameworkElement,default ,PlacementPreferenceOrders.Right, VerticalAlignmentPreferenceOrders.CenterBottomTop, HorizontalAlignmentPreferenceOrders.Center, 0, false);
         }
+        //private void ChangeMarginBtn_OnClick(object sender, RoutedEventArgs e)
+        //{
+        //    if (double.TryParse(LeftMarginTextBlock.Text, out var leftMargin) &&
+        //        double.TryParse(TopMarginTextBlock.Text, out var topMargin) &&
+        //        double.TryParse(RightMarginTextBlock.Text, out var rightMargin) &&
+        //        double.TryParse(BottomMarginTextBlock.Text, out var bottomMargin))
+        //    {
+        //        var placementOffset = new Thickness(leftMargin, topMargin, rightMargin, bottomMargin);
+        //        TeachingTip.PlacementOffsetMargin = placementOffset;
+        //        MarginInfoTextBox.Text = string.Empty;
+        //        return;
+        //    }
+        //    MarginInfoTextBox.Text = "Invalid Margin Format";
+        //}
     }
 }
