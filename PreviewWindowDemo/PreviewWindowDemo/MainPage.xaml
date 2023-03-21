@@ -1,8 +1,8 @@
 ﻿<Page
-    x:Class="PreviewWindowDemo.MainPage"
+    x:Class="ZTeachingTip.MainPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:PreviewWindowDemo"
+    xmlns:local="using:ZTeachingTip"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
@@ -12,9 +12,9 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition/>
         </Grid.RowDefinitions>
-        <CommandBar>
+        <!--<CommandBar>
             <AppBarToggleButton Icon="Play" x:Name="OpenPaneButton" />
-        </CommandBar>
+        </CommandBar>-->
         <SplitView x:Name="SplitView" Grid.Row="1" PanePlacement="Right" DisplayMode="Inline"  >
             <StackPanel Margin="0">
                  <CheckBox IsChecked="{x:Bind TeachingTip.IsLightDismissEnabled,Mode=TwoWay}">IsLightDisMissEnabled</CheckBox>
@@ -37,8 +37,8 @@
                         </MenuFlyout>
                     </DropDownButton.Flyout>
                 </DropDownButton>
-                <Button x:Name="PopupUpCheckButton" Click="PopupUpCheckButton_OnClick" HorizontalAlignment="Center">Target</Button>
-                <Button x:Name="ExtensionTestingBUtton"   HorizontalAlignment="Center" Click="ExtensionTestingBUtton_OnClick" >Extension Testing Button</Button>
+                <Button x:Name="PopupUpCheckButton" Click="PopupUpCheckButton_OnClick" HorizontalAlignment="Center">Open Close Button</Button>
+                <Button x:Name="ExtensionTestingBUtton"   HorizontalAlignment="Center" Click="ExtensionTestingBUtton_OnClick" >Target</Button>
             </StackPanel>
         </SplitView>
         <!--<Popup Grid.Row="1" x:Name="PreviewPopup" Width="320" LightDismissOverlayMode="On" IsLightDismissEnabled="False"  MaxHeight="500" MinWidth="400" ShouldConstrainToRootBounds="True" >

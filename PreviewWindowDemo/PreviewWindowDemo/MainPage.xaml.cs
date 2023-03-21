@@ -1,26 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using Windows.ApplicationModel.Core;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
-using Windows.UI.Core;
-using Windows.UI.ViewManagement;
+﻿using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
-using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
-using Windows.UI.Xaml.Media.Imaging;
-using Windows.UI.Xaml.Navigation;
-using PreviewWindowDemo.Zoho.UWP.Common.Extensions;
+using ZTeachingTip.Zoho.UWP.Common.Extensions;
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
-namespace PreviewWindowDemo
+namespace ZTeachingTip
 {
     /// <summary>
     /// An empty page that can be used on its own or navigated to within a Frame.
@@ -306,8 +292,8 @@ namespace PreviewWindowDemo
             {
                 ExistingExterntionClassTesting = new Popup()
                 {
-                    MaxWidth = 530,
-                    MaxHeight = 500,
+                    MaxWidth = 300,
+                    MaxHeight = 300,
                     Child = new PreviewControl(),
                     IsLightDismissEnabled = true,
 
@@ -315,7 +301,7 @@ namespace PreviewWindowDemo
                 LayoutRoot.Children.Add(ExistingExterntionClassTesting);
             }
             
-            ExistingExterntionClassTesting.TryShowNear(sender as FrameworkElement,default ,PlacementPreferenceOrders.Right, VerticalAlignmentPreferenceOrders.CenterBottomTop, HorizontalAlignmentPreferenceOrders.Center, 0, false);
+            ExistingExterntionClassTesting.TryShowNear(sender as FrameworkElement,default ,PlacementPreferenceOrders.Right, VerticalAlignmentPreferenceOrders.CenterBottomTop,default, 0, false);
         }
         //private void ChangeMarginBtn_OnClick(object sender, RoutedEventArgs e)
         //{
@@ -331,5 +317,20 @@ namespace PreviewWindowDemo
         //    }
         //    MarginInfoTextBox.Text = "Invalid Margin Format";
         //}
+        private void ButtonBase_OnClick(object sender, RoutedEventArgs e)
+        {
+        //{
+        //    if (double.TryParse(LeftMarginTextBlock.Text, out var leftMargin) &&
+        //            double.TryParse(TopMarginTextBlock.Text, out var topMargin) &&
+        //            double.TryParse(RightMarginTextBlock.Text, out var rightMargin) &&
+        //            double.TryParse(BottomMarginTextBlock.Text, out var bottomMargin))
+        //    {
+        //        var placementOffset = new Thickness(leftMargin, topMargin, rightMargin, bottomMargin);
+        //        TeachingTip.PlacementOffsetMargin = placementOffset;
+        //        MarginInfoTextBox.Text = string.Empty;
+        //        return;
+        //    }
+        //    MarginInfoTextBox.Text = "Invalid Margin Format";
+        }
     }
 }
