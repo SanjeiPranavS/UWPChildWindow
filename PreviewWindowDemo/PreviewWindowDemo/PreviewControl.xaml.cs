@@ -15,9 +15,16 @@ namespace ZTeachingTip
 
         public ObservableCollection<string> StringSource { get; }=new ObservableCollection<string>();
 
+        private int _count;
         private void ButtonBase_OnClick(object sender, RoutedEventArgs e)
         {
-           StringSource.Add("Takes Any FrameWork Element As Content");
+            if (_count++ % 2 == 0)
+            {
+                StringSource.Add("Takes Any FrameWork Element As Content");
+                return;
+                
+            }
+            StringSource.Add("This is A Resizable Control Target");
         }
         private void RemoveItemButton_OnClick(object sender, RoutedEventArgs e)
         {

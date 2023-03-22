@@ -2,7 +2,9 @@
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
+using ZTeachingTip;
 using ZTeachingTip.Zoho.UWP.Common.Extensions;
+
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
@@ -18,7 +20,6 @@ namespace ZTeachingTip
        // private UserInteractionMode _currentUserInteractionMode;
 
 
-       private ZTeachingTip TeachingTip { get; }= new ZTeachingTip();
         public MainPage()
         {
             var viewSettings = UIViewSettings.GetForCurrentView();
@@ -37,10 +38,9 @@ namespace ZTeachingTip
 
         private void MainPage_Loaded(object sender, RoutedEventArgs e)
         {
-            LayoutRoot.Children.Add(TeachingTip);
-            TeachingTip.Target = ExtensionTestingBUtton;
-            TeachingTip.TeachingTipContent = new PreviewControl();
-
+           
+           TeachingZTip.Target = ResizableTarget;
+           TeachingZTip.TeachingTipContent = new PreviewControl();
         }
 
         //private async void MainPage_Consolidated(ApplicationView sender, ApplicationViewConsolidatedEventArgs args)
@@ -193,7 +193,7 @@ namespace ZTeachingTip
         //}
 
         //private void ClosePreviewPopup(object sender, RoutedEventArgs e)
-        //{
+        //{TeachingTip
         //    PreviewPopup.IsOpen = false;
         //}
 
@@ -212,7 +212,7 @@ namespace ZTeachingTip
             //{
             //    Alignment.Right
             //},isOverflowAllowed:true);
-            TeachingTip.IsOpen = !TeachingTip.IsOpen;
+            TeachingZTip.IsOpen = !TeachingZTip.IsOpen;
 
         }
         //PreviewPopup.TryShowNear(sender as Button,default,new Side[]{Side.Right,Side.Top},new Alignment[]
@@ -226,62 +226,62 @@ namespace ZTeachingTip
         {
             if (sender == PlacementPreferenceLeftITem)
             {
-                TeachingTip.PreferredPlacement = ZTeachingTipPlacement.Left;
+                TeachingZTip.PreferredPlacement = ZTeachingTipPlacement.Left;
                 PlacementPreferenceDropDownButton.Content = "Left";
             }
             if (sender == PlacementPrefereneceRightItem)
             {
-                TeachingTip.PreferredPlacement = ZTeachingTipPlacement.Right;
+                TeachingZTip.PreferredPlacement = ZTeachingTipPlacement.Right;
                 PlacementPreferenceDropDownButton.Content = "Right";
             }
             if (sender == PlacementPrefereneceRightTopItem)
             {
-                TeachingTip.PreferredPlacement = ZTeachingTipPlacement.RightTop;
+                TeachingZTip.PreferredPlacement = ZTeachingTipPlacement.RightTop;
                 PlacementPreferenceDropDownButton.Content = "Right Top";
             }
             if (sender == PlacementPrefereneceLeftTopItem)
             {
-                TeachingTip.PreferredPlacement = ZTeachingTipPlacement.LeftTop;
+                TeachingZTip.PreferredPlacement = ZTeachingTipPlacement.LeftTop;
                 PlacementPreferenceDropDownButton.Content = "Left Top";
             }
             if (sender == PlacementPrefereneceTopItem)
             {
-                TeachingTip.PreferredPlacement = ZTeachingTipPlacement.Top;
+                TeachingZTip.PreferredPlacement = ZTeachingTipPlacement.Top;
                 PlacementPreferenceDropDownButton.Content = " Top";
             }
             if (sender == PlacementPrefereneceBottomItem)
             {
-                TeachingTip.PreferredPlacement = ZTeachingTipPlacement.Bottom;
+                TeachingZTip.PreferredPlacement = ZTeachingTipPlacement.Bottom;
                 PlacementPreferenceDropDownButton.Content = "Bottom";
             }
             if (sender == PlacementPrefereneceTopLeftItem)
             {
-                TeachingTip.PreferredPlacement = ZTeachingTipPlacement.TopLeft;
+                TeachingZTip.PreferredPlacement = ZTeachingTipPlacement.TopLeft;
                 PlacementPreferenceDropDownButton.Content = "Top Left";
             }
             if (sender == PlacementPrefereneceBottomLeftItem)
             {
-                TeachingTip.PreferredPlacement = ZTeachingTipPlacement.BottomLeft;
+                TeachingZTip.PreferredPlacement = ZTeachingTipPlacement.BottomLeft;
                 PlacementPreferenceDropDownButton.Content = "Bottom Left";
             }
             if (sender == PlacementPrefereneceTopRIghtItem)
             {
-                TeachingTip.PreferredPlacement = ZTeachingTipPlacement.TopRight;
+                TeachingZTip.PreferredPlacement = ZTeachingTipPlacement.TopRight;
                 PlacementPreferenceDropDownButton.Content = "Top Right";
             }
             if (sender == PlacementPrefereneceBottomRightItem)
             {
-                TeachingTip.PreferredPlacement = ZTeachingTipPlacement.BottomRight;
+                TeachingZTip.PreferredPlacement = ZTeachingTipPlacement.BottomRight;
                 PlacementPreferenceDropDownButton.Content = "Bottom Right";
             }
             if (sender == PlacementPrefereneceRightBottomItem)
             {
-                TeachingTip.PreferredPlacement = ZTeachingTipPlacement.RightBottom;
+                TeachingZTip.PreferredPlacement = ZTeachingTipPlacement.RightBottom;
                 PlacementPreferenceDropDownButton.Content = "Right Bottom";
             }
             if (sender == PlacementPrefereneceLeftBottomItem)
             {
-                TeachingTip.PreferredPlacement = ZTeachingTipPlacement.LeftBottom;
+                TeachingZTip.PreferredPlacement = ZTeachingTipPlacement.LeftBottom;
                 PlacementPreferenceDropDownButton.Content = "Left Bottom";
             }
         }
@@ -324,7 +324,7 @@ namespace ZTeachingTip
         //        double.TryParse(BottomMarginTextBlock.Text, out var bottomMargin))
         //    {
         //        var placementOffset = new Thickness(leftMargin, topMargin, rightMargin, bottomMargin);
-        //        TeachingTip.PlacementOffsetMargin = placementOffset;
+        //        ZTeachingTip.PlacementOffsetMargin = placementOffset;
         //        MarginInfoTextBox.Text = string.Empty;
         //        return;
         //    }
@@ -339,7 +339,7 @@ namespace ZTeachingTip
         //            double.TryParse(BottomMarginTextBlock.Text, out var bottomMargin))
         //    {
         //        var placementOffset = new Thickness(leftMargin, topMargin, rightMargin, bottomMargin);
-        //        TeachingTip.PlacementOffsetMargin = placementOffset;
+        //        ZTeachingTip.PlacementOffsetMargin = placementOffset;
         //        MarginInfoTextBox.Text = string.Empty;
         //        return;
         //    }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using Windows.Foundation;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls.Primitives;
@@ -152,10 +153,14 @@ namespace ZTeachingTip
                     var popupTransform = popup.TransformToVisual(Window.Current.Content);
                     Point popupCoords = popupTransform.TransformPoint(new Point(0, 0));
 
+                    Debug.WriteLine($"POP UP Co ordinates after transforming  X ={popupCoords.X} Y = {popupCoords.Y}");
 
                     // Calculate horizontal and vertical distance between popup and target element.
                     double distanceX = targetElementCoords.X - popupCoords.X; // distanceX > 0 : popup is to left of target element
                     double distanceY = targetElementCoords.Y - popupCoords.Y; // distanceY > 0 : popup is above target element
+
+                    Debug.WriteLine($"Distance Calculated For Given Popup and Target distance X = {distanceX} Y = {distanceY}");
+
 
                     Rect windowBounds = Window.Current.Bounds;
                     double? verticalOffsetForAlignment = null;
@@ -188,6 +193,7 @@ namespace ZTeachingTip
                                         }
                                     }
                                     popup.VerticalOffset = verticalOffsetForAlignment.Value;
+                                    Debug.WriteLine($"For Left Side Preference Calculated Horizontal Offset is = {horizontalOffset} VerticalOffset = {verticalOffsetForAlignment}");
                                     popup.IsOpen = true;
                                     return true;
                                 }
@@ -214,15 +220,16 @@ namespace ZTeachingTip
                                         }
                                     }
                                     popup.VerticalOffset = verticalOffsetForAlignment.Value;
+                                    Debug.WriteLine($"For Right Side Preference Calculated Horizontal Offset is = {horizontalOffset} VerticalOffset = {verticalOffsetForAlignment}");
                                     popup.IsOpen = true;
                                     return true;
                                 }
                                 continue;
 
                             case Side.Top:
-                                // Calculates the vertical offset needed to position the popup completely above of the target element.
+                                //Calculates the vertical offset needed to position the popup completely above of the target element.
                                 var verticalOffset = distanceY - popup.MaxHeight - margin;
-                                // If the calculated offset positions popup within window boundaries, set the vertical offset and align popup horizontally.
+                                 //If the calculated offset positions popup within window boundaries, set the vertical offset and align popup horizontally.
                                 if (isOverflowAllowed || popupCoords.Y + verticalOffset >= 0)
                                 {
                                     popup.VerticalOffset = verticalOffset;
@@ -242,6 +249,7 @@ namespace ZTeachingTip
                                         }
                                     }
                                     popup.HorizontalOffset = horizontalOffsetForAlignment.Value;
+                                    Debug.WriteLine($"For Right TOp Preference Calculated Horizontal Offset is = {horizontalOffsetForAlignment} VerticalOffset = {verticalOffset}");
                                     popup.IsOpen = true;
                                     return true;
                                 }
@@ -268,6 +276,8 @@ namespace ZTeachingTip
                                         }
                                     }
                                     popup.HorizontalOffset = horizontalOffsetForAlignment.Value;
+                                    Debug.WriteLine($"For  Bottom Center Preference Calculated Horizontal Offset is = {horizontalOffsetForAlignment} VerticalOffset = {verticalOffset}");
+
                                     popup.IsOpen = true;
                                     return true;
                                 }

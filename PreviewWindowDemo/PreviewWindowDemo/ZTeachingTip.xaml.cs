@@ -16,10 +16,11 @@ namespace ZTeachingTip
     {
 
         #region Dependendcy PRoperty
-        public readonly static DependencyProperty IsLightDismissEnabledProperty = DependencyProperty.Register(
-            nameof(IsLightDismissEnabled), typeof(bool), typeof(ZTeachingTip), new PropertyMetadata(true,LightDismissPropertyChanged));
 
-        
+        public readonly static DependencyProperty IsLightDismissEnabledProperty = DependencyProperty.Register(
+            nameof(IsLightDismissEnabled), typeof(bool), typeof(ZTeachingTip), new PropertyMetadata(true, LightDismissPropertyChanged));
+
+
         public readonly static DependencyProperty IsOpenProperty = DependencyProperty.Register(
             nameof(IsOpen), typeof(bool), typeof(ZTeachingTip), new PropertyMetadata(false, TeachingTipClosingChanged));
 
@@ -30,36 +31,38 @@ namespace ZTeachingTip
 
 
         public readonly static DependencyProperty TeachingTipContentProperty = DependencyProperty.Register(
-            nameof(TeachingTipContent), typeof(FrameworkElement), typeof(ZTeachingTip), new PropertyMetadata(default,TeachingTipContentChanged));
+            nameof(TeachingTipContent), typeof(FrameworkElement), typeof(ZTeachingTip), new PropertyMetadata(default, TeachingTipContentChanged));
 
 
         public readonly static DependencyProperty TargetProperty = DependencyProperty.Register(
-            nameof(Target), typeof(FrameworkElement), typeof(ZTeachingTip), new PropertyMetadata(default(FrameworkElement)));
-
+            nameof(Target), typeof(FrameworkElement), typeof(ZTeachingTip), new PropertyMetadata(default(FrameworkElement),(TargetPropertyChangedCallBack)));
 
         public readonly static DependencyProperty PlacementOffsetMarginProperty = DependencyProperty.Register(
-            nameof(PlacementOffsetMargin), typeof(Thickness), typeof(ZTeachingTip), new PropertyMetadata(new Thickness(0),PlacementOffsetMarginPropertyChangedCallBack));
+            nameof(PlacementOffsetMargin), typeof(Thickness), typeof(ZTeachingTip), new PropertyMetadata(new Thickness(0), PlacementOffsetMarginPropertyChangedCallBack));
 
 
         public readonly static DependencyProperty PreferredPlacementProperty = DependencyProperty.Register(
-            nameof(PreferredPlacement), typeof(ZTeachingTipPlacement), typeof(ZTeachingTip), new PropertyMetadata(ZTeachingTipPlacement.Left,(PlacementPReferenceOnPropertyChanged)));
+            nameof(PreferredPlacement), typeof(ZTeachingTipPlacement), typeof(ZTeachingTip), new PropertyMetadata(ZTeachingTipPlacement.LeftTop, (PlacementPReferenceOnPropertyChanged)));
 
-      
+
         public ZTeachingTipPlacement PreferredPlacement
         {
             get => (ZTeachingTipPlacement)GetValue(PreferredPlacementProperty);
             set => SetValue(PreferredPlacementProperty, value);
         }
+
         public Thickness PlacementOffsetMargin
         {
             get => (Thickness)GetValue(PlacementOffsetMarginProperty);
             set => SetValue(PlacementOffsetMarginProperty, value);
         }
+
         public bool ShouldBoundToXamlRoot
         {
             get => (bool)GetValue(ShouldBoundToXamlRootProperty);
             set => SetValue(ShouldBoundToXamlRootProperty, value);
         }
+
         public FrameworkElement Target
         {
             get => (FrameworkElement)GetValue(TargetProperty);
@@ -77,6 +80,7 @@ namespace ZTeachingTip
             get => (FrameworkElement)GetValue(TeachingTipContentProperty);
             set => SetValue(TeachingTipContentProperty, value);
         }
+
         public bool IsLightDismissEnabled
         {
             get => (bool)GetValue(IsLightDismissEnabledProperty);
@@ -98,6 +102,18 @@ namespace ZTeachingTip
                 }
             }
         }
+        private static void TargetPropertyChangedCallBack(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            if (d is ZTeachingTip tip && e.NewValue is FrameworkElement newTarget)
+            {
+                newTarget.SizeChanged += tip.ContentElement_SizeChanged;
+            }
+            if (d is ZTeachingTip teachingTip  && e.OldValue is FrameworkElement oldTarget)
+            {
+                oldTarget.SizeChanged += teachingTip.ContentElement_SizeChanged;
+            }
+        }
+
         private static void TeachingTipClosingChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             if (d is ZTeachingTip teachingTip && e.OldValue is bool isOpenOLdValue && e.NewValue is bool isOpenNewValue)
@@ -108,6 +124,7 @@ namespace ZTeachingTip
                 }
             }
         }
+
         private static void ShouldBoundToXamlRootChangedCallBack(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             if (d is ZTeachingTip teachingTip && e.NewValue is bool oldValue && e.NewValue is bool newValue)
@@ -125,7 +142,6 @@ namespace ZTeachingTip
                 if (!newElement.Equals(e.OldValue as FrameworkElement))
                 {
                     newElement.SizeChanged += teachingTip.ContentElement_SizeChanged;
-                    teachingTip.PositionPopUp();
                 }
                 if (e.OldValue is FrameworkElement oldContentElement)
                 {
@@ -138,18 +154,6 @@ namespace ZTeachingTip
             if (d is ZTeachingTip teachingTip)
             {
                 teachingTip.OnPlacementMarginOffsetChanged();
-            }
-        }
-        
-
-        private void ContentElement_SizeChanged(object sender, SizeChangedEventArgs e)
-        {
-            if (sender is FrameworkElement contentElement)
-            {
-                ZTeachingTipPopUp.MaxWidth=contentElement.ActualWidth;
-                ZTeachingTipPopUp.MaxHeight=contentElement.ActualHeight;
-                ZTeachingTipPopUp.TryShowNear(Target, default, PlacementPreferenceOrders.Right, VerticalAlignmentPreferenceOrders.TopCenterBottom,HorizontalAlignmentPreferenceOrders.Center, 0,true);
-                //PositionPopUp();
             }
         }
 
@@ -171,6 +175,7 @@ namespace ZTeachingTip
         {
             PositionPopUp();
         }
+
         #endregion
 
 
@@ -179,58 +184,23 @@ namespace ZTeachingTip
             this.InitializeComponent();
             ZTeachingTipPopUp.Closed += ZTeachingTipPopUp_Closed;
             PlacementOffsets = PopulateOffsets();
+            Loaded += ZTeachingTip_Loaded;
             RootContentPresenter.Translation += new Vector3(0, 0, 70);
+            RootContentPresenter.SizeChanged += ContentElement_SizeChanged;
         }
-        private Dictionary<ZTeachingTipPlacement,ZTeachingTipOffset> PopulateOffsets()
+
+       
+
+        private void ZTeachingTip_Loaded(object sender, RoutedEventArgs e)
         {
-            return new Dictionary<ZTeachingTipPlacement, ZTeachingTipOffset>
-            {
-                {
-                    ZTeachingTipPlacement.Top, new ZTeachingTipOffset()
-                },
-                {
-                    ZTeachingTipPlacement.TopLeft, new ZTeachingTipOffset()
-                },
-                {
-                    ZTeachingTipPlacement.TopRight,new ZTeachingTipOffset()
-                },
-                {
-                    ZTeachingTipPlacement.Right,new ZTeachingTipOffset()
-                },
-                {
-                    ZTeachingTipPlacement.RightTop,new ZTeachingTipOffset()
-                },
-                {
-                    ZTeachingTipPlacement.RightBottom,new ZTeachingTipOffset()
-                },
-                {
-                    ZTeachingTipPlacement.Bottom,new ZTeachingTipOffset()
-                },
-                {
-                    ZTeachingTipPlacement.BottomLeft,new ZTeachingTipOffset()
-                },
-                {
-                    ZTeachingTipPlacement.BottomRight,new ZTeachingTipOffset()
-                },
-                {
-                    ZTeachingTipPlacement.Left,new ZTeachingTipOffset()
-                },
-                {
-                    ZTeachingTipPlacement.LeftTop,new ZTeachingTipOffset()
-                },
-                {
-                    ZTeachingTipPlacement.LeftBottom,new ZTeachingTipOffset()
-                }
-
-            };
+            ZTeachingTipPopUp.MaxHeight = RootContentPresenter.ActualHeight;
+            ZTeachingTipPopUp.MaxWidth = RootContentPresenter.ActualWidth;
         }
-
 
         private void IsOpenPropertyChanged()
         {
             if (IsOpen)
             {
-                ZTeachingTipPopUp.IsOpen = IsOpen;
                 PositionPopUp();
                 SubscribeToSizeChangeNotification();
                 return;
@@ -254,7 +224,17 @@ namespace ZTeachingTip
         }
 
 
-
+        private void ContentElement_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            if (sender is FrameworkElement contentElement)
+            {
+                ZTeachingTipPopUp.MaxHeight = RootContentPresenter.ActualHeight;
+                ZTeachingTipPopUp.MaxWidth = RootContentPresenter.ActualWidth;
+                //IsOpen = false;
+                PositionPopUp();
+                //IsOpen = true;
+            }
+        }
         private void ShouldBoundToXamlRootChanged()
         {
             if (!IsOpen)
@@ -264,9 +244,10 @@ namespace ZTeachingTip
             }
             ShouldBoundToXamlRoot = false;
         }
+
         private void PlacePreferenceChanged()
         {
-           PositionPopUp();
+            PositionPopUp();
         }
 
         /// <summary>
@@ -279,7 +260,7 @@ namespace ZTeachingTip
 
         private void OnPlacementMarginOffsetChanged()
         {
-              PositionPopUp();
+            PositionPopUp();
         }
 
         private void ZTeachingTipPopUp_Closed(object sender, object e)
@@ -293,9 +274,70 @@ namespace ZTeachingTip
         class ZTeachingTipOffset
         {
             public double HorizontalOffSet { get; set; }
+
             public double VerticalOffSet { get; set; }
+
             public bool IsFittingWithinBounds { get; set; }
         }
+        enum SidePreference
+        {
+            Left,
+            Right,
+            Top,
+            Bottom,
+        }
+        enum Alignment
+        {
+            Center,
+            Right,
+            Left,
+            Top,
+            Bottom,
+        }
+        private Dictionary<ZTeachingTipPlacement, ZTeachingTipOffset> PopulateOffsets()
+        {
+            return new Dictionary<ZTeachingTipPlacement, ZTeachingTipOffset>
+            {
+                {
+                    ZTeachingTipPlacement.Top, new ZTeachingTipOffset()
+                },
+                {
+                    ZTeachingTipPlacement.TopLeft, new ZTeachingTipOffset()
+                },
+                {
+                    ZTeachingTipPlacement.TopRight, new ZTeachingTipOffset()
+                },
+                {
+                    ZTeachingTipPlacement.Right, new ZTeachingTipOffset()
+                },
+                {
+                    ZTeachingTipPlacement.RightTop, new ZTeachingTipOffset()
+                },
+                {
+                    ZTeachingTipPlacement.RightBottom, new ZTeachingTipOffset()
+                },
+                {
+                    ZTeachingTipPlacement.Bottom, new ZTeachingTipOffset()
+                },
+                {
+                    ZTeachingTipPlacement.BottomLeft, new ZTeachingTipOffset()
+                },
+                {
+                    ZTeachingTipPlacement.BottomRight, new ZTeachingTipOffset()
+                },
+                {
+                    ZTeachingTipPlacement.Left, new ZTeachingTipOffset()
+                },
+                {
+                    ZTeachingTipPlacement.LeftTop, new ZTeachingTipOffset()
+                },
+                {
+                    ZTeachingTipPlacement.LeftBottom, new ZTeachingTipOffset()
+                }
+
+            };
+        }
+
 
         private Dictionary<ZTeachingTipPlacement, ZTeachingTipOffset> PlacementOffsets { get; }
 
@@ -312,380 +354,218 @@ namespace ZTeachingTip
         }
         private bool PositionPopUpBasedOnTarget(FrameworkElement targetElement)
         {
-            DeterminePossiblePlacementsWithTarget();
-            var preferredOffset = PlacementOffsets[PreferredPlacement];
+            
+            var preferredOffset = CalculatePlacementOffsetForPopUp(PreferredPlacement); ;
 
-           // var transFormedOffsetWithRespectToParent = TransFormOffsetWithRespectToParent(preferredOffset);
-
-           
-            ZTeachingTipPopUp.HorizontalOffset = preferredOffset.HorizontalOffSet; 
+            ZTeachingTipPopUp.HorizontalOffset = preferredOffset.HorizontalOffSet;
             ZTeachingTipPopUp.VerticalOffset = preferredOffset.VerticalOffSet;
 
-            PrintOffsetDetails(preferredOffset, preferredOffset);
+            PrintOffsetDetails(preferredOffset);
+            //ZTeachingTipPopUp.TryShowNear(targetElement, default, PlacementPreferenceOrders.Top, VerticalAlignmentPreferenceOrders.TopCenterBottom,HorizontalAlignmentPreferenceOrders.Center, 0, true);
             return true;
 
         }
-            //ZTeachingTipOffset TransFormOffsetWithRespectToParent(ZTeachingTipOffset offset)
-            //{
-            //    if (!(Parent is UIElement parent))
-            //    {
-            //        return offset;
-            //    }
-            //    var transFormedPoints =  parent.TransformToVisual(parent).TransformPoint(new Point(offset.HorizontalOffSet, offset.VerticalOffSet));
-            //    offset.HorizontalOffSet = transFormedPoints.X;
-            //    offset.VerticalOffSet = transFormedPoints.Y;
-            //    return offset;
-            //}
-        private void PrintOffsetDetails(ZTeachingTipOffset preferredOffset, ZTeachingTipOffset transFormedOffsetWithRespectToParent)
+        private void PrintOffsetDetails(ZTeachingTipOffset preferredOffset)
         {
             Debug.WriteLine("================================================================================================================");
-            Debug.WriteLine($"Prefered Offset X = {preferredOffset.HorizontalOffSet} prefered offset Y = {preferredOffset.VerticalOffSet}");
-            Debug.WriteLine($"transFormedOffset with respect to parent X = {transFormedOffsetWithRespectToParent.HorizontalOffSet} Y = {transFormedOffsetWithRespectToParent.VerticalOffSet}");
-            Debug.WriteLine($"PopUPDimentions  Height = {PopUpCoordinatesInCoreWindowSpace.Height} Width ='{PopUpCoordinatesInCoreWindowSpace.Width}");
-            Debug.WriteLine($"popupCordinates X= {PopUpCoordinatesInCoreWindowSpace.X} Y = {PopUpCoordinatesInCoreWindowSpace.Y}");
-            Debug.WriteLine($"PopVetical And Horizontal OFfset Vertical={ZTeachingTipPopUp.VerticalOffset} Horizontal = {ZTeachingTipPopUp.HorizontalOffset}");
-            Debug.WriteLine($"Target Cordinates X= {TargetCoordinatesInCoreWindowSpace.X}  Y = {TargetCoordinatesInCoreWindowSpace.Y}" );
+            Debug.WriteLine($"Offset Calculation By ZTeaching Tip X = {preferredOffset.HorizontalOffSet} prefered offset Y = {preferredOffset.VerticalOffSet}");
+            Debug.WriteLine($"Pop UP Dimentions  Height = {PopUpCoordinatesInCoreWindowSpace.Height} Width ='{PopUpCoordinatesInCoreWindowSpace.Width}");
+            Debug.WriteLine($"pop up Cordinates in ZTeachingTip X= {PopUpCoordinatesInCoreWindowSpace.X} Y = {PopUpCoordinatesInCoreWindowSpace.Y}");
+            Debug.WriteLine($"Pop Vetical And Horizontal OFfset Vertical={ZTeachingTipPopUp.VerticalOffset} Horizontal = {ZTeachingTipPopUp.HorizontalOffset}");
+            Debug.WriteLine($"Target Cordinates X= {TargetCoordinatesInCoreWindowSpace.X}  Y = {TargetCoordinatesInCoreWindowSpace.Y}");
         }
 
 
-        public void DeterminePossiblePlacementsWithTarget()
+        private ZTeachingTipOffset CalculatePlacementOffsetForPopUp(ZTeachingTipPlacement RequestedPlacement)
         {
 
-            var distanceX = PopUpCoordinatesInCoreWindowSpace.X - TargetCoordinatesInCoreWindowSpace.X;
-            var distanceY = PopUpCoordinatesInCoreWindowSpace.Y - TargetCoordinatesInCoreWindowSpace.Y;
+            var distanceX =  TargetCoordinatesInCoreWindowSpace.X - PopUpCoordinatesInCoreWindowSpace.X ;
+            var distanceY =  TargetCoordinatesInCoreWindowSpace.Y - PopUpCoordinatesInCoreWindowSpace.Y ;
+            var placementOffset = new ZTeachingTipOffset();
 
-
-            foreach (var placement in PlacementOffsets)
+            switch (RequestedPlacement)
             {
-                
-                switch (placement.Key)
-                {
 
-                    case ZTeachingTipPlacement.Top:
-                        AssignOffsetForTopPlacementPreference(placement.Value,distanceX,distanceY);
-                        break;
-                    case ZTeachingTipPlacement.TopLeft:
-                        AssignOffsetForTopLeftPlacementPreference(placement.Value,distanceX,distanceY);
-                        break;
-                    case ZTeachingTipPlacement.TopRight:
-                        AssignOffsetForTopRightPlacementPreference(placement.Value, distanceX,distanceY);
-                        break;
-                    case ZTeachingTipPlacement.Bottom:
-                        AssignOffsetForBottomPlacementReference(placement.Value,distanceX,distanceY);
-                        break;
-                    case ZTeachingTipPlacement.BottomRight:
-                        AssignOffsetForBottomRightPlacementPreference(placement.Value,distanceX,distanceY);
-                        break;
-                    case ZTeachingTipPlacement.BottomLeft:
-                        AssignOffsetForBottomLeftPlacementPreference(placement.Value,distanceX,distanceY);
-                        break;
-                    case ZTeachingTipPlacement.Left:
-                        AssignOffsetForLeftPlacementPreference(placement.Value,distanceX,distanceY);
-                        break;
-                    case ZTeachingTipPlacement.LeftTop:
-                        AssignOffsetForLeftTopPlacementPreference(placement.Value,distanceX,distanceY);
-                        break;
-                    case ZTeachingTipPlacement.LeftBottom:
-                        AssignOffsetForLeftBottomPlacementPreference(placement.Value,distanceX,distanceY);
-                        break;
-                    case ZTeachingTipPlacement.Right:
-                        AssignOffsetForRightPlacementPreference(placement.Value,distanceX,distanceY);
-                        break;
-                    case ZTeachingTipPlacement.RightTop:
-                        AssignOffsetForRightTopPlacementPreference(placement.Value,distanceX,distanceY);
-                        break;
-                    case ZTeachingTipPlacement.RightBottom:
-                        AssignOffsetForRightBottomPlacementPreference(placement.Value, distanceX,distanceY);
-                        break;
-                    default:
-                        continue;
-                }
+                case ZTeachingTipPlacement.Top:
+                    placementOffset.VerticalOffSet = CalculateOffsetForSidePlacement(distanceX,distanceY,SidePreference.Top);
+                   placementOffset.HorizontalOffSet = CalculateOffsetForAlignment(distanceX,Alignment.Center,TargetCoordinatesInCoreWindowSpace.Width,PopUpCoordinatesInCoreWindowSpace.Width);
+                    break;
+                case ZTeachingTipPlacement.TopLeft:
+                    placementOffset.VerticalOffSet = CalculateOffsetForSidePlacement(distanceX,distanceY,SidePreference.Top);
+                    placementOffset.HorizontalOffSet = CalculateOffsetForAlignment(distanceX, Alignment.Left,TargetCoordinatesInCoreWindowSpace.Width,PopUpCoordinatesInCoreWindowSpace.Width);
+                    break;
+                case ZTeachingTipPlacement.TopRight:
+                    placementOffset.VerticalOffSet = CalculateOffsetForSidePlacement(distanceX, distanceY, SidePreference.Top);
+                    placementOffset.HorizontalOffSet = CalculateOffsetForAlignment( distanceX, Alignment.Right,TargetCoordinatesInCoreWindowSpace.Width,PopUpCoordinatesInCoreWindowSpace.Width);
+                    break;
+
+                case ZTeachingTipPlacement.Bottom:
+                    placementOffset.VerticalOffSet = CalculateOffsetForSidePlacement(distanceX, distanceY, SidePreference.Bottom);
+                    placementOffset.HorizontalOffSet = CalculateOffsetForAlignment(distanceX, Alignment.Center, TargetCoordinatesInCoreWindowSpace.Width, PopUpCoordinatesInCoreWindowSpace.Width);
+                    break;
+                case ZTeachingTipPlacement.BottomRight:
+                    placementOffset.VerticalOffSet = CalculateOffsetForSidePlacement(distanceX, distanceY, SidePreference.Bottom);
+                    placementOffset.HorizontalOffSet = CalculateOffsetForAlignment(distanceX, Alignment.Right, TargetCoordinatesInCoreWindowSpace.Width, PopUpCoordinatesInCoreWindowSpace.Width);
+                    break;
+                case ZTeachingTipPlacement.BottomLeft:
+                    placementOffset.VerticalOffSet = CalculateOffsetForSidePlacement(distanceX, distanceY, SidePreference.Bottom);
+                    placementOffset.HorizontalOffSet = CalculateOffsetForAlignment(distanceX, Alignment.Left, TargetCoordinatesInCoreWindowSpace.Width, PopUpCoordinatesInCoreWindowSpace.Width);
+                    break;
+                case ZTeachingTipPlacement.Left:
+                    placementOffset.HorizontalOffSet = CalculateOffsetForSidePlacement(distanceX, distanceY, SidePreference.Left);
+                    placementOffset.VerticalOffSet = CalculateOffsetForAlignment(distanceY, Alignment.Center, TargetCoordinatesInCoreWindowSpace.Height, PopUpCoordinatesInCoreWindowSpace.Height);
+
+                    break;
+                case ZTeachingTipPlacement.LeftTop:
+                    placementOffset.HorizontalOffSet = CalculateOffsetForSidePlacement(distanceX,distanceY,SidePreference.Left);
+                    placementOffset.VerticalOffSet= CalculateOffsetForAlignment(distanceY,Alignment.Top,TargetCoordinatesInCoreWindowSpace.Height,PopUpCoordinatesInCoreWindowSpace.Height);
+                     break;
+                case ZTeachingTipPlacement.LeftBottom:
+                    placementOffset.HorizontalOffSet = CalculateOffsetForSidePlacement(distanceX, distanceY, SidePreference.Left);
+                    placementOffset.VerticalOffSet = CalculateOffsetForAlignment(distanceY, Alignment.Bottom, TargetCoordinatesInCoreWindowSpace.Height, PopUpCoordinatesInCoreWindowSpace.Height);
+
+                    break;
+                case ZTeachingTipPlacement.Right:
+                   placementOffset.HorizontalOffSet = CalculateOffsetForSidePlacement(distanceX,distanceY,SidePreference.Right);
+                   placementOffset.VerticalOffSet = CalculateOffsetForAlignment(distanceY,Alignment.Center,TargetCoordinatesInCoreWindowSpace.Height,PopUpCoordinatesInCoreWindowSpace.Height);
+
+                    break;
+                case ZTeachingTipPlacement.RightTop:
+                    placementOffset.HorizontalOffSet = CalculateOffsetForSidePlacement(distanceX, distanceY,SidePreference.Right);
+                    placementOffset.VerticalOffSet= CalculateOffsetForAlignment(distanceY,Alignment.Top,TargetCoordinatesInCoreWindowSpace.Height,PopUpCoordinatesInCoreWindowSpace.Height);
+                    break;
+                case ZTeachingTipPlacement.RightBottom:
+                    placementOffset.HorizontalOffSet = CalculateOffsetForSidePlacement(distanceX, distanceY, SidePreference.Right);
+                    placementOffset.VerticalOffSet = CalculateOffsetForAlignment(distanceY, Alignment.Bottom, TargetCoordinatesInCoreWindowSpace.Height, PopUpCoordinatesInCoreWindowSpace.Height);
+                    break;
+
             }
+            return placementOffset;
         }
-        private void AssignOffsetForRightBottomPlacementPreference(ZTeachingTipOffset offset, double distanceX, double distanceY)
-        {
-            offset.HorizontalOffSet = CalculateHorizontalOffsetForRightBasedPreference();
-            offset.VerticalOffSet = CalculateVerticalOffsetForLeftBottomAndRightBottomBasedPreference(distanceY);
-        }
-
-        #region OffsetLOgic Region
-        //for Left and Right based preference Vertical Offset Calculation will be same
-
-        //todo
-        //Find The Root Cause Which Causes Deviation in Vertical Orientation
-        private readonly double _deviation = 0;  
+    
 
 
-        /// <summary>
-        /// ZTeachingTipPlacement.Left
-        /// </summary>
-        private void AssignOffsetForLeftPlacementPreference(ZTeachingTipOffset offset,double distanceX,double distanceY)
-        {
-            offset.HorizontalOffSet = CalculateHorizontalOffsetForLeftBasedPreferences(distanceX) + PlacementOffsetMargin.Left - PlacementOffsetMargin.Right;  
-            offset.VerticalOffSet = CalculateVerticalOffsetCenterForRightAndLeftPreference(distanceY) + PlacementOffsetMargin.Top - PlacementOffsetMargin.Bottom; 
-            offset.IsFittingWithinBounds = SpaceAroundTarget.Left >= TeachingTipContent.ActualWidth && (offset.VerticalOffSet + TeachingTipContent.ActualHeight)<= WindowBounds.Height;
-        }
-        
-        /// <summary>
-        /// ZTeachingTipPlacement.LeftTop
-        /// </summary>
-        private void AssignOffsetForLeftTopPlacementPreference(ZTeachingTipOffset offset, double distanceX, double distanceY)
-        { 
-            offset.HorizontalOffSet = CalculateHorizontalOffsetForLeftBasedPreferences(distanceX) + PlacementOffsetMargin.Left - PlacementOffsetMargin.Right;
-            offset.VerticalOffSet = CalculateVerticalOffsetTopForRightAndLeftPreference(distanceY) + PlacementOffsetMargin.Top - PlacementOffsetMargin.Bottom; 
-            offset.IsFittingWithinBounds = SpaceAroundTarget.Left >= TeachingTipContent.ActualWidth && (offset.VerticalOffSet + TeachingTipContent.ActualHeight) <= WindowBounds.Height;
-        }
-
-        /// <summary>
-        /// ZTeachingTipPlacement.LeftBottom
-        /// </summary>
-        private void AssignOffsetForLeftBottomPlacementPreference(ZTeachingTipOffset offset, double distanceX, double distanceY)
-        {
-            offset.HorizontalOffSet = CalculateHorizontalOffsetForLeftBasedPreferences(distanceX) + PlacementOffsetMargin.Left - PlacementOffsetMargin.Right;  
-            offset.VerticalOffSet = CalculateVerticalOffsetForLeftBottomAndRightBottomBasedPreference(distanceY) + PlacementOffsetMargin.Top - PlacementOffsetMargin.Bottom; 
-        }
-        
-        /// <summary>
-        /// ZTeachingTipPlacement.Right
-        /// </summary>
-        private void AssignOffsetForRightPlacementPreference(ZTeachingTipOffset offset, double distanceX, double distanceY)
-        {
-            offset.HorizontalOffSet = CalculateHorizontalOffsetForRightBasedPreference() + PlacementOffsetMargin.Left - PlacementOffsetMargin.Right;  
-            offset.VerticalOffSet = CalculateVerticalOffsetCenterForRightAndLeftPreference(distanceY) + PlacementOffsetMargin.Top - PlacementOffsetMargin.Bottom; 
-            //offset validation can done using spaceAround target property and teaching tip size
-            offset.IsFittingWithinBounds = SpaceAroundTarget.Right>=TeachingTipContent.ActualWidth && (offset.VerticalOffSet + TeachingTipContent.ActualHeight) <= WindowBounds.Height;
-        }
-        
-        /// <summary>
-        /// ZTeachingTipPlacement.RightTop
-        /// </summary>
-        private void AssignOffsetForRightTopPlacementPreference(ZTeachingTipOffset offset, double distanceX, double distanceY)
-        {
-            offset.HorizontalOffSet = CalculateHorizontalOffsetForRightBasedPreference() + PlacementOffsetMargin.Left - PlacementOffsetMargin.Right;  
-            offset.VerticalOffSet = CalculateVerticalOffsetTopForRightAndLeftPreference(distanceY) + PlacementOffsetMargin.Top - PlacementOffsetMargin.Bottom; 
-            offset.IsFittingWithinBounds = SpaceAroundTarget.Right >= TeachingTipContent.ActualWidth && (offset.VerticalOffSet + TeachingTipContent.ActualHeight) <= WindowBounds.Height;
-        }
+    #region OffsetLOgic Region
 
 
-        /// <summary>
-        /// ZTeachingTipPlacement.Top
-        /// </summary>
-        private void AssignOffsetForTopPlacementPreference(ZTeachingTipOffset offset, double distanceX, double distanceY)
-        {
-            //Sanjei Anna Logic Also Did't work
-            //var distanceY2 = TargetCoordinatesInCoreWindowSpace.Y - PopUpCoordinatesInCoreWindowSpace.Y;
-            //offset.VerticalOffSet = distanceY2 - PopUpCoordinatesInCoreWindowSpace.Height;
+    public Rect WindowBounds
+    {
+        get => Window.Current.Bounds;
+    }
+    
+    public Rect PopUpCoordinatesInCoreWindowSpace
+    {
+       get => ZTeachingTipPopUp.TransformToVisual(Window.Current.Content).TransformBounds(new Rect(0.0, 0.0,ZTeachingTipPopUp.MaxWidth,ZTeachingTipPopUp.MaxHeight));
+    }
 
-            offset.VerticalOffSet = CalculateVerticalOffsetForTopPlacementPreferences() + PlacementOffsetMargin.Top - PlacementOffsetMargin.Bottom;
-            offset.HorizontalOffSet = CalculateHorizontalOffsetCenterForTopAndBottomPlacement(distanceX)  -PlacementOffsetMargin.Left + PlacementOffsetMargin.Right;
-        }
-        
-        /// <summary>
-        /// ZTeachingTipPlacement.TopLeft
-        /// </summary>
-        private void AssignOffsetForTopLeftPlacementPreference(ZTeachingTipOffset offset, double distanceX, double distanceY)
-        {
-            offset.VerticalOffSet = CalculateVerticalOffsetForTopPlacementPreferences() + PlacementOffsetMargin.Top - PlacementOffsetMargin.Bottom; 
-            offset.HorizontalOffSet = CalculateHorizontalOffsetForTopLeftAndBottomLeftPreference() + PlacementOffsetMargin.Left - PlacementOffsetMargin.Right;  
-        }
-        /// <summary>
-        /// ZTeachingTipPlacement.TopRight
-        /// </summary>
-        private void AssignOffsetForTopRightPlacementPreference(ZTeachingTipOffset offset, double distanceX, double distanceY)
-        {
-            offset.VerticalOffSet = CalculateVerticalOffsetForTopPlacementPreferences() + PlacementOffsetMargin.Top - PlacementOffsetMargin.Bottom;
-            offset.HorizontalOffSet = CalculateHorizontalOffsetForTopRightAndBottomRightPlacementPreference() + PlacementOffsetMargin.Left - PlacementOffsetMargin.Right;  
-        }
+    public Rect TargetCoordinatesInCoreWindowSpace
+    {
+        get => Target.TransformToVisual(Window.Current.Content).TransformBounds(new Rect(0.0, 0.0,Target.ActualWidth, Target.ActualHeight));
+    }
 
-        /// <summary>
-        /// ZTeachingTipPlacement.Bottom
-        /// </summary>
-        private void AssignOffsetForBottomPlacementReference(ZTeachingTipOffset offset, double distanceX, double distanceY)
+    public Thickness SpaceAroundTarget
+    {
+        get
         {
-            offset.HorizontalOffSet = CalculateHorizontalOffsetCenterForTopAndBottomPlacement(distanceX) + PlacementOffsetMargin.Left - PlacementOffsetMargin.Right;  
-            offset.VerticalOffSet = CalCulateVerticalOffsetForBottomPlacementPreference() + PlacementOffsetMargin.Top - PlacementOffsetMargin.Bottom; 
-        }
-       
-        /// <summary>
-        /// ZTeachingTipPlacement.BottomLeft
-        /// </summary>
-        private void AssignOffsetForBottomLeftPlacementPreference(ZTeachingTipOffset offset, double distanceX, double distanceY)
-        {
-            offset.VerticalOffSet = CalCulateVerticalOffsetForBottomPlacementPreference() + PlacementOffsetMargin.Top - PlacementOffsetMargin.Bottom; 
-            offset.HorizontalOffSet = CalculateHorizontalOffsetForTopLeftAndBottomLeftPreference() + PlacementOffsetMargin.Left - PlacementOffsetMargin.Right;  
-        }
-
-        /// <summary>
-        /// ZTeachingTipPlacement.BottomRight
-        /// </summary>
-        private void AssignOffsetForBottomRightPlacementPreference(ZTeachingTipOffset offset, double distanceX, double distanceY)
-        {
-            offset.HorizontalOffSet = CalculateHorizontalOffsetForTopRightAndBottomRightPlacementPreference() + PlacementOffsetMargin.Left - PlacementOffsetMargin.Right;  
-            offset.VerticalOffSet = CalCulateVerticalOffsetForBottomPlacementPreference() + PlacementOffsetMargin.Top - PlacementOffsetMargin.Bottom;
-        }
-        private double CalculateVerticalOffsetForLeftBottomAndRightBottomBasedPreference(double distanceY)
-        {
-            double verticalOffset = default;
-            var sizeDifference = Math.Abs(TeachingTipContent.ActualHeight - Target.ActualHeight);
-            if (Target.ActualHeight < TeachingTipContent.ActualHeight)
+            var availableSpace = new Thickness
             {
-               verticalOffset=  TargetCoordinatesInCoreWindowSpace.Y - sizeDifference;
-            }
-            if (Target.ActualHeight > TeachingTipContent.ActualHeight)
-            {
-                verticalOffset= TargetCoordinatesInCoreWindowSpace.Y + sizeDifference;
-            }
-            if (Target.ActualHeight.Equals(TeachingTipContent.ActualHeight))
-            {
-                verticalOffset = TargetCoordinatesInCoreWindowSpace.Y;
-            }
-            return verticalOffset - _deviation;
+                Left = TargetCoordinatesInCoreWindowSpace.X,
+                Top = TargetCoordinatesInCoreWindowSpace.Y,
+                Bottom = WindowBounds.Height - (Target.ActualHeight + TargetCoordinatesInCoreWindowSpace.Y),
+                Right = WindowBounds.Width - (Target.ActualWidth + TargetCoordinatesInCoreWindowSpace.X)
+            };
+            return availableSpace;
         }
+    }
 
-        private double CalculateHorizontalOffsetForTopLeftAndBottomLeftPreference()
+
+    private double CalculateOffsetForSidePlacement(double distanceX,double distanceY,SidePreference side)
+    {
+        double offset;
+        switch (side)
         {
-            return TargetCoordinatesInCoreWindowSpace.X;
+            case SidePreference.Left:
+                //New Method
+                // offset.HorizontalOffSet = distanceX - PopUpCoordinatesInCoreWindowSpace.Width;
+                offset = distanceX - PopUpCoordinatesInCoreWindowSpace.Width;
+                break;
+            case SidePreference.Right:
+                offset = distanceX + TargetCoordinatesInCoreWindowSpace.Width;
+                break;
+            case SidePreference.Top:
+                offset = distanceY - PopUpCoordinatesInCoreWindowSpace.Height;
+                break;
+            case SidePreference.Bottom:
+                offset = distanceY + TargetCoordinatesInCoreWindowSpace.Height;
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(side), side, null);
         }
-
-        private double CalculateHorizontalOffsetForRightBasedPreference()
+        return offset;
+    }
+    private double CalculateOffsetForAlignment( double distance, Alignment alignment,double targetElementDimention,double popUpElementDimentions)
+    {
+        double offset = default;
+        switch (alignment)
         {
-            return TargetCoordinatesInCoreWindowSpace.X + TargetCoordinatesInCoreWindowSpace.Width;
+
+            case Alignment.Center:
+                offset = distance - (popUpElementDimentions - targetElementDimention) /2;
+                break;
+            case Alignment.Right:
+                offset = distance - popUpElementDimentions + targetElementDimention;
+                break;
+            case Alignment.Left:
+                offset = distance;
+                break;
+            case Alignment.Top:
+                offset = distance;
+                break;
+            case Alignment.Bottom:
+                offset = distance - popUpElementDimentions + targetElementDimention;
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(alignment), alignment, null);
         }
-
-        private double CalculateHorizontalOffsetForLeftBasedPreferences(double distanceX)
+        return offset;
+    }
+    private double GetOffsetForAlignment(double popupCord, double targetElementCord, double distance, double popupMaxDimension, double targetElementDimension, double windowDimension, Alignment alignmentPreference)
+    {
+        switch (alignmentPreference)
         {
-           return PopUpCoordinatesInCoreWindowSpace.X - distanceX - PopUpCoordinatesInCoreWindowSpace.Width;
-        }
-
-        private double CalculateVerticalOffsetCenterForRightAndLeftPreference(double distanceY)
-        {
-            var sizeDifference = Math.Abs(TargetCoordinatesInCoreWindowSpace.Height - PopUpCoordinatesInCoreWindowSpace.Height) / 2;
-            double verticalOffset = default;
-
-            if (TargetCoordinatesInCoreWindowSpace.Height.Equals(PopUpCoordinatesInCoreWindowSpace.Height))
+            case (Alignment.Left):
+            case (Alignment.Top):
             {
-                verticalOffset = TargetCoordinatesInCoreWindowSpace.Y;
-            }
-            if (TargetCoordinatesInCoreWindowSpace.Height < PopUpCoordinatesInCoreWindowSpace.Height)
-            {
-                verticalOffset = TargetCoordinatesInCoreWindowSpace.Y - sizeDifference;
-            }
-            if (TargetCoordinatesInCoreWindowSpace.Height > PopUpCoordinatesInCoreWindowSpace.Height)
-            {
-                verticalOffset = TargetCoordinatesInCoreWindowSpace.Y + sizeDifference;
+                // Check if aligning left/top causes overflow. Assumes left/top of targetElement is within window bounds.
+                var isOverFlowing = popupCord + distance + popupMaxDimension <= windowDimension;
+                return distance;
             }
 
-            return verticalOffset - _deviation;
-        }
-
-        private double CalculateHorizontalOffsetCenterForTopAndBottomPlacement(double distanceX)
-        {
-            var sizeDifference =Math.Abs( TargetCoordinatesInCoreWindowSpace.Width - TeachingTipContent.ActualWidth)/2;
-
-            if (TargetCoordinatesInCoreWindowSpace.Width < PopUpCoordinatesInCoreWindowSpace.Width)
+            case (Alignment.Center):
             {
-                return TargetCoordinatesInCoreWindowSpace.X - sizeDifference;
+                // Calculates the offset needed to align the center of the popup with the center of the target element.
+                return distance - (popupMaxDimension - targetElementDimension) / 2;
+                //var isOVerFlowing = popupCoord + offsetForCenterAlignment >= 0 && popupCoord + offsetForCenterAlignment + popupMaxDimension <= windowDimension)
+                // If the calculated offset positions the popup within the window boundaries, align the center of the popup with the center of the target element.
             }
-            if (TargetCoordinatesInCoreWindowSpace.Width > PopUpCoordinatesInCoreWindowSpace.Width)
+            case (Alignment.Right):
+            case (Alignment.Bottom):
             {
-                return TargetCoordinatesInCoreWindowSpace.X + sizeDifference;
-            }
-            return TargetCoordinatesInCoreWindowSpace.X;
+                var isOverFlowing = popupCord + distance - popupMaxDimension >= 0;
+                return distance - popupMaxDimension + targetElementDimension;
 
-        }
-
-        private double CalculateVerticalOffsetTopForRightAndLeftPreference(double distanceY)
-        {
-            return TargetCoordinatesInCoreWindowSpace.Y - _deviation;
-        }
-        private double CalculateVerticalOffsetForTopPlacementPreferences()
-        {
-            return TargetCoordinatesInCoreWindowSpace.Y - TeachingTipContent.ActualHeight - _deviation;
-        }
-
-        private double CalculateHorizontalOffsetForTopRightAndBottomRightPlacementPreference()
-        {
-
-            return (TargetCoordinatesInCoreWindowSpace.X + TargetCoordinatesInCoreWindowSpace.Width) - PopUpCoordinatesInCoreWindowSpace.Width;
-        }
-
-        private double CalCulateVerticalOffsetForBottomPlacementPreference()
-        {
-            return TargetCoordinatesInCoreWindowSpace.Y + Target.ActualHeight - _deviation;
-        }
-        #endregion
-
-        public Rect WindowBounds
-        {
-
-            get
-            {
-                if (XamlRoot is XamlRoot xamlRoot)
-                {
-                    return new Rect(0, 0, xamlRoot.Size.Width, xamlRoot.Size.Width);
-                }
-                return Window.Current.Bounds;
             }
         }
-
-        public Rect PopUpCoordinatesInCoreWindowSpace
-        {
-            get => TransformToVisual(Window.Current.Content).TransformBounds(new Rect(0.0, 0.0, TeachingTipContent.ActualWidth, TeachingTipContent.ActualHeight));
-        }
-
-        public Rect TargetCoordinatesInCoreWindowSpace
-        {
-            get => Target.TransformToVisual(Window.Current.Content).TransformBounds(new Rect(0.0, 0.0, Target.ActualWidth, Target.ActualHeight));
-        }
-        public Thickness SpaceAroundTarget
-        {
-            get
-            {
-                var availableSpace = new Thickness
-                {
-                    Left = TargetCoordinatesInCoreWindowSpace.X,
-                    Top = TargetCoordinatesInCoreWindowSpace.Y,
-                    Bottom = WindowBounds.Height - (Target.ActualHeight + TargetCoordinatesInCoreWindowSpace.Y),
-                    Right = WindowBounds.Width - (Target.ActualWidth + TargetCoordinatesInCoreWindowSpace.X)
-                };
-                return availableSpace;
-            }
-        }
-        private static double GetOffsetForAlignment(double popupCoord, double targetElementCoord, double distance, double popupMaxDimension, double targetElementDimension, double windowDimension, Alignment alignmentPreference)
-        {
-               switch (alignmentPreference)
-                {
-                    case (Alignment.Left):
-                    case (Alignment.Top):
-                    {
-                        // Check if aligning left/top causes overflow. Assumes left/top of targetElement is within window bounds.
-                        var isOverFlowing = popupCoord + distance + popupMaxDimension <= windowDimension;
-                        return distance;
-                    }
-
-                    case (Alignment.Center):
-                    {
-                        // Calculates the offset needed to align the center of the popup with the center of the target element.
-                        return  distance - (popupMaxDimension - targetElementDimension) / 2;
-                        //var isOVerFlowing = popupCoord + offsetForCenterAlignment >= 0 && popupCoord + offsetForCenterAlignment + popupMaxDimension <= windowDimension)
-                        // If the calculated offset positions the popup within the window boundaries, align the center of the popup with the center of the target element.
-                    }
-                    case (Alignment.Right):
-                    case (Alignment.Bottom):
-                    {
-                        var isOverFlowing = popupCoord + distance - popupMaxDimension >= 0;
-                        return distance - popupMaxDimension + targetElementDimension;
-                        
-                    }
-                }
-                return default;
-
-        }
-        #endregion
+        return default;
 
     }
 
-    public enum ZTeachingTipPlacement
+        #endregion
+#endregion
+    }
+}
+
+public enum ZTeachingTipPlacement
     {
         Top,
         TopLeft,
@@ -700,4 +580,228 @@ namespace ZTeachingTip
         RightTop,
         RightBottom,
     }
-}
+
+/*
+    private readonly double _deviation = 0;
+    /// <summary>
+    /// ZTeachingTipPLaceMent.Right
+    /// </summary>
+    /// <param name="offset"></param>
+    /// <param name="distanceX"></param>
+    /// <param name="distanceY"></param>
+    private void AssignOffsetForRightBottomPlacementPreference(ZTeachingTipOffset offset, double distanceX, double distanceY)
+    {
+        offset.HorizontalOffSet = CalculateHorizontalOffsetForRightBasedPreference();
+        offset.VerticalOffSet = CalculateVerticalOffsetForLeftBottomAndRightBottomBasedPreference(distanceY);
+    }
+    /// <summary>
+    /// ZTeachingTipPlacement.Left
+    /// </summary>
+    private void AssignOffsetForLeftPlacementPreference(ZTeachingTipOffset offset,double distanceX,double distanceY)
+    {
+        offset.HorizontalOffSet = CalculateHorizontalOffsetForLeftBasedPreferences(distanceX) + PlacementOffsetMargin.Left - PlacementOffsetMargin.Right;  
+        offset.VerticalOffSet = CalculateVerticalOffsetCenterForRightAndLeftPreference(distanceY) + PlacementOffsetMargin.Top - PlacementOffsetMargin.Bottom; 
+        offset.IsFittingWithinBounds = SpaceAroundTarget.Left >= TeachingTipContent.ActualWidth && (offset.VerticalOffSet + TeachingTipContent.ActualHeight)<= WindowBounds.Height;
+    }
+    
+    /// <summary>
+    /// ZTeachingTipPlacement.LeftTop
+    /// </summary>
+    private void AssignOffsetForLeftTopPlacementPreference(ZTeachingTipOffset offset, double distanceX, double distanceY)
+    { 
+        offset.HorizontalOffSet = CalculateHorizontalOffsetForLeftBasedPreferences(distanceX) + PlacementOffsetMargin.Left - PlacementOffsetMargin.Right;
+        offset.VerticalOffSet = CalculateVerticalOffsetTopForRightAndLeftPreference(distanceY) + PlacementOffsetMargin.Top - PlacementOffsetMargin.Bottom; 
+        offset.IsFittingWithinBounds = SpaceAroundTarget.Left >= TeachingTipContent.ActualWidth && (offset.VerticalOffSet + TeachingTipContent.ActualHeight) <= WindowBounds.Height;
+    }
+
+    /// <summary>
+    /// ZTeachingTipPlacement.LeftBottom
+    /// </summary>
+    private void AssignOffsetForLeftBottomPlacementPreference(ZTeachingTipOffset offset, double distanceX, double distanceY)
+    {
+        offset.HorizontalOffSet = CalculateHorizontalOffsetForLeftBasedPreferences(distanceX) + PlacementOffsetMargin.Left - PlacementOffsetMargin.Right;  
+        offset.VerticalOffSet = CalculateVerticalOffsetForLeftBottomAndRightBottomBasedPreference(distanceY) + PlacementOffsetMargin.Top - PlacementOffsetMargin.Bottom; 
+    }
+    
+    /// <summary>
+    /// ZTeachingTipPlacement.Right
+    /// </summary>
+    private void AssignOffsetForRightPlacementPreference(ZTeachingTipOffset offset, double distanceX, double distanceY)
+    {
+        offset.HorizontalOffSet = CalculateHorizontalOffsetForRightBasedPreference() + PlacementOffsetMargin.Left - PlacementOffsetMargin.Right;  
+        offset.VerticalOffSet = CalculateVerticalOffsetCenterForRightAndLeftPreference(distanceY) + PlacementOffsetMargin.Top - PlacementOffsetMargin.Bottom; 
+        //offset validation can done using spaceAround target property and teaching tip size
+        offset.IsFittingWithinBounds = SpaceAroundTarget.Right>=TeachingTipContent.ActualWidth && (offset.VerticalOffSet + TeachingTipContent.ActualHeight) <= WindowBounds.Height;
+    }
+    
+    /// <summary>
+    /// ZTeachingTipPlacement.RightTop
+    /// </summary>
+    private void AssignOffsetForRightTopPlacementPreference(ZTeachingTipOffset offset, double distanceX, double distanceY)
+    {
+        offset.HorizontalOffSet = CalculateHorizontalOffsetForRightBasedPreference() + PlacementOffsetMargin.Left - PlacementOffsetMargin.Right;  
+        offset.VerticalOffSet = CalculateVerticalOffsetTopForRightAndLeftPreference(distanceY) + PlacementOffsetMargin.Top - PlacementOffsetMargin.Bottom; 
+        offset.IsFittingWithinBounds = SpaceAroundTarget.Right >= TeachingTipContent.ActualWidth && (offset.VerticalOffSet + TeachingTipContent.ActualHeight) <= WindowBounds.Height;
+    }
+
+
+    /// <summary>
+    /// ZTeachingTipPlacement.Top
+    /// </summary>
+    private void AssignOffsetForTopPlacementPreference(ZTeachingTipOffset offset, double distanceX, double distanceY)
+    {
+        //Sanjei Anna Logic Also Did't work
+        //var distanceY2 = TargetCoordinatesInCoreWindowSpace.Y - PopUpCoordinatesInCoreWindowSpace.Y;
+        //offset.VerticalOffSet = distanceY2 - PopUpCoordinatesInCoreWindowSpace.Height;
+
+        offset.VerticalOffSet = CalculateVerticalOffsetForTopPlacementPreferences() + PlacementOffsetMargin.Top - PlacementOffsetMargin.Bottom;
+        offset.HorizontalOffSet = CalculateHorizontalOffsetCenterForTopAndBottomPlacement(distanceX)  -PlacementOffsetMargin.Left + PlacementOffsetMargin.Right;
+    }
+    
+    /// <summary>
+    /// ZTeachingTipPlacement.TopLeft
+    /// </summary>
+    private void AssignOffsetForTopLeftPlacementPreference(ZTeachingTipOffset offset, double distanceX, double distanceY)
+    {
+        offset.VerticalOffSet = CalculateVerticalOffsetForTopPlacementPreferences() + PlacementOffsetMargin.Top - PlacementOffsetMargin.Bottom; 
+        offset.HorizontalOffSet = CalculateHorizontalOffsetForTopLeftAndBottomLeftPreference() + PlacementOffsetMargin.Left - PlacementOffsetMargin.Right;  
+    }
+    /// <summary>
+    /// ZTeachingTipPlacement.TopRight
+    /// </summary>
+    private void AssignOffsetForTopRightPlacementPreference(ZTeachingTipOffset offset, double distanceX, double distanceY)
+    {
+        offset.VerticalOffSet = CalculateVerticalOffsetForTopPlacementPreferences() + PlacementOffsetMargin.Top - PlacementOffsetMargin.Bottom;
+        offset.HorizontalOffSet = CalculateHorizontalOffsetForTopRightAndBottomRightPlacementPreference() + PlacementOffsetMargin.Left - PlacementOffsetMargin.Right;  
+    }
+
+    /// <summary>
+    /// ZTeachingTipPlacement.Bottom
+    /// </summary>
+    private void AssignOffsetForBottomPlacementReference(ZTeachingTipOffset offset, double distanceX, double distanceY)
+    {
+        offset.HorizontalOffSet = CalculateHorizontalOffsetCenterForTopAndBottomPlacement(distanceX) + PlacementOffsetMargin.Left - PlacementOffsetMargin.Right;  
+        offset.VerticalOffSet = CalCulateVerticalOffsetForBottomPlacementPreference() + PlacementOffsetMargin.Top - PlacementOffsetMargin.Bottom; 
+    }
+   
+    /// <summary>
+    /// ZTeachingTipPlacement.BottomLeft
+    /// </summary>
+    private void AssignOffsetForBottomLeftPlacementPreference(ZTeachingTipOffset offset, double distanceX, double distanceY)
+    {
+        offset.VerticalOffSet = CalCulateVerticalOffsetForBottomPlacementPreference() + PlacementOffsetMargin.Top - PlacementOffsetMargin.Bottom; 
+        offset.HorizontalOffSet = CalculateHorizontalOffsetForTopLeftAndBottomLeftPreference() + PlacementOffsetMargin.Left - PlacementOffsetMargin.Right;  
+    }
+
+    /// <summary>
+    /// ZTeachingTipPlacement.BottomRight
+    /// </summary>
+    private void AssignOffsetForBottomRightPlacementPreference(ZTeachingTipOffset offset, double distanceX, double distanceY)
+    {
+        offset.HorizontalOffSet = CalculateHorizontalOffsetForTopRightAndBottomRightPlacementPreference() + PlacementOffsetMargin.Left - PlacementOffsetMargin.Right;  
+        offset.VerticalOffSet = CalCulateVerticalOffsetForBottomPlacementPreference() + PlacementOffsetMargin.Top - PlacementOffsetMargin.Bottom;
+    }
+    private double CalculateVerticalOffsetForLeftBottomAndRightBottomBasedPreference(double distanceY)
+    {
+        double verticalOffset = default;
+        var sizeDifference = Math.Abs(TeachingTipContent.ActualHeight - Target.ActualHeight);
+        if (Target.ActualHeight < TeachingTipContent.ActualHeight)
+        {
+           verticalOffset=  TargetCoordinatesInCoreWindowSpace.Y - sizeDifference;
+        }
+        if (Target.ActualHeight > TeachingTipContent.ActualHeight)
+        {
+            verticalOffset= TargetCoordinatesInCoreWindowSpace.Y + sizeDifference;
+        }
+        if (Target.ActualHeight.Equals(TeachingTipContent.ActualHeight))
+        {
+            verticalOffset = TargetCoordinatesInCoreWindowSpace.Y;
+        }
+        return verticalOffset - _deviation;
+    }
+
+    private double CalculateHorizontalOffsetForTopLeftAndBottomLeftPreference()
+    {
+        return TargetCoordinatesInCoreWindowSpace.X;
+    }
+
+    private double CalculateHorizontalOffsetForRightBasedPreference()
+    {
+        return TargetCoordinatesInCoreWindowSpace.X + TargetCoordinatesInCoreWindowSpace.Width;
+    }
+
+    private double CalculateHorizontalOffsetForLeftBasedPreferences(double distanceX)
+    {
+       return PopUpCoordinatesInCoreWindowSpace.X - distanceX - PopUpCoordinatesInCoreWindowSpace.Width;
+    }
+
+    private double CalculateVerticalOffsetCenterForRightAndLeftPreference(double distanceY)
+    {
+        var sizeDifference = Math.Abs(TargetCoordinatesInCoreWindowSpace.Height - PopUpCoordinatesInCoreWindowSpace.Height) / 2;
+        double verticalOffset = default;
+
+        if (TargetCoordinatesInCoreWindowSpace.Height.Equals(PopUpCoordinatesInCoreWindowSpace.Height))
+        {
+            verticalOffset = TargetCoordinatesInCoreWindowSpace.Y;
+        }
+        if (TargetCoordinatesInCoreWindowSpace.Height < PopUpCoordinatesInCoreWindowSpace.Height)
+        {
+            verticalOffset = TargetCoordinatesInCoreWindowSpace.Y - sizeDifference;
+        }
+        if (TargetCoordinatesInCoreWindowSpace.Height > PopUpCoordinatesInCoreWindowSpace.Height)
+        {
+            verticalOffset = TargetCoordinatesInCoreWindowSpace.Y + sizeDifference;
+        }
+
+        return verticalOffset - _deviation;
+    }
+
+    private double CalculateHorizontalOffsetCenterForTopAndBottomPlacement(double distanceX)
+    {
+        var sizeDifference =Math.Abs( TargetCoordinatesInCoreWindowSpace.Width - TeachingTipContent.ActualWidth)/2;
+
+        if (TargetCoordinatesInCoreWindowSpace.Width < PopUpCoordinatesInCoreWindowSpace.Width)
+        {
+            return TargetCoordinatesInCoreWindowSpace.X - sizeDifference;
+        }
+        if (TargetCoordinatesInCoreWindowSpace.Width > PopUpCoordinatesInCoreWindowSpace.Width)
+        {
+            return TargetCoordinatesInCoreWindowSpace.X + sizeDifference;
+        }
+        return TargetCoordinatesInCoreWindowSpace.X;
+
+    }
+
+    private double CalculateVerticalOffsetTopForRightAndLeftPreference(double distanceY)
+    {
+        return TargetCoordinatesInCoreWindowSpace.Y - _deviation;
+    }
+    private double CalculateVerticalOffsetForTopPlacementPreferences()
+    {
+        return TargetCoordinatesInCoreWindowSpace.Y - TeachingTipContent.ActualHeight - _deviation;
+    }
+
+    private double CalculateHorizontalOffsetForTopRightAndBottomRightPlacementPreference()
+    {
+
+        return (TargetCoordinatesInCoreWindowSpace.X + TargetCoordinatesInCoreWindowSpace.Width) - PopUpCoordinatesInCoreWindowSpace.Width;
+    }
+
+    private double CalCulateVerticalOffsetForBottomPlacementPreference()
+    {
+        return TargetCoordinatesInCoreWindowSpace.Y + Target.ActualHeight - _deviation;
+    }
+    #endregion
+        //ZTeachingTipOffset TransFormOffsetWithRespectToParent(ZTeachingTipOffset offset)
+        //{
+        //    if (!(Parent is UIElement parent))
+        //    {
+        //        return offset;
+        //    }
+        //    var transFormedPoints =  parent.TransformToVisual(parent).TransformPoint(new Point(offset.HorizontalOffSet, offset.VerticalOffSet));
+        //    offset.HorizontalOffSet = transFormedPoints.X;
+        //    offset.VerticalOffSet = transFormedPoints.Y;
+        //    return offset;
+        //}
+
+*/
