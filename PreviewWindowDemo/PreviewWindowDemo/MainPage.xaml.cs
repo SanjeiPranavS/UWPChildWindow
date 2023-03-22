@@ -288,21 +288,34 @@ namespace ZTeachingTip
         private Popup ExistingExterntionClassTesting;
         private void ExtensionTestingBUtton_OnClick(object sender, RoutedEventArgs e)
         {
+            
             if (ExistingExterntionClassTesting is null)
             {
+                var childcontrol = new PreviewControl()
+                {
+                    Width = 300, Height = 300
+                };
                 ExistingExterntionClassTesting = new Popup()
                 {
                     MaxWidth = 300,
                     MaxHeight = 300,
-                    Child = new PreviewControl(),
+                    Child = childcontrol,
                     IsLightDismissEnabled = true,
-
+                    
                 };
                 LayoutRoot.Children.Add(ExistingExterntionClassTesting);
+                childcontrol.Loaded += MainPage_Loaded1;
+                return;
             }
-            
-            ExistingExterntionClassTesting.TryShowNear(sender as FrameworkElement,default ,PlacementPreferenceOrders.Right, VerticalAlignmentPreferenceOrders.CenterBottomTop,default, 0, false);
+            ExistingExterntionClassTesting.TryShowNear(sender as FrameworkElement,default ,PlacementPreferenceOrders.Left, VerticalAlignmentPreferenceOrders.CenterBottomTop,HorizontalAlignmentPreferenceOrders.LeftCenterRight, 0, false);
         }
+
+
+        void MainPage_Loaded1(object sender, RoutedEventArgs e)
+        {
+
+        }
+
         //private void ChangeMarginBtn_OnClick(object sender, RoutedEventArgs e)
         //{
         //    if (double.TryParse(LeftMarginTextBlock.Text, out var leftMargin) &&

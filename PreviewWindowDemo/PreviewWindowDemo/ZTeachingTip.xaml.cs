@@ -6,6 +6,7 @@ using Windows.Foundation;
 using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using ZTeachingTip.Zoho.UWP.Common.Extensions;
 
 // The User Control item template is documented at https://go.microsoft.com/fwlink/?LinkId=234236
 
@@ -145,7 +146,10 @@ namespace ZTeachingTip
         {
             if (sender is FrameworkElement contentElement)
             {
-                PositionPopUp();
+                ZTeachingTipPopUp.MaxWidth=contentElement.ActualWidth;
+                ZTeachingTipPopUp.MaxHeight=contentElement.ActualHeight;
+                ZTeachingTipPopUp.TryShowNear(Target, default, PlacementPreferenceOrders.Right, VerticalAlignmentPreferenceOrders.TopCenterBottom,HorizontalAlignmentPreferenceOrders.Center, 0,true);
+                //PositionPopUp();
             }
         }
 
@@ -311,27 +315,27 @@ namespace ZTeachingTip
             DeterminePossiblePlacementsWithTarget();
             var preferredOffset = PlacementOffsets[PreferredPlacement];
 
-            var transFormedOffsetWithRespectToParent = TransFormOffsetWithRespectToParent(preferredOffset);
+           // var transFormedOffsetWithRespectToParent = TransFormOffsetWithRespectToParent(preferredOffset);
 
            
-            ZTeachingTipPopUp.HorizontalOffset = transFormedOffsetWithRespectToParent.HorizontalOffSet; 
-            ZTeachingTipPopUp.VerticalOffset = transFormedOffsetWithRespectToParent.VerticalOffSet;
+            ZTeachingTipPopUp.HorizontalOffset = preferredOffset.HorizontalOffSet; 
+            ZTeachingTipPopUp.VerticalOffset = preferredOffset.VerticalOffSet;
 
-            PrintOffsetDetails(preferredOffset, transFormedOffsetWithRespectToParent);
+            PrintOffsetDetails(preferredOffset, preferredOffset);
             return true;
-            ZTeachingTipOffset TransFormOffsetWithRespectToParent(ZTeachingTipOffset offset)
-            {
-                if (!(Parent is UIElement parent))
-                {
-                    return offset;
-                }
-                var transFormedPoints =  parent.TransformToVisual(Window.Current.Content).TransformPoint(new Point(offset.HorizontalOffSet, offset.VerticalOffSet));
-                offset.HorizontalOffSet = transFormedPoints.X;
-                offset.VerticalOffSet = transFormedPoints.Y;
-                return offset;
-            }
 
         }
+            //ZTeachingTipOffset TransFormOffsetWithRespectToParent(ZTeachingTipOffset offset)
+            //{
+            //    if (!(Parent is UIElement parent))
+            //    {
+            //        return offset;
+            //    }
+            //    var transFormedPoints =  parent.TransformToVisual(parent).TransformPoint(new Point(offset.HorizontalOffSet, offset.VerticalOffSet));
+            //    offset.HorizontalOffSet = transFormedPoints.X;
+            //    offset.VerticalOffSet = transFormedPoints.Y;
+            //    return offset;
+            //}
         private void PrintOffsetDetails(ZTeachingTipOffset preferredOffset, ZTeachingTipOffset transFormedOffsetWithRespectToParent)
         {
             Debug.WriteLine("================================================================================================================");
@@ -426,8 +430,8 @@ namespace ZTeachingTip
         /// ZTeachingTipPlacement.LeftTop
         /// </summary>
         private void AssignOffsetForLeftTopPlacementPreference(ZTeachingTipOffset offset, double distanceX, double distanceY)
-        {
-            offset.HorizontalOffSet = CalculateHorizontalOffsetForLeftBasedPreferences(distanceX) + PlacementOffsetMargin.Left - PlacementOffsetMargin.Right;  
+        { 
+            offset.HorizontalOffSet = CalculateHorizontalOffsetForLeftBasedPreferences(distanceX) + PlacementOffsetMargin.Left - PlacementOffsetMargin.Right;
             offset.VerticalOffSet = CalculateVerticalOffsetTopForRightAndLeftPreference(distanceY) + PlacementOffsetMargin.Top - PlacementOffsetMargin.Bottom; 
             offset.IsFittingWithinBounds = SpaceAroundTarget.Left >= TeachingTipContent.ActualWidth && (offset.VerticalOffSet + TeachingTipContent.ActualHeight) <= WindowBounds.Height;
         }
@@ -647,7 +651,36 @@ namespace ZTeachingTip
                 return availableSpace;
             }
         }
-        
+        private static double GetOffsetForAlignment(double popupCoord, double targetElementCoord, double distance, double popupMaxDimension, double targetElementDimension, double windowDimension, Alignment alignmentPreference)
+        {
+               switch (alignmentPreference)
+                {
+                    case (Alignment.Left):
+                    case (Alignment.Top):
+                    {
+                        // Check if aligning left/top causes overflow. Assumes left/top of targetElement is within window bounds.
+                        var isOverFlowing = popupCoord + distance + popupMaxDimension <= windowDimension;
+                        return distance;
+                    }
+
+                    case (Alignment.Center):
+                    {
+                        // Calculates the offset needed to align the center of the popup with the center of the target element.
+                        return  distance - (popupMaxDimension - targetElementDimension) / 2;
+                        //var isOVerFlowing = popupCoord + offsetForCenterAlignment >= 0 && popupCoord + offsetForCenterAlignment + popupMaxDimension <= windowDimension)
+                        // If the calculated offset positions the popup within the window boundaries, align the center of the popup with the center of the target element.
+                    }
+                    case (Alignment.Right):
+                    case (Alignment.Bottom):
+                    {
+                        var isOverFlowing = popupCoord + distance - popupMaxDimension >= 0;
+                        return distance - popupMaxDimension + targetElementDimension;
+                        
+                    }
+                }
+                return default;
+
+        }
         #endregion
 
     }
