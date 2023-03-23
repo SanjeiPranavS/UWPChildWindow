@@ -213,7 +213,7 @@ namespace ZTeachingTip
             //    Alignment.Right
             //},isOverflowAllowed:true);
             TeachingZTip.IsOpen = !TeachingZTip.IsOpen;
-
+            
         }
         //PreviewPopup.TryShowNear(sender as Button,default,new Side[]{Side.Right,Side.Top},new Alignment[]
         //{
@@ -316,20 +316,20 @@ namespace ZTeachingTip
 
         }
 
-        //private void ChangeMarginBtn_OnClick(object sender, RoutedEventArgs e)
-        //{
-        //    if (double.TryParse(LeftMarginTextBlock.Text, out var leftMargin) &&
-        //        double.TryParse(TopMarginTextBlock.Text, out var topMargin) &&
-        //        double.TryParse(RightMarginTextBlock.Text, out var rightMargin) &&
-        //        double.TryParse(BottomMarginTextBlock.Text, out var bottomMargin))
-        //    {
-        //        var placementOffset = new Thickness(leftMargin, topMargin, rightMargin, bottomMargin);
-        //        ZTeachingTip.PlacementOffsetMargin = placementOffset;
-        //        MarginInfoTextBox.Text = string.Empty;
-        //        return;
-        //    }
-        //    MarginInfoTextBox.Text = "Invalid Margin Format";
-        //}
+        private void ChangeMarginBtn_OnClick(object sender, RoutedEventArgs e)
+        {
+            if (double.TryParse(LeftMarginTextBlock.Text, out var leftMargin) &&
+                double.TryParse(TopMarginTextBlock.Text, out var topMargin) &&
+                double.TryParse(RightMarginTextBlock.Text, out var rightMargin) &&
+                double.TryParse(BottomMarginTextBlock.Text, out var bottomMargin))
+            {
+                var placementOffset = new Thickness(leftMargin, topMargin, rightMargin, bottomMargin);
+                TeachingZTip.PlacementOffsetMargin = placementOffset;
+                InfoTextBlock.Text = string.Empty;
+                return;
+            }
+            InfoTextBlock.Text = "Invalid Margin Format";
+        }
         private void ButtonBase_OnClick(object sender, RoutedEventArgs e)
         {
         //{

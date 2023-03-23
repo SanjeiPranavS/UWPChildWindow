@@ -13,7 +13,7 @@
                IsOpen="{x:Bind IsOpen,Mode=TwoWay}" 
                LightDismissOverlayMode="On"
                MinWidth="2" 
-               MinHeight="3" 
+               MinHeight="3"  
                IsLightDismissEnabled="{x:Bind IsLightDismissEnabled,Mode=TwoWay}">
             <Popup.ChildTransitions>
                 <TransitionCollection>

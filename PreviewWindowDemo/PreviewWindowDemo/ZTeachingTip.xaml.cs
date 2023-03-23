@@ -357,8 +357,8 @@ namespace ZTeachingTip
             
             var preferredOffset = CalculatePlacementOffsetForPopUp(PreferredPlacement); ;
 
-            ZTeachingTipPopUp.HorizontalOffset = preferredOffset.HorizontalOffSet;
-            ZTeachingTipPopUp.VerticalOffset = preferredOffset.VerticalOffSet;
+            ZTeachingTipPopUp.HorizontalOffset = preferredOffset.HorizontalOffSet  + PlacementOffsetMargin.Left - PlacementOffsetMargin.Right;
+            ZTeachingTipPopUp.VerticalOffset = preferredOffset.VerticalOffSet  + PlacementOffsetMargin.Top - PlacementOffsetMargin.Bottom;
 
             PrintOffsetDetails(preferredOffset);
             //ZTeachingTipPopUp.TryShowNear(targetElement, default, PlacementPreferenceOrders.Top, VerticalAlignmentPreferenceOrders.TopCenterBottom,HorizontalAlignmentPreferenceOrders.Center, 0, true);
@@ -448,22 +448,22 @@ namespace ZTeachingTip
     #region OffsetLOgic Region
 
 
-    public Rect WindowBounds
+    private Rect WindowBounds
     {
         get => Window.Current.Bounds;
     }
     
-    public Rect PopUpCoordinatesInCoreWindowSpace
+    private Rect PopUpCoordinatesInCoreWindowSpace
     {
        get => ZTeachingTipPopUp.TransformToVisual(Window.Current.Content).TransformBounds(new Rect(0.0, 0.0,ZTeachingTipPopUp.MaxWidth,ZTeachingTipPopUp.MaxHeight));
     }
 
-    public Rect TargetCoordinatesInCoreWindowSpace
+    private Rect TargetCoordinatesInCoreWindowSpace
     {
         get => Target.TransformToVisual(Window.Current.Content).TransformBounds(new Rect(0.0, 0.0,Target.ActualWidth, Target.ActualHeight));
     }
 
-    public Thickness SpaceAroundTarget
+    private Thickness SpaceAroundTarget
     {
         get
         {
@@ -523,7 +523,7 @@ namespace ZTeachingTip
                 break;
             case Alignment.Bottom:
                 offset = distance - popUpElementDimentions + targetElementDimention;
-                break;
+                    break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(alignment), alignment, null);
         }
