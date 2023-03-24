@@ -301,16 +301,26 @@ namespace ZTeachingTip
                     MaxWidth = 300,
                     MaxHeight = 300,
                     Child = childcontrol,
-                    IsLightDismissEnabled = true,
+                    IsLightDismissEnabled = false,
                     
                 };
                 LayoutRoot.Children.Add(ExistingExterntionClassTesting);
                 childcontrol.Loaded += MainPage_Loaded1;
+                ExistingExterntionClassTesting.Loaded += ExistingExterntionClassTesting_Loaded;
+                // return;
+            }
+            if (ExistingExterntionClassTesting.IsOpen)
+            {
+                ExistingExterntionClassTesting.IsOpen = false;
                 return;
             }
             ExistingExterntionClassTesting.TryShowNear(sender as FrameworkElement,default ,PlacementPreferenceOrders.Left, VerticalAlignmentPreferenceOrders.CenterBottomTop,HorizontalAlignmentPreferenceOrders.LeftCenterRight, 0, false);
         }
 
+        private void ExistingExterntionClassTesting_Loaded(object sender, RoutedEventArgs e)
+        {
+            
+        }
 
         void MainPage_Loaded1(object sender, RoutedEventArgs e)
         {

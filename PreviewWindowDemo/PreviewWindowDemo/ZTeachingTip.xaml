@@ -12,7 +12,7 @@
         <Popup x:Name="ZTeachingTipPopUp"
                IsOpen="{x:Bind IsOpen,Mode=TwoWay}"
                LightDismissOverlayMode="Auto"
-               ShouldConstrainToRootBounds="True"
+               ShouldConstrainToRootBounds="False"
                IsLightDismissEnabled="{x:Bind IsLightDismissEnabled,Mode=TwoWay}">
             <Popup.ChildTransitions>
                 <TransitionCollection>

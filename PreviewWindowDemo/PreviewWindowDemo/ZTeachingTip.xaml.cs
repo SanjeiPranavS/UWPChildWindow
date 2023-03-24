@@ -302,18 +302,7 @@ namespace ZTeachingTip
         }
         private void ShouldBoundToXamlRootChanged()
         {
-            if (IsOpen)
-            {
-                ZTeachingTipPopUp.Closed += ShouldBoundToXamlRootPopUpClosedHandler;
-                return;
-            }
-            ZTeachingTipPopUp.ShouldConstrainToRootBounds = ShouldBoundToXamlRoot;
-
-            void ShouldBoundToXamlRootPopUpClosedHandler(object sender, object e)
-            {
-                ZTeachingTipPopUp.Closed -= ShouldBoundToXamlRootPopUpClosedHandler;
-                ZTeachingTipPopUp.ShouldConstrainToRootBounds = ShouldBoundToXamlRoot;
-            }
+            PositionPopUp();
         }
 
 
