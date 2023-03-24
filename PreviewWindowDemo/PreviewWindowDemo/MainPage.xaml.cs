@@ -38,9 +38,10 @@ namespace ZTeachingTip
 
         private void MainPage_Loaded(object sender, RoutedEventArgs e)
         {
-           
+            TeachingZTip.LightDismissMode = LightDismissOverlayMode.On;
            TeachingZTip.Target = ResizableTarget;
            TeachingZTip.TeachingTipContent = new PreviewControl();
+
         }
 
         //private async void MainPage_Consolidated(ApplicationView sender, ApplicationViewConsolidatedEventArgs args)

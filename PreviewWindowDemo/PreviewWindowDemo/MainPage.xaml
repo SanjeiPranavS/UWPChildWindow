@@ -13,6 +13,9 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+
+        </Grid.ColumnDefinitions>
         <CommandBar>
             <AppBarToggleButton Icon="Play" x:Name="OpenPaneButton" />
         </CommandBar>
@@ -61,7 +64,8 @@
             </StackPanel>
         <StackPanel Orientation="Vertical" VerticalAlignment="Center" Grid.Row="1">
             <TextBlock HorizontalAlignment="Center" FontWeight="Bold" FontSize="25">This is Resizable Target</TextBlock>
-            <local:PreviewControl Width="400"  x:Name="ResizableTarget" HorizontalAlignment="Center" VerticalAlignment="Center" ></local:PreviewControl>
+            <local:PreviewControl Width="400"  x:Name="ResizableTarget" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+
         </StackPanel>
         <local:ZTeachingTip x:Name="TeachingZTip"></local:ZTeachingTip>
     </Grid>
