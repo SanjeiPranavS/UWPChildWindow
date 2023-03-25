@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Numerics;
 using Windows.Foundation;
 using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using ZTeachingTip.Zoho.UWP.Common.Extensions;
 
 // The User Control item template is documented at https://go.microsoft.com/fwlink/?LinkId=234236
 
@@ -18,6 +16,10 @@ namespace ZTeachingTip
 
         #region Dependendcy PRoperty
         private ZTeachingTipPlacement? _actualPlacement;
+        private double _targetWidth;
+        private double _targetHeight;
+        private double _popUpWidth;
+        private double _popUpHeight;
 
         public readonly static DependencyProperty IsLightDismissEnabledProperty = DependencyProperty.Register(
             nameof(IsLightDismissEnabled), typeof(bool), typeof(ZTeachingTip), new PropertyMetadata(true, LightDismissPropertyChanged));
@@ -114,7 +116,7 @@ namespace ZTeachingTip
             private set
             {
                 _actualPlacement = value;
-                ActualPlacementChanged?.Invoke(this,new ActualPlacementChangedEventArgs(_actualPlacement));
+                ActualPlacementChanged?.Invoke(this, new ActualPlacementChangedEventArgs(_actualPlacement));
             }
         }
 
@@ -145,7 +147,7 @@ namespace ZTeachingTip
             }
             if (d is ZTeachingTip teachingTip && e.OldValue is FrameworkElement oldTarget)
             {
-                oldTarget.SizeChanged += teachingTip.ContentElement_SizeChanged;
+                oldTarget.SizeChanged -= teachingTip.ContentElement_SizeChanged;
             }
         }
 
@@ -239,32 +241,46 @@ namespace ZTeachingTip
             this.InitializeComponent();
             ZTeachingTipPopUp.Closed += ZTeachingTipPopUp_Closed;
             PlacementOffsets = PopulateOffsets();
-            Loaded += ZTeachingTip_Loaded;
-            RootGrid.Translation += new Vector3(0, 0, 70);
+
+            RootGrid.Loaded += RootGrid_Loaded;
+            RootGrid.Translation += new Vector3(0, 0, 35);
             RootGrid.SizeChanged += ContentElement_SizeChanged;
         }
+
+        #region ArrangementAndInitialPositioningCalaculation
+
         private void ContentChanged(FrameworkElement newContentElement)
         {
             RootContentPresenter.Content = newContentElement;
-            RootGrid.Measure(new Size(double.MaxValue, Double.MaxValue));
-            ZTeachingTipPopUp.MaxHeight = RootGrid.DesiredSize.Height;
-            ZTeachingTipPopUp.MaxWidth = RootGrid.DesiredSize.Width;
+            RootGrid.Measure(new Size(double.MaxValue, double.MaxValue));
+            if (newContentElement.IsLoaded)
+            {
+                _popUpHeight = RootGrid.ActualHeight;
+                _popUpWidth = RootGrid.ActualWidth;
+                return;
+            }
+            _popUpHeight = RootGrid.DesiredSize.Height;
+            _popUpWidth = RootGrid.DesiredSize.Width;
         }
 
-
-        private void ZTeachingTip_Loaded(object sender, RoutedEventArgs e)
+        //Each And Every Time POp up is opened
+        private void RootGrid_Loaded(object sender, RoutedEventArgs e)
         {
-            RootGrid.Measure(new Size(double.MaxValue,Double.MaxValue));
-            ZTeachingTipPopUp.MaxHeight = RootGrid.DesiredSize.Height;
-            ZTeachingTipPopUp.MaxWidth = RootGrid.DesiredSize.Width;
+            _popUpHeight = RootGrid.ActualHeight;
+            _popUpWidth = RootGrid.ActualWidth;
+            AssignTargetDimentionIfExist();
+            PositionPopUp();
         }
+
+        #endregion
+
 
         private void IsOpenPropertyChanged()
         {
             if (IsOpen)
             {
-                PositionPopUp();
                 SubscribeToSizeChangeNotification();
+                PositionPopUp();
                 return;
             }
             UnSubscribeToSizeChangeNotification();
@@ -276,9 +292,9 @@ namespace ZTeachingTip
             CoreWindow.GetForCurrentThread().SizeChanged -= CoreWindowResizeCompleted;
 
         }
-
         private void SubscribeToSizeChangeNotification()
         {
+            UnSubscribeToSizeChangeNotification();
             Window.Current.SizeChanged += WindowSizeChanged;
             CoreWindow.GetForCurrentThread().ResizeCompleted += CoreWindowResizeCompleted;
             CoreWindow.GetForCurrentThread().SizeChanged += CoreWindowResizeCompleted;
@@ -289,17 +305,27 @@ namespace ZTeachingTip
             ZTeachingTipPopUp.LightDismissOverlayMode = dissDismissMode;
         }
 
+        private DispatcherTimer _dispatcherTimer = new DispatcherTimer();
         private void ContentElement_SizeChanged(object sender, SizeChangedEventArgs e)
         {
             if (sender is FrameworkElement contentElement)
             {
-                ZTeachingTipPopUp.MaxHeight = RootGrid.ActualHeight;
-                ZTeachingTipPopUp.MaxWidth = RootGrid.ActualWidth;
-                
+                _popUpHeight = RootGrid.ActualHeight;
+                _popUpWidth = RootGrid.ActualWidth;
+                AssignTargetDimentionIfExist();
                 PositionPopUp();
-               
             }
         }
+        private void AssignTargetDimentionIfExist()
+        {
+            if (Target == null)
+            {
+                return;
+            }
+            _targetHeight = Target.ActualHeight;
+            _targetWidth = Target.ActualWidth;
+        }
+
         private void ShouldBoundToXamlRootChanged()
         {
             PositionPopUp();
@@ -354,7 +380,7 @@ namespace ZTeachingTip
         {
 
         }
-        
+
 
         #region PopUpPlacementLogicRegion
 
@@ -408,7 +434,7 @@ namespace ZTeachingTip
         private void PositionPopUp()
         {
             var isTeachingTipFit = TeachingTipContent is null ? PositionPopUpUnTargeted() : PositionPopUpBasedOnTarget(Target);
-            if (!ShouldBoundToXamlRoot || isTeachingTipFit) 
+            if (!ShouldBoundToXamlRoot || isTeachingTipFit)
             {
                 return;
             }//if Control should be contained within xaml root but size not enough to show so  Hiding the PopUp to Avoid Clipping
@@ -433,15 +459,15 @@ namespace ZTeachingTip
                 return false;
             }
 
-            PrintOffsetDetails(calculatedOffset);
             return calculatedOffset.IsFittingWithinBounds;
 
         }
+        // PrintOffsetDetails(calculatedOffset);
         //ZTeachingTipPopUp.TryShowNear(targetElement, default, PlacementPreferenceOrders.Top, VerticalAlignmentPreferenceOrders.TopCenterBottom,HorizontalAlignmentPreferenceOrders.Center, 0, true);
 
         private ZTeachingTipOffset DetermineSuitablePlacementPreference()
         {
-            
+
             var requestedOffset = CalculatePlacementOffsetForPopUp(PreferredPlacement);
 
 
@@ -450,17 +476,17 @@ namespace ZTeachingTip
                 ActualPlacement = PreferredPlacement;
                 return requestedOffset;
             }
-            
+
             var startIndex = PlacementOffsets.IndexOf(PreferredPlacement);
 
-            for (int i = 0; i < PlacementOffsets.Count -1 ; i++)
+            for (int i = 0; i < PlacementOffsets.Count - 1; i++)
             {
-                if (startIndex >= PlacementOffsets.Count -1)
+                if (startIndex >= PlacementOffsets.Count - 1)
                 {
                     startIndex = -1;
                 }
                 var offsetForPlacement = CalculatePlacementOffsetForPopUp(PlacementOffsets[++startIndex]);
-                
+
                 if (offsetForPlacement.IsFittingWithinBounds)
                 {
                     ActualPlacement = PlacementOffsets[startIndex];
@@ -470,7 +496,7 @@ namespace ZTeachingTip
             return requestedOffset;
         }
 
-
+#if DEBUG
         private void PrintOffsetDetails(ZTeachingTipOffset preferredOffset)
         {
             Debug.WriteLine("================================================================================================================");
@@ -480,6 +506,8 @@ namespace ZTeachingTip
             Debug.WriteLine($"Pop Vetical And Horizontal OFfset Vertical={ZTeachingTipPopUp.VerticalOffset} Horizontal = {ZTeachingTipPopUp.HorizontalOffset}");
             Debug.WriteLine($"Target Cordinates X= {TargetCoordinatesInCoreWindowSpace.X}  Y = {TargetCoordinatesInCoreWindowSpace.Y}");
         }
+#endif
+
 
 
         private ZTeachingTipOffset CalculatePlacementOffsetForPopUp(ZTeachingTipPlacement RequestedPlacement)
@@ -546,11 +574,11 @@ namespace ZTeachingTip
                     break;
 
             }
-              CheckIfSpaceForPopupPositioningAvailableAvailable(placementOffset, RequestedPlacement,distanceX,distanceY);
+            CheckIfSpaceForPopupPositioningAvailableAvailable(placementOffset, RequestedPlacement, distanceX, distanceY);
 
             return placementOffset;
         }
-        private void CheckIfSpaceForPopupPositioningAvailableAvailable(ZTeachingTipOffset placementOffset, ZTeachingTipPlacement preferredPlacement,double distanceX,double distanceY)
+        private void CheckIfSpaceForPopupPositioningAvailableAvailable(ZTeachingTipOffset placementOffset, ZTeachingTipPlacement preferredPlacement, double distanceX, double distanceY)
         {
             bool hasVerticalSpace = default;
             bool hasHorizontalSpace = default;
@@ -573,7 +601,7 @@ namespace ZTeachingTip
                     hasHorizontalSpace = PopUpCoordinatesInCoreWindowSpace.X + horizontalOffset >= 0;
                     break;
                 case ZTeachingTipPlacement.Bottom:
-                    hasVerticalSpace = PopUpCoordinatesInCoreWindowSpace.Y+ verticalOffset + PopUpCoordinatesInCoreWindowSpace.Height <= WindowBounds.Height;
+                    hasVerticalSpace = PopUpCoordinatesInCoreWindowSpace.Y + verticalOffset + PopUpCoordinatesInCoreWindowSpace.Height <= WindowBounds.Height;
                     hasHorizontalSpace = (PopUpCoordinatesInCoreWindowSpace.X + horizontalOffset >= 0 && PopUpCoordinatesInCoreWindowSpace.X + horizontalOffset + PopUpCoordinatesInCoreWindowSpace.Width <= WindowBounds.Width);
                     break;
 
@@ -593,7 +621,7 @@ namespace ZTeachingTip
                     break;
                 case ZTeachingTipPlacement.LeftTop:
                     hasHorizontalSpace = PopUpCoordinatesInCoreWindowSpace.X + horizontalOffset >= 0;
-                    hasVerticalSpace = PopUpCoordinatesInCoreWindowSpace.Y + distanceY + PopUpCoordinatesInCoreWindowSpace.Height <= WindowBounds.Height; 
+                    hasVerticalSpace = PopUpCoordinatesInCoreWindowSpace.Y + distanceY + PopUpCoordinatesInCoreWindowSpace.Height <= WindowBounds.Height;
 
                     break;
                 case ZTeachingTipPlacement.LeftBottom:
@@ -626,7 +654,7 @@ namespace ZTeachingTip
 
             double VerticalMarginDeviation()
             {
-              return  PlacementOffsetMargin.Top - PlacementOffsetMargin.Bottom;
+                return PlacementOffsetMargin.Top - PlacementOffsetMargin.Bottom;
             }
 
             double HorizontalMarginDeviation()
@@ -647,18 +675,18 @@ namespace ZTeachingTip
 
         private Rect PopUpCoordinatesInCoreWindowSpace
         {
-            get => ZTeachingTipPopUp.TransformToVisual(Window.Current.Content).TransformBounds(new Rect(0.0, 0.0, ZTeachingTipPopUp.MaxWidth, ZTeachingTipPopUp.MaxHeight));
+            get => ZTeachingTipPopUp.TransformToVisual(Window.Current.Content).TransformBounds(new Rect(0.0, 0.0, _popUpWidth, _popUpHeight));
         }
 
         private Rect TargetCoordinatesInCoreWindowSpace
         {
-            get => Target.TransformToVisual(Window.Current.Content).TransformBounds(new Rect(0.0, 0.0, Target.ActualWidth, Target.ActualHeight));
+            get => Target.TransformToVisual(Window.Current.Content).TransformBounds(new Rect(0.0, 0.0, _targetWidth, _targetHeight));
         }
 
         private Thickness SpaceAroundTarget
         {
             get
-            { 
+            {
                 var availableSpace = new Thickness
                 {
                     Left = TargetCoordinatesInCoreWindowSpace.X,
@@ -721,7 +749,7 @@ namespace ZTeachingTip
             }
             return offset;
         }
-        
+
         #endregion
 
         #endregion
@@ -754,4 +782,5 @@ namespace ZTeachingTip
         RightTop,
         RightBottom,
     }
+
 }

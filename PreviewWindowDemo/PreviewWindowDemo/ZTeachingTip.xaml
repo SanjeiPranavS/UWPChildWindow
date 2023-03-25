@@ -8,18 +8,17 @@
              x:DefaultBindMode="OneWay"
              d:DesignHeight="300"
              d:DesignWidth="400">
-    <Grid>
-        <Popup x:Name="ZTeachingTipPopUp"
-               IsOpen="{x:Bind IsOpen,Mode=TwoWay}"
-               LightDismissOverlayMode="Auto"
-               ShouldConstrainToRootBounds="False"
-               IsLightDismissEnabled="{x:Bind IsLightDismissEnabled,Mode=TwoWay}">
+    <Popup x:Name="ZTeachingTipPopUp"
+           IsOpen="{x:Bind IsOpen,Mode=TwoWay}"
+           LightDismissOverlayMode="Auto"
+           ShouldConstrainToRootBounds="False"
+           IsLightDismissEnabled="{x:Bind IsLightDismissEnabled,Mode=TwoWay}">
             <Popup.ChildTransitions>
                 <TransitionCollection>
                     <PopupThemeTransition />
                 </TransitionCollection>
             </Popup.ChildTransitions>
-            <Grid x:Name="RootGrid">
+            <Grid x:Name="RootGrid"  >
                 <Grid.Shadow>
                     <ThemeShadow/>
                 </Grid.Shadow>
@@ -28,11 +27,8 @@
                         HorizontalAlignment="Right"
                         Style="{x:Bind CloseButtonStyle}"
                         Canvas.ZIndex="20"
-                        MinHeight="20"
-                        MinWidth="40"
                         Visibility="Collapsed"
-                        Click="CloseButton_OnClick" 
-                        Background="Transparent">
+                        Click="CloseButton_OnClick">
                     <Button.Content>
                         <FontIcon Glyph="&#xE711;" Foreground="{ThemeResource  TextBoxButtonForegroundThemeBrush}" />
                     </Button.Content>
@@ -61,5 +57,5 @@
                 </VisualState>
             </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
-    </Grid>
+   
 </UserControl>

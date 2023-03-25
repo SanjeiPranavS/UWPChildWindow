@@ -64,7 +64,7 @@
             </StackPanel>
         <StackPanel Orientation="Vertical" VerticalAlignment="Center" Grid.Row="1">
             <TextBlock HorizontalAlignment="Center" FontWeight="Bold" FontSize="25">This is Resizable Target</TextBlock>
-            <local:PreviewControl Width="400"  x:Name="ResizableTarget" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            <local:PreviewControl  x:Name="ResizableTarget" HorizontalAlignment="Center" VerticalAlignment="Center"/>
 
         </StackPanel>
         <local:ZTeachingTip x:Name="TeachingZTip"></local:ZTeachingTip>
