@@ -1,7 +1,6 @@
 ﻿<UserControl x:Class="ZTeachingTip.ZTeachingTip"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="using:ZTeachingTip"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d"
@@ -37,9 +36,7 @@
                     <ContentPresenter Background="{x:Bind Background}"
                                       x:Name="RootContentPresenter"
                                       HorizontalAlignment="Stretch" 
-                                      VerticalAlignment="Stretch">
-                      
-                    </ContentPresenter>
+                                      VerticalAlignment="Stretch" />
                 </ScrollViewer>
             </Grid>
         </Popup>
@@ -52,7 +49,7 @@
                 </VisualState>
                 <VisualState x:Name="LightDismissDisabled">
                     <VisualState.Setters>
-                        <Setter Target="TeachingTipCloseBtn.Visibility" Value="Visible"></Setter>
+                        <Setter Target="TeachingTipCloseBtn.Visibility" Value="Visible" />
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
