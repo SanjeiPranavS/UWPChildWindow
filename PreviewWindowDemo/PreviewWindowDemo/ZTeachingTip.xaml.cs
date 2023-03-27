@@ -6,6 +6,7 @@ using Windows.Foundation;
 using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Media;
 
 // The User Control item template is documented at https://go.microsoft.com/fwlink/?LinkId=234236
 
@@ -50,7 +51,16 @@ namespace ZTeachingTip
 
 
         public readonly static DependencyProperty CloseButtonStyleProperty = DependencyProperty.Register(
-            nameof(CloseButtonStyle), typeof(Style), typeof(ZTeachingTip), new PropertyMetadata(default(Style)));
+            nameof(CloseButtonStyle), typeof(Style), typeof(ZTeachingTip), new PropertyMetadata(new Style()
+            {
+                TargetType = typeof(Button),
+                Setters =
+                {
+                    new Setter(Button.BackgroundProperty,Windows.UI.Colors.Transparent),
+                    new Setter(Button.BorderBrushProperty,Windows.UI.Colors.Transparent),
+                    new Setter(Button.CornerRadiusProperty,new CornerRadius(4))
+                }
+            }));
 
         public readonly static DependencyProperty LightDismissModeProperty = DependencyProperty.Register(
             nameof(LightDismissMode), typeof(LightDismissOverlayMode), typeof(ZTeachingTip), new PropertyMetadata(LightDismissOverlayMode.Auto, OnLightDismissModePropertyChanged));
@@ -67,6 +77,14 @@ namespace ZTeachingTip
             set => SetValue(LightDismissModeProperty, value);
         }
 
+        public readonly static DependencyProperty CloseButtonContentProperty = DependencyProperty.Register(
+            nameof(CloseButtonContent), typeof(object), typeof(ZTeachingTip),new PropertyMetadata(default));
+
+        public object CloseButtonContent
+        {
+            get => (object)GetValue(CloseButtonContentProperty);
+            set => SetValue(CloseButtonContentProperty, value);
+        }
         public Thickness PlacementOffsetMargin
         {
             get => (Thickness)GetValue(PlacementOffsetMarginProperty);
@@ -230,18 +248,21 @@ namespace ZTeachingTip
         private void CloseButton_OnClick(object sender, RoutedEventArgs e)
         {
             CloseButtonClicked?.Invoke(this, e);
-            IsOpen = false;
+            IsOpen = false; 
         }
 
         #endregion
-
-
+        
+        
         public ZTeachingTip()
         {
             this.InitializeComponent();
-            ZTeachingTipPopUp.Closed += ZTeachingTipPopUp_Closed;
             PlacementOffsets = PopulateOffsets();
-
+            RegisterEventsAndProperties();
+        }
+        private void RegisterEventsAndProperties()
+        {
+            ZTeachingTipPopUp.Closed += ZTeachingTipPopUp_Closed;
             RootGrid.Loaded += RootGrid_Loaded;
             RootGrid.Translation += new Vector3(0, 0, 35);
             RootGrid.SizeChanged += ContentElement_SizeChanged;

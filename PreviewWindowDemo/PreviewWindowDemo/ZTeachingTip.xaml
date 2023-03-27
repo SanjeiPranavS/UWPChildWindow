@@ -3,42 +3,51 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             mc:Ignorable="d"
+             mc:Ignorable="d" 
+             CornerRadius="4"
              x:DefaultBindMode="OneWay"
-             d:DesignHeight="300"
+             d:DesignHeight="300" 
              d:DesignWidth="400">
     <Popup x:Name="ZTeachingTipPopUp"
            IsOpen="{x:Bind IsOpen,Mode=TwoWay}"
            LightDismissOverlayMode="Auto"
            ShouldConstrainToRootBounds="False"
-           IsLightDismissEnabled="True">
-            <Popup.ChildTransitions>
-                <TransitionCollection>
-                    <PopupThemeTransition />
-                </TransitionCollection>
-            </Popup.ChildTransitions>
-            <Grid x:Name="RootGrid"  >
-                <Grid.Shadow>
-                    <ThemeShadow/>
-                </Grid.Shadow>
-                <Button VerticalAlignment="Top"
-                        x:Name="TeachingTipCloseBtn"
-                        HorizontalAlignment="Right"
-                        Style="{x:Bind CloseButtonStyle}"
-                        Canvas.ZIndex="20" 
-                        Visibility="Collapsed"
-                        Click="CloseButton_OnClick">
-                    <Button.Content>
-                        <FontIcon Glyph="&#xE711;" Foreground="{ThemeResource  TextBoxButtonForegroundThemeBrush}" />
-                    </Button.Content>
-                </Button>
-                <ScrollViewer VerticalScrollBarVisibility="Auto">
-                    <ContentPresenter Background="{x:Bind Background}"
-                                      x:Name="RootContentPresenter"
-                                      HorizontalAlignment="Stretch" 
-                                      VerticalAlignment="Stretch" />
-                </ScrollViewer>
-            </Grid>
+           IsLightDismissEnabled="True" >
+        <Popup.ChildTransitions>
+            <TransitionCollection>
+                <PopupThemeTransition/>
+            </TransitionCollection>
+        </Popup.ChildTransitions>
+        <Grid x:Name="RootGrid"
+              CornerRadius="{x:Bind CornerRadius}"
+              Height="{x:Bind Height}"
+              Width="{x:Bind Width}"
+              MaxHeight="{x:Bind MaxHeight}"
+              MaxWidth="{x:Bind MaxWidth}"
+              Background="{x:Bind Background}">
+            <Grid.Shadow>
+                <ThemeShadow />
+            </Grid.Shadow>
+            <Button VerticalAlignment="Top"
+                    x:Name="TeachingTipCloseBtn"
+                    HorizontalAlignment="Right"
+                    Style="{x:Bind CloseButtonStyle}"
+                    Canvas.ZIndex="20"
+                    x:Load="False"
+                    Click="CloseButton_OnClick">
+                <Button.Content>
+                    <FontIcon Glyph="&#xE711;"
+                              FontFamily="Segoe Fluent Icons" 
+                              Foreground="{ThemeResource  TextBoxButtonForegroundThemeBrush}"/>
+                </Button.Content>
+            </Button>
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <ContentPresenter x:Name="RootContentPresenter"
+                                  Padding="{x:Bind Padding}"
+                                  HorizontalAlignment="Stretch"
+                                  VerticalAlignment="Stretch" />
+            </ScrollViewer>
+        </Grid>
         <VisualStateManager.VisualStateGroups>
             <VisualStateGroup x:Name="ListDismissStatesGroup">
                 <VisualState x:Name="LightDismissEnabled">
