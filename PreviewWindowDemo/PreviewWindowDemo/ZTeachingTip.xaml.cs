@@ -304,8 +304,6 @@ namespace ZTeachingTip
         {
             ZTeachingTipPopUp.LightDismissOverlayMode = dissDismissMode;
         }
-
-        private DispatcherTimer _dispatcherTimer = new DispatcherTimer();
         private void ContentElement_SizeChanged(object sender, SizeChangedEventArgs e)
         {
             if (sender is FrameworkElement contentElement)

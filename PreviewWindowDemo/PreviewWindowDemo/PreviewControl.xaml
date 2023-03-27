@@ -1,29 +1,40 @@
-﻿<UserControl
-    x:Class="ZTeachingTip.PreviewControl"
-    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    mc:Ignorable="d"
-    d:DesignHeight="300"
-    d:DesignWidth="400">
+﻿<UserControl x:Class="ZTeachingTip.PreviewControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:zTeachingTip="using:ZTeachingTip"
+             mc:Ignorable="d"
+             d:DesignHeight="300"
+             d:DesignWidth="400">
 
     <Grid Background="DarkGray">
-        <Border Margin="8" Background="Azure" BorderBrush="Black"  BorderThickness="2" CornerRadius="8">
+        <Border Margin="8"
+                Background="Azure"
+                BorderBrush="Black"
+                BorderThickness="2"
+                CornerRadius="8">
             <StackPanel Orientation="Vertical">
-                <ListView HorizontalAlignment="Stretch" ItemsSource="{x:Bind StringSource,Mode=OneWay}" />
-                <Button HorizontalAlignment="Stretch">
-                <Button.Flyout>
-                    <DatePickerFlyout LightDismissOverlayMode="On" />
-                </Button.Flyout>
-                   FlyoutButton
-            </Button>  
+                <ListView HorizontalAlignment="Stretch"
+                          ItemsSource="{x:Bind StringSource,Mode=OneWay}" />
                 <Button HorizontalAlignment="Stretch"
-                        Click="ButtonBase_OnClick"
-                        >Add item</Button>
+                        x:Name="FlyoutButton"
+                        Click="FlyoutButton_OnClick">
+                    FlyoutButton
+                </Button>
+                <Button HorizontalAlignment="Stretch"
+                        Click="ButtonBase_OnClick">Add item</Button>
                 <Button HorizontalAlignment="Stretch"
                         Click="RemoveItemButton_OnClick">Remove Item</Button>
             </StackPanel>
         </Border>
+        <zTeachingTip:ZTeachingTip IsLightDismissEnabled="False"
+                                   x:Name="TeachingTip"
+                                   PreferredPlacement="Right" 
+                                   Target="{Binding ElementName=FlyoutButton}">
+            <zTeachingTip:ZTeachingTip.TeachingTipContent>
+                 <Image Height="100" Width="300" Stretch="Fill" Source="../Assets/the-grounded-angel-c0.jpg"></Image>
+            </zTeachingTip:ZTeachingTip.TeachingTipContent>
+        </zTeachingTip:ZTeachingTip>
     </Grid>
 </UserControl>
