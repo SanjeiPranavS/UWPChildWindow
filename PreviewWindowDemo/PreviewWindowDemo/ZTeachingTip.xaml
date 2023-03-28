@@ -9,7 +9,6 @@
              d:DesignHeight="300" 
              d:DesignWidth="400">
     <Popup x:Name="ZTeachingTipPopUp"
-           IsOpen="{x:Bind IsOpen,Mode=TwoWay}"
            LightDismissOverlayMode="Auto"
            ShouldConstrainToRootBounds="False"
            IsLightDismissEnabled="True" >
@@ -20,8 +19,6 @@
         </Popup.ChildTransitions>
         <Grid x:Name="RootGrid"
               CornerRadius="{x:Bind CornerRadius}"
-              Height="{x:Bind Height}"
-              Width="{x:Bind Width}"
               MaxHeight="{x:Bind MaxHeight}"
               MaxWidth="{x:Bind MaxWidth}"
               Background="{x:Bind Background}">
@@ -62,6 +59,20 @@
                                 Value="Visible" />
                     </VisualState.Setters>
                 </VisualState>
+            </VisualStateGroup>
+            <VisualStateGroup x:Name="TailPositioningStates">
+                <VisualState x:Name="Top" />
+                <VisualState x:Name="TopLeft" />
+                <VisualState x:Name="TopRight"/>
+                <VisualState x:Name="Bottom" />
+                <VisualState x:Name="BottomRight"/>
+                <VisualState x:Name="BottomLeft"/>
+                <VisualState x:Name="Right" />
+                <VisualState x:Name="RightTop"/>
+                <VisualState x:Name="RightBottom"/>
+                <VisualState x:Name="Left"/>
+                <VisualState x:Name="LeftTop"/>
+                <VisualState x:Name="LeftBottom"/>
             </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
     </Popup>

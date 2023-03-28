@@ -28,13 +28,13 @@
                         Click="RemoveItemButton_OnClick">Remove Item</Button>
             </StackPanel>
         </Border>
-        <zTeachingTip:ZTeachingTip IsLightDismissEnabled="False"
+        <!--<zTeachingTip:ZTeachingTip IsLightDismissEnabled="False"
                                    x:Name="TeachingTip"
                                    PreferredPlacement="Right" 
                                    Target="{Binding ElementName=FlyoutButton}">
             <zTeachingTip:ZTeachingTip.TeachingTipContent>
                  <Image Height="100" Width="300" Stretch="Fill" Source="../Assets/the-grounded-angel-c0.jpg"></Image>
             </zTeachingTip:ZTeachingTip.TeachingTipContent>
-        </zTeachingTip:ZTeachingTip>
+        </zTeachingTip:ZTeachingTip>-->
     </Grid>
 </UserControl>

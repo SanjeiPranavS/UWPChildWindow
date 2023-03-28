@@ -35,7 +35,7 @@ namespace ZTeachingTip
         }
         private void FlyoutButton_OnClick(object sender, RoutedEventArgs e)
         {
-            TeachingTip.IsOpen = !TeachingTip.IsOpen;
+         //   TeachingTip.IsOpen = !TeachingTip.IsOpen;
         }
     }
 }

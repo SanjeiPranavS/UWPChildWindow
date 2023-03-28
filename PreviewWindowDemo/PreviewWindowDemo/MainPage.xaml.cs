@@ -2,6 +2,7 @@
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
+using Microsoft.UI.Xaml.Controls;
 using ZTeachingTip;
 using ZTeachingTip.Zoho.UWP.Common.Extensions;
 
@@ -36,12 +37,10 @@ namespace ZTeachingTip
             this.Loaded += MainPage_Loaded;
         }
 
+       
         private void MainPage_Loaded(object sender, RoutedEventArgs e)
         {
-            TeachingZTip.LightDismissMode = LightDismissOverlayMode.On;
-           TeachingZTip.Target = ResizableTarget;
-           TeachingZTip.TeachingTipContent = new PreviewControl();
-
+           
         }
 
         //private async void MainPage_Consolidated(ApplicationView sender, ApplicationViewConsolidatedEventArgs args)
@@ -204,17 +203,21 @@ namespace ZTeachingTip
         //    SplitView.IsPaneOpen = true;
         //}
 
+
+        private ZTeachingTip _teachingZTip;
         private void PopupUpCheckButton_OnClick(object sender, RoutedEventArgs e)
         {
-            //PreviewPopup.TryShowNear(sender as Button,default,new Side[]{Side.Right,Side.Top},new Alignment[]
-            //{
-            //    Alignment.Center
-            //},new Alignment[]
-            //{
-            //    Alignment.Right
-            //},isOverflowAllowed:true);
-            TeachingZTip.IsOpen = !TeachingZTip.IsOpen;
-            
+
+            if (_teachingZTip == null)
+            {
+                _teachingZTip = new ZTeachingTip();
+                
+                _teachingZTip.TeachingTipContent = new PreviewControl();
+                _teachingZTip.IsLightDismissEnabled = true;
+                _teachingZTip.Target = ResizableTarget;
+                _teachingZTip.IsOpen = true;
+            }
+            _teachingZTip.IsOpen = !_teachingZTip.IsOpen;
         }
         //PreviewPopup.TryShowNear(sender as Button,default,new Side[]{Side.Right,Side.Top},new Alignment[]
         //{
@@ -227,105 +230,118 @@ namespace ZTeachingTip
         {
             if (sender == PlacementPreferenceLeftITem)
             {
-                TeachingZTip.PreferredPlacement = ZTeachingTipPlacement.Left;
+                _teachingZTip.PreferredPlacement = ZTeachingTipPlacement.Left;
                 PlacementPreferenceDropDownButton.Content = "Left";
             }
             if (sender == PlacementPrefereneceRightItem)
             {
-                TeachingZTip.PreferredPlacement = ZTeachingTipPlacement.Right;
+                _teachingZTip.PreferredPlacement = ZTeachingTipPlacement.Right;
                 PlacementPreferenceDropDownButton.Content = "Right";
             }
             if (sender == PlacementPrefereneceRightTopItem)
             {
-                TeachingZTip.PreferredPlacement = ZTeachingTipPlacement.RightTop;
+                _teachingZTip.PreferredPlacement = ZTeachingTipPlacement.RightTop;
                 PlacementPreferenceDropDownButton.Content = "Right Top";
             }
             if (sender == PlacementPrefereneceLeftTopItem)
             {
-                TeachingZTip.PreferredPlacement = ZTeachingTipPlacement.LeftTop;
+                _teachingZTip.PreferredPlacement = ZTeachingTipPlacement.LeftTop;
                 PlacementPreferenceDropDownButton.Content = "Left Top";
             }
             if (sender == PlacementPrefereneceTopItem)
             {
-                TeachingZTip.PreferredPlacement = ZTeachingTipPlacement.Top;
+                _teachingZTip.PreferredPlacement = ZTeachingTipPlacement.Top;
                 PlacementPreferenceDropDownButton.Content = " Top";
             }
             if (sender == PlacementPrefereneceBottomItem)
             {
-                TeachingZTip.PreferredPlacement = ZTeachingTipPlacement.Bottom;
+                _teachingZTip.PreferredPlacement = ZTeachingTipPlacement.Bottom;
                 PlacementPreferenceDropDownButton.Content = "Bottom";
             }
             if (sender == PlacementPrefereneceTopLeftItem)
             {
-                TeachingZTip.PreferredPlacement = ZTeachingTipPlacement.TopLeft;
+                _teachingZTip.PreferredPlacement = ZTeachingTipPlacement.TopLeft;
                 PlacementPreferenceDropDownButton.Content = "Top Left";
             }
             if (sender == PlacementPrefereneceBottomLeftItem)
             {
-                TeachingZTip.PreferredPlacement = ZTeachingTipPlacement.BottomLeft;
+                _teachingZTip.PreferredPlacement = ZTeachingTipPlacement.BottomLeft;
                 PlacementPreferenceDropDownButton.Content = "Bottom Left";
             }
             if (sender == PlacementPrefereneceTopRIghtItem)
             {
-                TeachingZTip.PreferredPlacement = ZTeachingTipPlacement.TopRight;
+                _teachingZTip.PreferredPlacement = ZTeachingTipPlacement.TopRight;
                 PlacementPreferenceDropDownButton.Content = "Top Right";
             }
             if (sender == PlacementPrefereneceBottomRightItem)
             {
-                TeachingZTip.PreferredPlacement = ZTeachingTipPlacement.BottomRight;
+                _teachingZTip.PreferredPlacement = ZTeachingTipPlacement.BottomRight;
                 PlacementPreferenceDropDownButton.Content = "Bottom Right";
             }
             if (sender == PlacementPrefereneceRightBottomItem)
             {
-                TeachingZTip.PreferredPlacement = ZTeachingTipPlacement.RightBottom;
+                _teachingZTip.PreferredPlacement = ZTeachingTipPlacement.RightBottom;
                 PlacementPreferenceDropDownButton.Content = "Right Bottom";
             }
             if (sender == PlacementPrefereneceLeftBottomItem)
             {
-                TeachingZTip.PreferredPlacement = ZTeachingTipPlacement.LeftBottom;
+                _teachingZTip.PreferredPlacement = ZTeachingTipPlacement.LeftBottom;
                 PlacementPreferenceDropDownButton.Content = "Left Bottom";
             }
         }
-        private Popup ExistingExterntionClassTesting;
+        private Popup popup;
+
+        private TeachingTip TestTip;
+
+        private TestControl testControl;
         private void ExtensionTestingBUtton_OnClick(object sender, RoutedEventArgs e)
         {
-            
-            if (ExistingExterntionClassTesting is null)
+
+            //if (TestTip is null)
+            //{
+            //    TestTip = new TeachingTip
+            //    {
+            //        Content = "Show Something",
+            //        PreferredPlacement = TeachingTipPlacementMode.Left,
+
+            //    };
+            //    TestTip.Target = sender as FrameworkElement;
+            //    //LayoutRoot.Children.Add(TestTip);
+            //    TestTip.IsOpen = true;//!TestTip.IsOpen;
+            //    return;
+            //}
+            //TestTip.IsOpen = !TestTip.IsOpen;
+            //if (popup is null)
+            //{
+            //    popup = new Popup();
+            //    popup.Child = new PreviewControl()
+            //    {
+            //        Width = 300, Height = 300,
+            //    };
+            //    popup.Loaded += Popup_Loaded;
+            //    popup.IsLightDismissEnabled = false;
+            //    popup.IsOpen = true;
+            //}
+            //popup.IsOpen = !popup.IsOpen;
+
+            if (testControl is null)
             {
-                var childcontrol = new PreviewControl()
+                testControl = new TestControl
                 {
-                    Width = 300, Height = 300
+                    IsOpen = true
                 };
-                ExistingExterntionClassTesting = new Popup()
-                {
-                    MaxWidth = 300,
-                    MaxHeight = 300,
-                    Child = childcontrol,
-                    IsLightDismissEnabled = false,
-                    
-                };
-                LayoutRoot.Children.Add(ExistingExterntionClassTesting);
-                childcontrol.Loaded += MainPage_Loaded1;
-                ExistingExterntionClassTesting.Loaded += ExistingExterntionClassTesting_Loaded;
-                // return;
-            }
-            if (ExistingExterntionClassTesting.IsOpen)
-            {
-                ExistingExterntionClassTesting.IsOpen = false;
                 return;
             }
-            ExistingExterntionClassTesting.TryShowNear(sender as FrameworkElement,default ,PlacementPreferenceOrders.Left, VerticalAlignmentPreferenceOrders.CenterBottomTop,HorizontalAlignmentPreferenceOrders.LeftCenterRight, 0, false);
+            testControl.IsOpen = !testControl.IsOpen;
+            //testControl.OpenSomePopUp();
         }
 
-        private void ExistingExterntionClassTesting_Loaded(object sender, RoutedEventArgs e)
+        private void Popup_Loaded(object sender, RoutedEventArgs e)
         {
-            
+           
         }
 
-        void MainPage_Loaded1(object sender, RoutedEventArgs e)
-        {
-
-        }
+       
 
         private void ChangeMarginBtn_OnClick(object sender, RoutedEventArgs e)
         {
@@ -335,7 +351,7 @@ namespace ZTeachingTip
                 double.TryParse(BottomMarginTextBlock.Text, out var bottomMargin))
             {
                 var placementOffset = new Thickness(leftMargin, topMargin, rightMargin, bottomMargin);
-                TeachingZTip.PlacementOffsetMargin = placementOffset;
+                _teachingZTip.PlacementOffsetMargin = placementOffset;
                 InfoTextBlock.Text = string.Empty;
                 return;
             }
@@ -355,6 +371,11 @@ namespace ZTeachingTip
         //        return;
         //    }
         //    MarginInfoTextBox.Text = "Invalid Margin Format";
+        }
+
+        private void TeachingZTip_Loaded(object sender, RoutedEventArgs e)
+        {
+
         }
     }
 }

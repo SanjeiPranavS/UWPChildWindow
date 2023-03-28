@@ -250,22 +250,50 @@ namespace ZTeachingTip
             CloseButtonClicked?.Invoke(this, e);
             IsOpen = false; 
         }
+        private void ZTeachingTipContainerContentChangedCallBack(DependencyObject sender, DependencyProperty dp)
+        {
+            var newContent = GetValue(dp) as FrameworkElement;
+            if (newContent is null)
+            {
+                return;
+            }
+            ContentChanged(newContent); 
+        }
+
 
         #endregion
-        
-        
+
+
         public ZTeachingTip()
         {
-            this.InitializeComponent();
+            
             PlacementOffsets = PopulateOffsets();
+            this.InitializeComponent();
             RegisterEventsAndProperties();
         }
+      
         private void RegisterEventsAndProperties()
         {
+            //RegisterPropertyChangedCallback(ContentProperty, ZTeachingTipContainerContentChangedCallBack);
+            ZTeachingTipPopUp.Loaded += ZTeachingTipPopUp_Loaded;
             ZTeachingTipPopUp.Closed += ZTeachingTipPopUp_Closed;
             RootGrid.Loaded += RootGrid_Loaded;
             RootGrid.Translation += new Vector3(0, 0, 35);
             RootGrid.SizeChanged += ContentElement_SizeChanged;
+        }
+
+        private void ZTeachingTipPopUp_Loaded(object sender, RoutedEventArgs e)
+        {
+           Bindings.Update();
+        }
+
+        protected override Size ArrangeOverride(Size finalSize)
+        {
+            return new Size(0.0,0.0);
+        }
+        protected override Size MeasureOverride(Size availableSize)
+        {
+            return new Size(0.0,0.0);
         }
 
         #region ArrangementAndInitialPositioningCalaculation
@@ -300,12 +328,40 @@ namespace ZTeachingTip
         {
             if (IsOpen)
             {
+                //SelfAddToRootElementWithTargetIfParentNotAvailable();
                 SubscribeToSizeChangeNotification();
+                ZTeachingTipPopUp.IsOpen = true;
                 PositionPopUp();
                 return;
             }
             UnSubscribeToSizeChangeNotification();
+            ZTeachingTipPopUp.IsOpen = false;
         }
+
+        //private void SelfAddToRootElementWithTargetIfParentNotAvailable()
+        //{
+        //    if (Parent is null || !IsLoaded)
+        //    {
+        //        if (Target is FrameworkElement target)
+        //        {
+        //            AddAsChildrenIfPanel(target);
+        //        }
+        //    }
+
+        //    bool AddAsChildrenIfPanel(FrameworkElement frameworkElement)
+        //    {
+        //        if (frameworkElement is null)
+        //        {
+        //            return false;
+        //        }
+        //        if (!(frameworkElement is Panel panel))
+        //        {
+        //            return AddAsChildrenIfPanel(frameworkElement.Parent as FrameworkElement);
+        //        }
+        //        panel.Children.Add(this);
+        //        return true;
+        //    }
+        //}
         private void UnSubscribeToSizeChangeNotification()
         {
             Window.Current.SizeChanged -= WindowSizeChanged;
@@ -395,11 +451,16 @@ namespace ZTeachingTip
             PositionPopUp();
         }
 
+        private bool _isAlreadyOpened;
         private void ZTeachingTipPopUp_Closed(object sender, object e)
         {
-
+            if (!_isAlreadyOpened)
+            {
+               _isAlreadyOpened = ZTeachingTipPopUp.IsOpen = true;
+               return;
+            }
+            IsOpen = false;
         }
-
 
         #region PopUpPlacementLogicRegion
 
@@ -452,18 +513,19 @@ namespace ZTeachingTip
 
         private void PositionPopUp()
         {
-            var isTeachingTipFit = TeachingTipContent is null ? PositionPopUpUnTargeted() : PositionPopUpBasedOnTarget(Target);
+            var isTeachingTipFit = Target is null ? PositionPopUpUnTargeted() : PositionPopUpBasedOnTarget(Target);
             if (!ShouldBoundToXamlRoot || isTeachingTipFit)
             {
                 return;
             }//if Control should be contained within xaml root but size not enough to show so  Hiding the PopUp to Avoid Clipping
             ActualPlacement = null;
-            ZTeachingTipPopUp.IsOpen = false;
+            IsOpen = false;
         }
 
         private bool PositionPopUpUnTargeted()
         {
-            return true;
+            //Calculation For Window Width and Placement is Done accordingly
+            return false;
         }
         private bool PositionPopUpBasedOnTarget(FrameworkElement targetElement)
         {

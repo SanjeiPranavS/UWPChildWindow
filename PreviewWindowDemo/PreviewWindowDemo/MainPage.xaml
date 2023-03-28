@@ -21,8 +21,8 @@
                                 x:Name="OpenPaneButton" />
         </CommandBar>
         <StackPanel Margin="0">
-            <CheckBox IsChecked="{x:Bind TeachingZTip.IsLightDismissEnabled,Mode=TwoWay}">IsLightDisMissEnabled</CheckBox>
-            <CheckBox IsChecked="{x:Bind TeachingZTip.ShouldBoundToXamlRoot,Mode=TwoWay}">ShouldBoundToXamlRoot</CheckBox>
+            <CheckBox IsChecked="{x:Bind _teachingZTip.IsLightDismissEnabled,Mode=TwoWay}">IsLightDisMissEnabled</CheckBox>
+            <CheckBox IsChecked="{x:Bind _teachingZTip.ShouldBoundToXamlRoot,Mode=TwoWay}">ShouldBoundToXamlRoot</CheckBox>
             <DropDownButton x:Name="PlacementPreferenceDropDownButton"
                             Content="Left Top"
                             Margin="50 0 0 0">
@@ -113,7 +113,8 @@
                                    VerticalAlignment="Center" />
 
         </StackPanel>
-        <local:ZTeachingTip Background="Red"   
-                                        x:Name="TeachingZTip" />
+        <!--<local:ZTeachingTip Background="Red"   
+                                        x:Name="TeachingZTip"
+                            Loaded="TeachingZTip_Loaded" />-->
     </Grid>
 </Page>
