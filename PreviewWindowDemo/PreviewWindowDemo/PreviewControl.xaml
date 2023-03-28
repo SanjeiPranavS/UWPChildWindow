@@ -6,13 +6,14 @@
              xmlns:zTeachingTip="using:ZTeachingTip"
              mc:Ignorable="d"
              d:DesignHeight="300"
+             CornerRadius="6"
              d:DesignWidth="400">
-
-    <Grid Background="DarkGray">
+   <Image Source="Assets/Image File.png" Height="200" Width="400" Stretch="Fill" />
+    <!--<Grid Background="DarkGray">
         <Border Margin="8"
                 Background="Azure"
                 BorderBrush="Black"
-                BorderThickness="2"
+                BorderThickness="0"
                 CornerRadius="8">
             <StackPanel Orientation="Vertical">
                 <ListView HorizontalAlignment="Stretch"
@@ -28,13 +29,13 @@
                         Click="RemoveItemButton_OnClick">Remove Item</Button>
             </StackPanel>
         </Border>
-        <!--<zTeachingTip:ZTeachingTip IsLightDismissEnabled="False"
+        <zTeachingTip:ZTeachingTip IsLightDismissEnabled="False"
                                    x:Name="TeachingTip"
                                    PreferredPlacement="Right" 
                                    Target="{Binding ElementName=FlyoutButton}">
             <zTeachingTip:ZTeachingTip.TeachingTipContent>
                  <Image Height="100" Width="300" Stretch="Fill" Source="../Assets/the-grounded-angel-c0.jpg"></Image>
             </zTeachingTip:ZTeachingTip.TeachingTipContent>
-        </zTeachingTip:ZTeachingTip>-->
-    </Grid>
+        </zTeachingTip:ZTeachingTip>
+    </Grid>-->
 </UserControl>

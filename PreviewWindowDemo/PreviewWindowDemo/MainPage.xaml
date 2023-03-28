@@ -7,25 +7,29 @@
       xmlns:controls="using:Microsoft.UI.Xaml.Controls"
       mc:Ignorable="d">
 
+    <Page.Resources>
+        <Image Source="Assets/Image File.png" Stretch="Uniform" Width="300" Height="100" x:Name="PlaceholdeRimAge"></Image>
+    </Page.Resources>
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
           x:Name="LayoutRoot">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
-        <Grid.ColumnDefinitions>
-
-        </Grid.ColumnDefinitions>
         <CommandBar>
             <AppBarToggleButton Icon="Play"
                                 x:Name="OpenPaneButton" />
         </CommandBar>
-        <StackPanel Margin="0">
+        <StackPanel Margin="10 30 0 0">
             <CheckBox IsChecked="{x:Bind _teachingZTip.IsLightDismissEnabled,Mode=TwoWay}">IsLightDisMissEnabled</CheckBox>
             <CheckBox IsChecked="{x:Bind _teachingZTip.ShouldBoundToXamlRoot,Mode=TwoWay}">ShouldBoundToXamlRoot</CheckBox>
+            <CheckBox IsChecked="{x:Bind _teachingZTip.TailVisibility,Mode=TwoWay}">IsTailVisible</CheckBox>
+            <TextBox Header="Actual Placement" 
+                     x:Name="ActualPlacementTextBox"
+                     IsReadOnly="True"/>
             <DropDownButton x:Name="PlacementPreferenceDropDownButton"
-                            Content="Left Top"
-                            Margin="50 0 0 0">
+                            Content="Left Top" 
+                            Margin="20 0 0 0">
                 <DropDownButton.Flyout>
                     <MenuFlyout Placement="Bottom">
                         <MenuFlyoutItem Text="Left"
@@ -80,15 +84,19 @@
                 </StackPanel.Resources>
                 <TextBlock Text="L" />
                 <TextBox Width="20"
+                         PlaceholderText="0"
                          x:Name="LeftMarginTextBlock" />
                 <TextBlock  Text="T" />
                 <TextBox  Width="20"
+                          PlaceholderText="0"
                           x:Name="TopMarginTextBlock" />
                 <TextBlock Text="R" />
                 <TextBox   Width="20"
+                           PlaceholderText="0"
                            x:Name="RightMarginTextBlock" />
                 <TextBlock Text="B" />
                 <TextBox Width="20"
+                         PlaceholderText="0"
                          x:Name="BottomMarginTextBlock" />
                 <Button Click="ChangeMarginBtn_OnClick">Change Margin</Button>
                 <TextBlock x:Name="InfoTextBlock"
@@ -98,19 +106,17 @@
             <Button x:Name="PopupUpCheckButton"
                     Click="PopupUpCheckButton_OnClick"
                     HorizontalAlignment="Center">Open Close Button</Button>
-            <Button x:Name="ExtensionTestingBUtton"
-                    HorizontalAlignment="Center"
-                    Click="ExtensionTestingBUtton_OnClick">Target</Button>
+            <Button HorizontalAlignment="Center"
+                    Click="ButtonBase_OnClick"
+                    Content="Microsoft Teaching Tip" />
         </StackPanel>
-        <StackPanel Orientation="Vertical"
-                    VerticalAlignment="Center"
+        <StackPanel Orientation="Horizontal"
+                    VerticalAlignment="Center" HorizontalAlignment="Center"
                     Grid.Row="1">
+            <PersonPicture Height="40"  ProfilePicture="../Assets/the-grounded-angel-c0.jpg" x:Name="PersonPicture"></PersonPicture>
             <TextBlock HorizontalAlignment="Center"
                        FontWeight="Bold"
-                       FontSize="25">This is Resizable Target</TextBlock>
-            <local:PreviewControl  x:Name="ResizableTarget"
-                                   HorizontalAlignment="Center"
-                                   VerticalAlignment="Center" />
+                       FontSize="25">Fallen Angel</TextBlock>
 
         </StackPanel>
         <!--<local:ZTeachingTip Background="Red"   

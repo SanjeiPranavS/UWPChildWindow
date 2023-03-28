@@ -3,30 +3,50 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             mc:Ignorable="d" 
+             mc:Ignorable="d"
+             Padding="5"
              CornerRadius="4"
              x:DefaultBindMode="OneWay"
-             d:DesignHeight="300" 
+             d:DesignHeight="300"
              d:DesignWidth="400">
     <Popup x:Name="ZTeachingTipPopUp"
            LightDismissOverlayMode="Auto"
            ShouldConstrainToRootBounds="False"
-           IsLightDismissEnabled="True" >
+           IsLightDismissEnabled="True">
+        <Popup.Resources>
+            <ThemeShadow x:Key="ThemeShadow"/>
+        </Popup.Resources>
         <Popup.ChildTransitions>
             <TransitionCollection>
-                <PopupThemeTransition/>
+                <PopupThemeTransition />
             </TransitionCollection>
         </Popup.ChildTransitions>
         <Grid x:Name="RootGrid"
-              CornerRadius="{x:Bind CornerRadius}"
-              MaxHeight="{x:Bind MaxHeight}"
-              MaxWidth="{x:Bind MaxWidth}"
-              Background="{x:Bind Background}">
-            <Grid.Shadow>
-                <ThemeShadow />
-            </Grid.Shadow>
-            <Button VerticalAlignment="Top"
+              Background="Transparent"
+              BorderBrush="Transparent">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition  Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <Polygon x:Name="TailPolygon"
+                     Grid.Row="0"
+                     Grid.Column="0"
+                     Fill="Black"
+                     Stroke="Black"
+                     Shadow="{StaticResource ThemeShadow}"
+                     Margin="{x:Bind TailPolygonMargin,Mode=OneWay}"
+                     Visibility="{x:Bind TailVisibility}"
+                     StrokeThickness="1"></Polygon>
+            <Button Grid.Column="1"
                     x:Name="TeachingTipCloseBtn"
+                    Grid.Row="1"
+                    VerticalAlignment="Top"
                     HorizontalAlignment="Right"
                     Style="{x:Bind CloseButtonStyle}"
                     Canvas.ZIndex="20"
@@ -34,13 +54,24 @@
                     Click="CloseButton_OnClick">
                 <Button.Content>
                     <FontIcon Glyph="&#xE711;"
-                              FontFamily="Segoe Fluent Icons" 
-                              Foreground="{ThemeResource  TextBoxButtonForegroundThemeBrush}"/>
+                              FontSize="18"
+                              FontFamily="Segoe Fluent Icons"
+                              Foreground="{ThemeResource  TextBoxButtonForegroundThemeBrush}" />
                 </Button.Content>
             </Button>
-            <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <ScrollViewer VerticalScrollBarVisibility="Auto"
+                          Grid.Row="1"
+                          x:Name="RootScrollViewer"
+                          Shadow="{StaticResource ThemeShadow}"
+                          Grid.Column="1">
                 <ContentPresenter x:Name="RootContentPresenter"
                                   Padding="{x:Bind Padding}"
+                                  MinHeight="40"
+                                  MinWidth="320"
+                                  MaxHeight="{x:Bind MaxHeight}"
+                                  MaxWidth="{x:Bind MaxWidth}"
+                                  Background="{x:Bind Background}"
+                                  CornerRadius="{x:Bind CornerRadius}"
                                   HorizontalAlignment="Stretch"
                                   VerticalAlignment="Stretch" />
             </ScrollViewer>
@@ -61,18 +92,181 @@
                 </VisualState>
             </VisualStateGroup>
             <VisualStateGroup x:Name="TailPositioningStates">
-                <VisualState x:Name="Top" />
-                <VisualState x:Name="TopLeft" />
-                <VisualState x:Name="TopRight"/>
-                <VisualState x:Name="Bottom" />
-                <VisualState x:Name="BottomRight"/>
-                <VisualState x:Name="BottomLeft"/>
-                <VisualState x:Name="Right" />
-                <VisualState x:Name="RightTop"/>
-                <VisualState x:Name="RightBottom"/>
-                <VisualState x:Name="Left"/>
-                <VisualState x:Name="LeftTop"/>
-                <VisualState x:Name="LeftBottom"/>
+                <VisualState x:Name="Top">
+                    <VisualState.Setters>
+                        <Setter Target="TailPolygon.Points"
+                                Value="0,0 10,10, 20,0" />
+                        <Setter Target="TailPolygon.(Grid.Row)"
+                                Value="2" />
+                        <Setter Target="TailPolygon.(Grid.Column)"
+                                Value="1" />
+                        <Setter Target="TailPolygon.HorizontalAlignment"
+                                Value="Center" />
+                        <Setter Target="TailPolygon.VerticalAlignment"
+                                Value="Top" />
+                       
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState x:Name="TopLeft">
+                    <VisualState.Setters>
+                        <Setter Target="TailPolygon.Points"
+                                Value="0,0 10,10, 20,0" />
+                        <Setter Target="TailPolygon.(Grid.Row)"
+                                Value="2" />
+                        <Setter Target="TailPolygon.(Grid.Column)"
+                                Value="1" />
+                        <Setter Target="TailPolygon.HorizontalAlignment"
+                                Value="Left" />
+                        <Setter Target="TailPolygon.VerticalAlignment"
+                                Value="Top" />
+                       
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState x:Name="TopRight">
+                    <VisualState.Setters>
+                        <Setter Target="TailPolygon.Points"
+                                Value="0,0 10,10, 20,0" />
+                        <Setter Target="TailPolygon.(Grid.Row)"
+                                Value="2" />
+                        <Setter Target="TailPolygon.(Grid.Column)"
+                                Value="1" />
+                        <Setter Target="TailPolygon.HorizontalAlignment"
+                                Value="Right" />
+                        <Setter Target="TailPolygon.VerticalAlignment"
+                                Value="Top" />
+                       
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState x:Name="Bottom">
+                    <VisualState.Setters>
+                        <Setter Target="TailPolygon.Points"
+                                Value="0,10 10,0 20,10" />
+                        <Setter Target="TailPolygon.(Grid.Row)"
+                                Value="0" />
+                        <Setter Target="TailPolygon.(Grid.Column)"
+                                Value="1" />
+                        <Setter Target="TailPolygon.HorizontalAlignment"
+                                Value="Center" />
+                        <Setter Target="TailPolygon.VerticalAlignment"
+                                Value="Bottom" />
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState x:Name="BottomRight">
+                    <VisualState.Setters>
+                        <Setter Target="TailPolygon.Points"
+                                Value="0,10 10,0 20,10" />
+                        <Setter Target="TailPolygon.(Grid.Row)"
+                                Value="0" />
+                        <Setter Target="TailPolygon.(Grid.Column)"
+                                Value="1" />
+                        <Setter Target="TailPolygon.HorizontalAlignment"
+                                Value="Right" />
+                        <Setter Target="TailPolygon.VerticalAlignment"
+                                Value="Bottom"/>
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState x:Name="BottomLeft" >
+                    <VisualState.Setters>
+                        <Setter Target="TailPolygon.Points"
+                                Value="0,10 10,0 20,10" />
+                        <Setter Target="TailPolygon.(Grid.Row)"
+                                Value="0" />
+                        <Setter Target="TailPolygon.(Grid.Column)"
+                                Value="1" />
+                        <Setter Target="TailPolygon.HorizontalAlignment"
+                                Value="Left" />
+                        <Setter Target="TailPolygon.VerticalAlignment"
+                                Value="Bottom" />
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState x:Name="Right">
+                    <VisualState.Setters>
+                        <Setter Target="TailPolygon.Points"
+                                Value="10,0 0,10 10,20" />
+                        <Setter Target="TailPolygon.(Grid.Row)"
+                                Value="1" />
+                        <Setter Target="TailPolygon.(Grid.Column)"
+                                Value="0" />
+                        <Setter Target="TailPolygon.HorizontalAlignment"
+                                Value="Right" />
+                        <Setter Target="TailPolygon.VerticalAlignment"
+                                Value="Center" />
+                    
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState x:Name="RightTop">
+                    <VisualState.Setters>
+                        <Setter Target="TailPolygon.Points"
+                                Value="10,0 0,10 10,20" />
+                        <Setter Target="TailPolygon.(Grid.Row)"
+                                Value="1" />
+                        <Setter Target="TailPolygon.(Grid.Column)"
+                                Value="0" />
+                        <Setter Target="TailPolygon.HorizontalAlignment"
+                                Value="Right" />
+                        <Setter Target="TailPolygon.VerticalAlignment"
+                                Value="Top" />
+                      
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState x:Name="RightBottom">
+                    <VisualState.Setters>
+                        <Setter Target="TailPolygon.Points"
+                                Value="10,0 0,10 10,20" />
+                        <Setter Target="TailPolygon.(Grid.Row)"
+                                Value="1" />
+                        <Setter Target="TailPolygon.(Grid.Column)"
+                                Value="0" />
+                        <Setter Target="TailPolygon.HorizontalAlignment"
+                                Value="Right" />
+                        <Setter Target="TailPolygon.VerticalAlignment"
+                                Value="Bottom" />
+                       
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState x:Name="Left">
+                    <VisualState.Setters>
+                        <Setter Target="TailPolygon.Points"
+                                Value="0,0 10,10 0,20" />
+                        <Setter Target="TailPolygon.(Grid.Row)"
+                                Value="1" />
+                        <Setter Target="TailPolygon.(Grid.Column)"
+                                Value="2" />
+                        <Setter Target="TailPolygon.HorizontalAlignment"
+                                Value="Left" />
+                        <Setter Target="TailPolygon.VerticalAlignment"
+                                Value="Center" />
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState x:Name="LeftTop">
+                    <VisualState.Setters>
+                        <Setter Target="TailPolygon.Points"
+                                Value="0,0 10,10 0,20" />
+                        <Setter Target="TailPolygon.(Grid.Row)"
+                                Value="1" />
+                        <Setter Target="TailPolygon.(Grid.Column)"
+                                Value="2" />
+                        <Setter Target="TailPolygon.HorizontalAlignment"
+                                Value="Left" />
+                        <Setter Target="TailPolygon.VerticalAlignment"
+                                Value="Top" />
+                     
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState x:Name="LeftBottom">
+                    <VisualState.Setters>
+                        <Setter Target="TailPolygon.Points"
+                                Value="0,0 10,10 0,20" />
+                        <Setter Target="TailPolygon.(Grid.Row)"
+                                Value="1" />
+                        <Setter Target="TailPolygon.(Grid.Column)"
+                                Value="2" />
+                        <Setter Target="TailPolygon.HorizontalAlignment"
+                                Value="Left" />
+                        <Setter Target="TailPolygon.VerticalAlignment"
+                                Value="Bottom" />
+                    </VisualState.Setters>
+                </VisualState>
             </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
     </Popup>

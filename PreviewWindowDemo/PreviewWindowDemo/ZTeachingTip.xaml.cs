@@ -58,13 +58,52 @@ namespace ZTeachingTip
                 {
                     new Setter(Button.BackgroundProperty,Windows.UI.Colors.Transparent),
                     new Setter(Button.BorderBrushProperty,Windows.UI.Colors.Transparent),
-                    new Setter(Button.CornerRadiusProperty,new CornerRadius(4))
+                    new Setter(Button.CornerRadiusProperty,new CornerRadius(4)),
+                    new Setter(Button.PaddingProperty,new Thickness(2)),
+                    new Setter(Button.FontSizeProperty,7)
                 }
             }));
 
         public readonly static DependencyProperty LightDismissModeProperty = DependencyProperty.Register(
             nameof(LightDismissMode), typeof(LightDismissOverlayMode), typeof(ZTeachingTip), new PropertyMetadata(LightDismissOverlayMode.Auto, OnLightDismissModePropertyChanged));
 
+
+        public readonly static DependencyProperty TailBackGroundProperty = DependencyProperty.Register(
+            nameof(TailBackGround), typeof(Brush), typeof(ZTeachingTip), new PropertyMetadata(default(Brush),(TailBackGroundChangedCallback)));
+
+        public readonly static DependencyProperty TailVisibilityProperty = DependencyProperty.Register(
+            nameof(TailVisibility), typeof(Visibility), typeof(ZTeachingTip), new PropertyMetadata(Visibility.Visible));
+
+        public Visibility TailVisibility
+        {
+            get => (Visibility)GetValue(TailVisibilityProperty);
+            set => SetValue(TailVisibilityProperty, value);
+        }
+
+        public readonly static DependencyProperty ContentHeightProperty = DependencyProperty.Register(
+            nameof(ContentHeight), typeof(double), typeof(ZTeachingTip), new PropertyMetadata(default(double),(InnerContentHeightChangedCallBack)));
+
+        
+        public readonly static DependencyProperty ContentWidthProperty = DependencyProperty.Register(
+            nameof(ContentWidth), typeof(double), typeof(ZTeachingTip), new PropertyMetadata(default(double),(InnerContentWightChangedCallBack)));
+
+        
+        public double ContentWidth
+        {
+            get => (double)GetValue(ContentWidthProperty);
+            set => SetValue(ContentWidthProperty, value);
+        }
+        public double ContentHeight
+        {
+            get => (double)GetValue(ContentHeightProperty);
+            set => SetValue(ContentHeightProperty, value);
+        }
+
+        public Brush TailBackGround
+        {
+            get => (Brush)GetValue(TailBackGroundProperty);
+            set => SetValue(TailBackGroundProperty, value);
+        }
         public ZTeachingTipPlacement PreferredPlacement
         {
             get => (ZTeachingTipPlacement)GetValue(PreferredPlacementProperty);
@@ -76,7 +115,7 @@ namespace ZTeachingTip
             get => (LightDismissOverlayMode)GetValue(LightDismissModeProperty);
             set => SetValue(LightDismissModeProperty, value);
         }
-
+        
         public readonly static DependencyProperty CloseButtonContentProperty = DependencyProperty.Register(
             nameof(CloseButtonContent), typeof(object), typeof(ZTeachingTip),new PropertyMetadata(default));
 
@@ -127,6 +166,14 @@ namespace ZTeachingTip
             set => SetValue(IsLightDismissEnabledProperty, value);
         }
 
+        private readonly static DependencyProperty TailPolygonMarginProperty = DependencyProperty.Register(
+            nameof(TailPolygonMargin), typeof(Thickness), typeof(ZTeachingTip), new PropertyMetadata(default(Thickness)));
+
+        private Thickness TailPolygonMargin
+        {
+            get => (Thickness)GetValue(TailPolygonMarginProperty);
+            set => SetValue(TailPolygonMarginProperty, value);
+        }
 
         public ZTeachingTipPlacement? ActualPlacement
         {
@@ -145,7 +192,28 @@ namespace ZTeachingTip
         #endregion
 
         #region PropertyChangedCallBack
-
+        private static void TailBackGroundChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            if (d is ZTeachingTip tip && e.NewValue is Brush newBrush)
+            {
+                tip.TailPolygon.Fill = newBrush;
+                tip.TailPolygon.Stroke = newBrush;
+            }
+        }
+        private static void InnerContentHeightChangedCallBack(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            if (d is ZTeachingTip tip && e.NewValue is double height)
+            {
+                tip.RootContentPresenter.Height = height;
+            }
+        }
+        private static void InnerContentWightChangedCallBack(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            if (d is ZTeachingTip tip && e.NewValue is double width)
+            {
+                tip.RootContentPresenter.Width = width;
+            }
+        }
 
         private static void PlacementPReferenceOnPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
@@ -275,12 +343,21 @@ namespace ZTeachingTip
         private void RegisterEventsAndProperties()
         {
             //RegisterPropertyChangedCallback(ContentProperty, ZTeachingTipContainerContentChangedCallBack);
+            AssignShadowVectors();
             ZTeachingTipPopUp.Loaded += ZTeachingTipPopUp_Loaded;
             ZTeachingTipPopUp.Closed += ZTeachingTipPopUp_Closed;
             RootGrid.Loaded += RootGrid_Loaded;
-            RootGrid.Translation += new Vector3(0, 0, 35);
             RootGrid.SizeChanged += ContentElement_SizeChanged;
+            ActualPlacementChanged += ZTeachingTip_ActualPlacementChanged;
+
+            void AssignShadowVectors()
+            {
+                var vector = new Vector3(0, 0, 35);
+                RootScrollViewer.Translation += vector;
+            }
         }
+
+        #region ArrangementAndInitialPositioningCalaculation
 
         private void ZTeachingTipPopUp_Loaded(object sender, RoutedEventArgs e)
         {
@@ -296,8 +373,7 @@ namespace ZTeachingTip
             return new Size(0.0,0.0);
         }
 
-        #region ArrangementAndInitialPositioningCalaculation
-
+        
         private void ContentChanged(FrameworkElement newContentElement)
         {
             RootContentPresenter.Content = newContentElement;
@@ -362,6 +438,92 @@ namespace ZTeachingTip
         //        return true;
         //    }
         //}
+
+        #region TailPositioningAndMarginCalculation
+
+        private readonly double _tailCornerMargin = 12;
+        private void ZTeachingTip_ActualPlacementChanged(ZTeachingTip cntrl, ActualPlacementChangedEventArgs arg)
+        {
+            if (arg.ActualPlacement == null)
+            {
+                return;
+            }
+            switch (arg.ActualPlacement)
+            {
+
+                case ZTeachingTipPlacement.Top:
+                    AssignPolygonMargin(new Thickness(0, -1.5, 0, 0));
+                    VisualStateManager.GoToState(this, nameof(Top), false);
+                    break;
+                case ZTeachingTipPlacement.TopLeft:
+                    AssignPolygonMargin(new Thickness(_tailCornerMargin, -1.5, 0, 0));
+
+                    VisualStateManager.GoToState(this, nameof(TopLeft), false);
+                    break;
+                case ZTeachingTipPlacement.TopRight:
+                    AssignPolygonMargin(new Thickness(0, -1.5, _tailCornerMargin, 0));
+
+                    VisualStateManager.GoToState(this, nameof(TopRight), false);
+                    break;
+                case ZTeachingTipPlacement.Bottom:
+                    AssignPolygonMargin(new Thickness(0, 0, 0, -1.5));
+                    VisualStateManager.GoToState(this, nameof(Bottom), false);
+                    break;
+                case ZTeachingTipPlacement.BottomRight:
+                    AssignPolygonMargin(new Thickness(0, 0, _tailCornerMargin, -1.5));
+                    VisualStateManager.GoToState(this, nameof(BottomRight), false);
+
+                    break;
+                case ZTeachingTipPlacement.BottomLeft:
+                    AssignPolygonMargin(new Thickness(_tailCornerMargin, 0, 0, -1.5));
+                    VisualStateManager.GoToState(this, nameof(BottomLeft), false);
+
+                    break;
+                case ZTeachingTipPlacement.Left:
+                    AssignPolygonMargin(new Thickness(-1.5, 0, 0, 0));
+                    VisualStateManager.GoToState(this, nameof(Left), false);
+                    break;
+                case ZTeachingTipPlacement.LeftTop:
+                    AssignPolygonMargin(new Thickness(-1.5, _tailCornerMargin, 0, 0));
+                    VisualStateManager.GoToState(this, nameof(LeftTop), false);
+
+                    break;
+                case ZTeachingTipPlacement.LeftBottom:
+                    AssignPolygonMargin(new Thickness(-1.5, 0, 0, _tailCornerMargin));
+                    VisualStateManager.GoToState(this, nameof(LeftBottom), false);
+
+                    break;
+                case ZTeachingTipPlacement.Right:
+                    AssignPolygonMargin(new Thickness(0, 0, -1.5, 0));
+                    VisualStateManager.GoToState(this, nameof(Right), false);
+                    break;
+                case ZTeachingTipPlacement.RightTop:
+                    AssignPolygonMargin(new Thickness(0, _tailCornerMargin, -1.5, 0));
+                    VisualStateManager.GoToState(this, nameof(RightTop), false);
+
+                    break;
+                case ZTeachingTipPlacement.RightBottom:
+                    AssignPolygonMargin(new Thickness(0, 0, -1.5, _tailCornerMargin));
+                    VisualStateManager.GoToState(this, nameof(RightBottom), false);
+                    break;
+                case null:
+                    break;
+                default:
+                    break;
+            }
+
+            void AssignPolygonMargin(Thickness polygonMargin)
+            {
+                TailPolygonMargin = polygonMargin;
+            }
+        }
+
+
+        #endregion
+
+
+
+
         private void UnSubscribeToSizeChangeNotification()
         {
             Window.Current.SizeChanged -= WindowSizeChanged;
@@ -406,7 +568,6 @@ namespace ZTeachingTip
             PositionPopUp();
         }
 
-
         private void PlacePreferenceChanged()
         {
             PositionPopUp();
@@ -445,20 +606,14 @@ namespace ZTeachingTip
             }
         }
 
-
         private void OnPlacementMarginOffsetChanged()
         {
             PositionPopUp();
         }
 
-        private bool _isAlreadyOpened;
+       // private bool _isAlreadyOpened;
         private void ZTeachingTipPopUp_Closed(object sender, object e)
         {
-            if (!_isAlreadyOpened)
-            {
-               _isAlreadyOpened = ZTeachingTipPopUp.IsOpen = true;
-               return;
-            }
             IsOpen = false;
         }
 

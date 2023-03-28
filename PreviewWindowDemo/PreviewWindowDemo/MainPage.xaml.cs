@@ -1,7 +1,10 @@
-﻿using Windows.UI.ViewManagement;
+﻿using System;
+using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
+using Windows.UI.Xaml.Media;
+using Windows.UI.Xaml.Media.Imaging;
 using Microsoft.UI.Xaml.Controls;
 using ZTeachingTip;
 using ZTeachingTip.Zoho.UWP.Common.Extensions;
@@ -43,182 +46,60 @@ namespace ZTeachingTip
            
         }
 
-        //private async void MainPage_Consolidated(ApplicationView sender, ApplicationViewConsolidatedEventArgs args)
-        //{
-        //    System.Diagnostics.Debug.WriteLine("Main page consolidated: " + args.IsUserInitiated);
-
-        //    if (args.IsUserInitiated)
-        //    {
-        //        // you could so saving here
-
-        //        await HidePreviewWindowAsync(true);
-        //    }
-        //}
-
-        //private void PreviewPopup_ManipulationCompleted(object sender, ManipulationCompletedRoutedEventArgs e)
-        //{
-        //    if (_isDraggingPreview)
-        //    {
-        //        e.Handled = true;
-        //        _isDraggingPreview = false;
-        //    }
-        //}
-
-        //private void PreviewPopup_ManipulationDelta(object sender, ManipulationDeltaRoutedEventArgs e)
-        //{
-        //    if (_isDraggingPreview)
-        //    {
-        //        //PreviewPopup.HorizontalOffset += e.Delta.Translation.X;
-        //        //PreviewPopup.VerticalOffset += e.Delta.Translation.Y;
-        //        e.Handled = true;
-        //    }
-        //}
-
-        //private void PreviewPopup_ManipulationStarted(object sender, ManipulationStartedRoutedEventArgs e)
-        //{
-        //    _isDraggingPreview = true;
-
-        //    e.Handled = true;
-        //}
-
-        // this is called when switching to tablet mode
-        //private async void MainPage_SizeChanged(CoreWindow sender, WindowSizeChangedEventArgs args)
-        //{
-        //    var viewSettings = UIViewSettings.GetForCurrentView();
-
-        //    if (viewSettings.UserInteractionMode == UserInteractionMode.Touch && _currentUserInteractionMode == UserInteractionMode.Mouse)
-        //    {
-        //        await HidePreviewWindowAsync(false);
-
-        //        PreviewPopup.IsOpen = true;
-        //    }
-
-        //    _currentUserInteractionMode = viewSettings.UserInteractionMode;
-        //}
-
-        //private async System.Threading.Tasks.Task HidePreviewWindowAsync(bool shutdown)
-        //{
-        //    if (_previewDispatcher == null)
-        //    {
-        //        return;
-        //    }
-
-        //    await _previewDispatcher.RunAsync(CoreDispatcherPriority.High, delegate
-        //    {
-        //        _previewDispatcher = null;
-
-        //        _previewDispatcher = null;
-
-        //        // close the preview window
-        //        CoreWindow.GetForCurrentThread().Close();
-
-        //        if (shutdown)
-        //        {
-        //            // do any saving here
-
-        //            CoreApplication.Exit();
-        //        }
-        //    });
-        //}
-
-        //private async void OnFloat(object sender, RoutedEventArgs e)
-        //{
-        //    PreviewPopup.IsOpen = false;
-
-        //    var view = CoreApplication.CreateNewView();
-
-        //    _previewDispatcher = view.Dispatcher;
-
-        //    SplitView.IsPaneOpen = false;
-
-        //    var anchorViewId = ApplicationView.GetForCurrentView().Id;
-
-        //    await view.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.High, async delegate
-        //    {
-        //        var viewId = ApplicationView.GetApplicationViewIdForWindow(CoreWindow.GetForCurrentThread());
-
-        //        var frame = new Frame();
-
-        //        frame.Navigate(typeof(PreviewPage));
-
-        //        Window.Current.Content = frame;
-
-        //        Window.Current.Activate();
-
-        //        var applicationView = ApplicationView.GetForCurrentView();
-
-        //        applicationView.Consolidated += PreviewWindow_Consolidated;
-
-        //        applicationView.Title = "Preview";
-
-        //        var shown = await ApplicationViewSwitcher.TryShowAsStandaloneAsync(viewId, ViewSizePreference.UseMinimum, anchorViewId, ViewSizePreference.Default);
-
-        //        applicationView.SetPreferredMinSize(new Windows.Foundation.Size(320, 500));
-
-        //        bool resized = applicationView.TryResizeView(new Windows.Foundation.Size(320, 500));
-
-        //        System.Diagnostics.Debug.WriteLine($"Shown: {shown}, Resized: {resized}");
-        //    });
-        //}
-
-        //private async void PreviewWindow_Consolidated(ApplicationView sender, ApplicationViewConsolidatedEventArgs args)
-        //{
-        //    System.Diagnostics.Debug.WriteLine($"Consolidated: user initiated: {args.IsUserInitiated}");
-
-        //    await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, delegate
-        //    {
-        //        OpenPaneButton.IsChecked = false;
-        //    });
-        //}
-
-        //private void ShowPreview(object sender, RoutedEventArgs e)
-        //{
-        //    this.PreviewPopup.IsOpen = true;
-        //    SplitView.IsPaneOpen = false;
-        //    //var flyout = new Flyout();
-        //    //flyout.LightDismissOverlayMode = LightDismissOverlayMode.Off;
-        //    //flyout.Content = new PreviewControl()
-        //    //{
-        //    //    MinHeight = 400,
-        //    //    MinWidth = 400
-        //    //};
-        //    //flyout.ShowAt(sender as FrameworkElement);
-        //}
-
-        //private async void HidePreview(object sender, RoutedEventArgs e)
-        //{
-        //    this.PreviewPopup.IsOpen = false;
-        //    SplitView.IsPaneOpen = false;
-        //    await HidePreviewWindowAsync(false);
-        //}
-
-        //private void ClosePreviewPopup(object sender, RoutedEventArgs e)
-        //{TeachingTip
-        //    PreviewPopup.IsOpen = false;
-        //}
-
-        //private void OpenPane(object sender, RoutedEventArgs e)
-        //{
-        //    PreviewPopup.IsOpen = false;
-        //    SplitView.IsPaneOpen = true;
-        //}
 
 
         private ZTeachingTip _teachingZTip;
         private void PopupUpCheckButton_OnClick(object sender, RoutedEventArgs e)
         {
-
+            var textboxes = new TextBox
+            {
+                Text = "Some Content By ZTeaching Tip"
+            };
             if (_teachingZTip == null)
             {
-                _teachingZTip = new ZTeachingTip();
-                
-                _teachingZTip.TeachingTipContent = new PreviewControl();
-                _teachingZTip.IsLightDismissEnabled = true;
-                _teachingZTip.Target = ResizableTarget;
-                _teachingZTip.IsOpen = true;
+                _teachingZTip = new ZTeachingTip
+                {
+                    TeachingTipContent = new PreviewControl(),
+                    IsLightDismissEnabled = false,
+                    Target = PersonPicture,
+                    Padding = new Thickness(0),
+                    PreferredPlacement = ZTeachingTipPlacement.Left,
+                    //_teachingZTip.TailBackGround = new SolidColorBrush(Windows.UI.Colors.White);
+                    Background = new SolidColorBrush(Windows.UI.Colors.White)
+                };
+                _teachingZTip.ActualPlacementChanged += _teachingZTip_ActualPlacementChanged;
+               
+                Bindings.Update();
             }
             _teachingZTip.IsOpen = !_teachingZTip.IsOpen;
         }
+
+        private TeachingTip UiXamlTeachingTip;
+        private void ButtonBase_OnClick(object sender, RoutedEventArgs e)
+        {
+            var textboxes = new TextBox
+            {
+                Text = "Some Content By microsoft Teaching Tip"
+            };
+            if (UiXamlTeachingTip == null)
+            {
+                UiXamlTeachingTip = new TeachingTip
+                {
+                    Content = new PreviewControl(),
+                    Target = PersonPicture,
+                    IsLightDismissEnabled = true,
+                    PreferredPlacement = TeachingTipPlacementMode.Right
+                };
+                LayoutRoot.Children.Add(UiXamlTeachingTip);
+            }
+            UiXamlTeachingTip.IsOpen = !UiXamlTeachingTip.IsOpen;
+        }
+        private void _teachingZTip_ActualPlacementChanged(ZTeachingTip arg1, ActualPlacementChangedEventArgs arg2)
+        {
+           ActualPlacementTextBox.Text = arg1?.ActualPlacement?.ToString() ?? string.Empty;
+        }
+
+
         //PreviewPopup.TryShowNear(sender as Button,default,new Side[]{Side.Right,Side.Top},new Alignment[]
         //{
         //    Alignment.Center
@@ -226,6 +107,9 @@ namespace ZTeachingTip
         //{
         //    Alignment.Right
         //},isOverflowAllowed:true);
+
+
+
         private void MenuFlyoutItem_OnClick(object sender, RoutedEventArgs e)
         {
             if (sender == PlacementPreferenceLeftITem)
@@ -341,7 +225,6 @@ namespace ZTeachingTip
            
         }
 
-       
 
         private void ChangeMarginBtn_OnClick(object sender, RoutedEventArgs e)
         {
@@ -357,25 +240,178 @@ namespace ZTeachingTip
             }
             InfoTextBlock.Text = "Invalid Margin Format";
         }
-        private void ButtonBase_OnClick(object sender, RoutedEventArgs e)
-        {
-        //{
-        //    if (double.TryParse(LeftMarginTextBlock.Text, out var leftMargin) &&
-        //            double.TryParse(TopMarginTextBlock.Text, out var topMargin) &&
-        //            double.TryParse(RightMarginTextBlock.Text, out var rightMargin) &&
-        //            double.TryParse(BottomMarginTextBlock.Text, out var bottomMargin))
-        //    {
-        //        var placementOffset = new Thickness(leftMargin, topMargin, rightMargin, bottomMargin);
-        //        ZTeachingTip.PlacementOffsetMargin = placementOffset;
-        //        MarginInfoTextBox.Text = string.Empty;
-        //        return;
-        //    }
-        //    MarginInfoTextBox.Text = "Invalid Margin Format";
-        }
-
-        private void TeachingZTip_Loaded(object sender, RoutedEventArgs e)
-        {
-
-        }
+        
     }
 }
+
+//{
+//    if (double.TryParse(LeftMarginTextBlock.Text, out var leftMargin) &&
+//            double.TryParse(TopMarginTextBlock.Text, out var topMargin) &&
+//            double.TryParse(RightMarginTextBlock.Text, out var rightMargin) &&
+//            double.TryParse(BottomMarginTextBlock.Text, out var bottomMargin))
+//    {
+//        var placementOffset = new Thickness(leftMargin, topMargin, rightMargin, bottomMargin);
+//        ZTeachingTip.PlacementOffsetMargin = placementOffset;
+//        MarginInfoTextBox.Text = string.Empty;
+//        return;
+//    }
+//    MarginInfoTextBox.Text = "Invalid Margin Format";
+//private async void MainPage_Consolidated(ApplicationView sender, ApplicationViewConsolidatedEventArgs args)
+//{
+//    System.Diagnostics.Debug.WriteLine("Main page consolidated: " + args.IsUserInitiated);
+
+//    if (args.IsUserInitiated)
+//    {
+//        // you could so saving here
+
+//        await HidePreviewWindowAsync(true);
+//    }
+//}
+
+//private void PreviewPopup_ManipulationCompleted(object sender, ManipulationCompletedRoutedEventArgs e)
+//{
+//    if (_isDraggingPreview)
+//    {
+//        e.Handled = true;
+//        _isDraggingPreview = false;
+//    }
+//}
+
+//private void PreviewPopup_ManipulationDelta(object sender, ManipulationDeltaRoutedEventArgs e)
+//{
+//    if (_isDraggingPreview)
+//    {
+//        //PreviewPopup.HorizontalOffset += e.Delta.Translation.X;
+//        //PreviewPopup.VerticalOffset += e.Delta.Translation.Y;
+//        e.Handled = true;
+//    }
+//}
+
+//private void PreviewPopup_ManipulationStarted(object sender, ManipulationStartedRoutedEventArgs e)
+//{
+//    _isDraggingPreview = true;
+
+//    e.Handled = true;
+//}
+
+// this is called when switching to tablet mode
+//private async void MainPage_SizeChanged(CoreWindow sender, WindowSizeChangedEventArgs args)
+//{
+//    var viewSettings = UIViewSettings.GetForCurrentView();
+
+//    if (viewSettings.UserInteractionMode == UserInteractionMode.Touch && _currentUserInteractionMode == UserInteractionMode.Mouse)
+//    {
+//        await HidePreviewWindowAsync(false);
+
+//        PreviewPopup.IsOpen = true;
+//    }
+
+//    _currentUserInteractionMode = viewSettings.UserInteractionMode;
+//}
+
+//private async System.Threading.Tasks.Task HidePreviewWindowAsync(bool shutdown)
+//{
+//    if (_previewDispatcher == null)
+//    {
+//        return;
+//    }
+
+//    await _previewDispatcher.RunAsync(CoreDispatcherPriority.High, delegate
+//    {
+//        _previewDispatcher = null;
+
+//        _previewDispatcher = null;
+
+//        // close the preview window
+//        CoreWindow.GetForCurrentThread().Close();
+
+//        if (shutdown)
+//        {
+//            // do any saving here
+
+//            CoreApplication.Exit();
+//        }
+//    });
+//}
+
+//private async void OnFloat(object sender, RoutedEventArgs e)
+//{
+//    PreviewPopup.IsOpen = false;
+
+//    var view = CoreApplication.CreateNewView();
+
+//    _previewDispatcher = view.Dispatcher;
+
+//    SplitView.IsPaneOpen = false;
+
+//    var anchorViewId = ApplicationView.GetForCurrentView().Id;
+
+//    await view.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.High, async delegate
+//    {
+//        var viewId = ApplicationView.GetApplicationViewIdForWindow(CoreWindow.GetForCurrentThread());
+
+//        var frame = new Frame();
+
+//        frame.Navigate(typeof(PreviewPage));
+
+//        Window.Current.Content = frame;
+
+//        Window.Current.Activate();
+
+//        var applicationView = ApplicationView.GetForCurrentView();
+
+//        applicationView.Consolidated += PreviewWindow_Consolidated;
+
+//        applicationView.Title = "Preview";
+
+//        var shown = await ApplicationViewSwitcher.TryShowAsStandaloneAsync(viewId, ViewSizePreference.UseMinimum, anchorViewId, ViewSizePreference.Default);
+
+//        applicationView.SetPreferredMinSize(new Windows.Foundation.Size(320, 500));
+
+//        bool resized = applicationView.TryResizeView(new Windows.Foundation.Size(320, 500));
+
+//        System.Diagnostics.Debug.WriteLine($"Shown: {shown}, Resized: {resized}");
+//    });
+//}
+
+//private async void PreviewWindow_Consolidated(ApplicationView sender, ApplicationViewConsolidatedEventArgs args)
+//{
+//    System.Diagnostics.Debug.WriteLine($"Consolidated: user initiated: {args.IsUserInitiated}");
+
+//    await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, delegate
+//    {
+//        OpenPaneButton.IsChecked = false;
+//    });
+//}
+
+//private void ShowPreview(object sender, RoutedEventArgs e)
+//{
+//    this.PreviewPopup.IsOpen = true;
+//    SplitView.IsPaneOpen = false;
+//    //var flyout = new Flyout();
+//    //flyout.LightDismissOverlayMode = LightDismissOverlayMode.Off;
+//    //flyout.Content = new PreviewControl()
+//    //{
+//    //    MinHeight = 400,
+//    //    MinWidth = 400
+//    //};
+//    //flyout.ShowAt(sender as FrameworkElement);
+//}
+
+//private async void HidePreview(object sender, RoutedEventArgs e)
+//{
+//    this.PreviewPopup.IsOpen = false;
+//    SplitView.IsPaneOpen = false;
+//    await HidePreviewWindowAsync(false);
+//}
+
+//private void ClosePreviewPopup(object sender, RoutedEventArgs e)
+//{TeachingTip
+//    PreviewPopup.IsOpen = false;
+//}
+
+//private void OpenPane(object sender, RoutedEventArgs e)
+//{
+//    PreviewPopup.IsOpen = false;
+//    SplitView.IsPaneOpen = true;
+//}
