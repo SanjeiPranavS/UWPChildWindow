@@ -5,6 +5,7 @@ using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Imaging;
+using Windows.UI.Xaml.Shapes;
 using Microsoft.UI.Xaml.Controls;
 using ZTeachingTip;
 using ZTeachingTip.Zoho.UWP.Common.Extensions;
@@ -46,7 +47,25 @@ namespace ZTeachingTip
            
         }
 
+        private ZTeachingTip _redRectangleTeachingTip;
+        private void RectangleShowButtonOnClick(object sender, RoutedEventArgs e)
+        {
+            if (_redRectangleTeachingTip is null)
+            {
+                _redRectangleTeachingTip = new ZTeachingTip();
+                _redRectangleTeachingTip.IsLightDismissEnabled = false;
+                _redRectangleTeachingTip.TeachingTipContent = new Rectangle()
+                {
+                    Width = 300,
+                    Height = 300,
+                    Fill = new SolidColorBrush(Windows.UI.Colors.White)
+                };
+                _redRectangleTeachingTip.Target = sender as FrameworkElement;
+                _redRectangleTeachingTip.PreferredPlacement = ZTeachingTipPlacement.Left;
 
+            }
+            _redRectangleTeachingTip.IsOpen = !_redRectangleTeachingTip.IsOpen;
+        }
 
         private ZTeachingTip _teachingZTip;
         private void PopupUpCheckButton_OnClick(object sender, RoutedEventArgs e)
@@ -64,7 +83,7 @@ namespace ZTeachingTip
                     Target = PersonPicture,
                     Padding = new Thickness(0),
                     PreferredPlacement = ZTeachingTipPlacement.Left,
-                    //_teachingZTip.TailBackGround = new SolidColorBrush(Windows.UI.Colors.White);
+                    TailBackGround = new SolidColorBrush(Windows.UI.Colors.White),
                     Background = new SolidColorBrush(Windows.UI.Colors.White)
                 };
                 _teachingZTip.ActualPlacementChanged += _teachingZTip_ActualPlacementChanged;
@@ -240,7 +259,8 @@ namespace ZTeachingTip
             }
             InfoTextBlock.Text = "Invalid Margin Format";
         }
-        
+
+       
     }
 }
 

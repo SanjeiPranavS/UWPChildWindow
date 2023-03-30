@@ -109,6 +109,7 @@
             <Button HorizontalAlignment="Center"
                     Click="ButtonBase_OnClick"
                     Content="Microsoft Teaching Tip" />
+            <Button HorizontalAlignment="Center" Click="RectangleShowButtonOnClick">ShowRectangle Button</Button>
         </StackPanel>
         <StackPanel Orientation="Horizontal"
                     VerticalAlignment="Center" HorizontalAlignment="Center"

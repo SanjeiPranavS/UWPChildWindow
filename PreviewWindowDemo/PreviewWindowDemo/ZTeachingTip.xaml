@@ -3,8 +3,10 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
+             xmlns:ui="using:Microsoft.Toolkit.Uwp.UI"
              mc:Ignorable="d"
-             Padding="5"
+             Padding="0"
              CornerRadius="4"
              x:DefaultBindMode="OneWay"
              d:DesignHeight="300"
@@ -14,7 +16,16 @@
            ShouldConstrainToRootBounds="False"
            IsLightDismissEnabled="True">
         <Popup.Resources>
-            <ThemeShadow x:Key="ThemeShadow"/>
+            <ui:AttachedDropShadow x:Name="RootShadow"
+                                   Offset="0, 0,32"
+                                   CornerRadius="5"
+                                   Opacity="0.5"
+                                   IsMasked="True"/>
+            <ui:AttachedDropShadow x:Name="PolygonShadow"
+                                   Offset="-1, 0,32"
+                                   CornerRadius="5"
+                                   Opacity="0.5"
+                                   IsMasked="True"/>
         </Popup.Resources>
         <Popup.ChildTransitions>
             <TransitionCollection>
@@ -23,7 +34,7 @@
         </Popup.ChildTransitions>
         <Grid x:Name="RootGrid"
               Background="Transparent"
-              BorderBrush="Transparent">
+              BorderBrush="Transparent ">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="*" />
@@ -35,11 +46,9 @@
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
             <Polygon x:Name="TailPolygon"
-                     Grid.Row="0"
-                     Grid.Column="0"
-                     Fill="Black"
-                     Stroke="Black"
-                     Shadow="{StaticResource ThemeShadow}"
+                     Fill="White"
+                     Stroke="White"
+                     ui:Effects.Shadow="{StaticResource PolygonShadow}"
                      Margin="{x:Bind TailPolygonMargin,Mode=OneWay}"
                      Visibility="{x:Bind TailVisibility}"
                      StrokeThickness="1"></Polygon>
@@ -49,7 +58,7 @@
                     VerticalAlignment="Top"
                     HorizontalAlignment="Right"
                     Style="{x:Bind CloseButtonStyle}"
-                    Canvas.ZIndex="20"
+                    Canvas.ZIndex="10"
                     x:Load="False"
                     Click="CloseButton_OnClick">
                 <Button.Content>
@@ -62,12 +71,12 @@
             <ScrollViewer VerticalScrollBarVisibility="Auto"
                           Grid.Row="1"
                           x:Name="RootScrollViewer"
-                          Shadow="{StaticResource ThemeShadow}"
+                          ui:Effects.Shadow="{StaticResource RootShadow}"
                           Grid.Column="1">
                 <ContentPresenter x:Name="RootContentPresenter"
                                   Padding="{x:Bind Padding}"
                                   MinHeight="40"
-                                  MinWidth="320"
+                                  MinWidth="200"
                                   MaxHeight="{x:Bind MaxHeight}"
                                   MaxWidth="{x:Bind MaxWidth}"
                                   Background="{x:Bind Background}"
@@ -104,7 +113,6 @@
                                 Value="Center" />
                         <Setter Target="TailPolygon.VerticalAlignment"
                                 Value="Top" />
-                       
                     </VisualState.Setters>
                 </VisualState>
                 <VisualState x:Name="TopLeft">
@@ -119,7 +127,7 @@
                                 Value="Left" />
                         <Setter Target="TailPolygon.VerticalAlignment"
                                 Value="Top" />
-                       
+
                     </VisualState.Setters>
                 </VisualState>
                 <VisualState x:Name="TopRight">
@@ -134,7 +142,7 @@
                                 Value="Right" />
                         <Setter Target="TailPolygon.VerticalAlignment"
                                 Value="Top" />
-                       
+
                     </VisualState.Setters>
                 </VisualState>
                 <VisualState x:Name="Bottom">
@@ -162,10 +170,10 @@
                         <Setter Target="TailPolygon.HorizontalAlignment"
                                 Value="Right" />
                         <Setter Target="TailPolygon.VerticalAlignment"
-                                Value="Bottom"/>
+                                Value="Bottom" />
                     </VisualState.Setters>
                 </VisualState>
-                <VisualState x:Name="BottomLeft" >
+                <VisualState x:Name="BottomLeft">
                     <VisualState.Setters>
                         <Setter Target="TailPolygon.Points"
                                 Value="0,10 10,0 20,10" />
@@ -191,7 +199,7 @@
                                 Value="Right" />
                         <Setter Target="TailPolygon.VerticalAlignment"
                                 Value="Center" />
-                    
+
                     </VisualState.Setters>
                 </VisualState>
                 <VisualState x:Name="RightTop">
@@ -206,7 +214,7 @@
                                 Value="Right" />
                         <Setter Target="TailPolygon.VerticalAlignment"
                                 Value="Top" />
-                      
+
                     </VisualState.Setters>
                 </VisualState>
                 <VisualState x:Name="RightBottom">
@@ -221,7 +229,7 @@
                                 Value="Right" />
                         <Setter Target="TailPolygon.VerticalAlignment"
                                 Value="Bottom" />
-                       
+
                     </VisualState.Setters>
                 </VisualState>
                 <VisualState x:Name="Left">
@@ -250,7 +258,7 @@
                                 Value="Left" />
                         <Setter Target="TailPolygon.VerticalAlignment"
                                 Value="Top" />
-                     
+
                     </VisualState.Setters>
                 </VisualState>
                 <VisualState x:Name="LeftBottom">

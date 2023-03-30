@@ -1,8 +1,10 @@
-﻿using System;
+﻿using Microsoft.UI.Xaml.Controls;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Numerics;
 using Windows.Foundation;
+using Windows.UI.Composition;
 using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -16,6 +18,7 @@ namespace ZTeachingTip
     {
 
         #region Dependendcy PRoperty
+
         private ZTeachingTipPlacement? _actualPlacement;
         private double _targetWidth;
         private double _targetHeight;
@@ -56,11 +59,11 @@ namespace ZTeachingTip
                 TargetType = typeof(Button),
                 Setters =
                 {
-                    new Setter(Button.BackgroundProperty,Windows.UI.Colors.Transparent),
-                    new Setter(Button.BorderBrushProperty,Windows.UI.Colors.Transparent),
-                    new Setter(Button.CornerRadiusProperty,new CornerRadius(4)),
-                    new Setter(Button.PaddingProperty,new Thickness(2)),
-                    new Setter(Button.FontSizeProperty,7)
+                    new Setter(Button.BackgroundProperty, Windows.UI.Colors.Transparent),
+                    new Setter(Button.BorderBrushProperty, Windows.UI.Colors.Transparent),
+                    new Setter(Button.CornerRadiusProperty, new CornerRadius(4)),
+                    new Setter(Button.PaddingProperty, new Thickness(3)),
+                    new Setter(Button.FontSizeProperty, 7)
                 }
             }));
 
@@ -69,11 +72,20 @@ namespace ZTeachingTip
 
 
         public readonly static DependencyProperty TailBackGroundProperty = DependencyProperty.Register(
-            nameof(TailBackGround), typeof(Brush), typeof(ZTeachingTip), new PropertyMetadata(default(Brush),(TailBackGroundChangedCallback)));
+            nameof(TailBackGround), typeof(Brush), typeof(ZTeachingTip), new PropertyMetadata(default(Brush), (TailBackGroundChangedCallback)));
 
         public readonly static DependencyProperty TailVisibilityProperty = DependencyProperty.Register(
             nameof(TailVisibility), typeof(Visibility), typeof(ZTeachingTip), new PropertyMetadata(Visibility.Visible));
 
+        public readonly static DependencyProperty ShadowCastTargetProperty = DependencyProperty.Register(
+            nameof(ShadowCastTarget), typeof(FrameworkElement), typeof(ZTeachingTip), new PropertyMetadata(default(FrameworkElement), (ShadowCastTargetChangedCallBack)));
+
+
+        public FrameworkElement ShadowCastTarget
+        {
+            get => (FrameworkElement)GetValue(ShadowCastTargetProperty);
+            set => SetValue(ShadowCastTargetProperty, value);
+        }
         public Visibility TailVisibility
         {
             get => (Visibility)GetValue(TailVisibilityProperty);
@@ -81,18 +93,19 @@ namespace ZTeachingTip
         }
 
         public readonly static DependencyProperty ContentHeightProperty = DependencyProperty.Register(
-            nameof(ContentHeight), typeof(double), typeof(ZTeachingTip), new PropertyMetadata(default(double),(InnerContentHeightChangedCallBack)));
+            nameof(ContentHeight), typeof(double), typeof(ZTeachingTip), new PropertyMetadata(default(double), (InnerContentHeightChangedCallBack)));
 
-        
+
         public readonly static DependencyProperty ContentWidthProperty = DependencyProperty.Register(
-            nameof(ContentWidth), typeof(double), typeof(ZTeachingTip), new PropertyMetadata(default(double),(InnerContentWightChangedCallBack)));
+            nameof(ContentWidth), typeof(double), typeof(ZTeachingTip), new PropertyMetadata(default(double), (InnerContentWightChangedCallBack)));
 
-        
+
         public double ContentWidth
         {
             get => (double)GetValue(ContentWidthProperty);
             set => SetValue(ContentWidthProperty, value);
         }
+
         public double ContentHeight
         {
             get => (double)GetValue(ContentHeightProperty);
@@ -104,6 +117,7 @@ namespace ZTeachingTip
             get => (Brush)GetValue(TailBackGroundProperty);
             set => SetValue(TailBackGroundProperty, value);
         }
+
         public ZTeachingTipPlacement PreferredPlacement
         {
             get => (ZTeachingTipPlacement)GetValue(PreferredPlacementProperty);
@@ -115,15 +129,16 @@ namespace ZTeachingTip
             get => (LightDismissOverlayMode)GetValue(LightDismissModeProperty);
             set => SetValue(LightDismissModeProperty, value);
         }
-        
+
         public readonly static DependencyProperty CloseButtonContentProperty = DependencyProperty.Register(
-            nameof(CloseButtonContent), typeof(object), typeof(ZTeachingTip),new PropertyMetadata(default));
+            nameof(CloseButtonContent), typeof(object), typeof(ZTeachingTip), new PropertyMetadata(default));
 
         public object CloseButtonContent
         {
             get => (object)GetValue(CloseButtonContentProperty);
             set => SetValue(CloseButtonContentProperty, value);
         }
+
         public Thickness PlacementOffsetMargin
         {
             get => (Thickness)GetValue(PlacementOffsetMarginProperty);
@@ -169,7 +184,7 @@ namespace ZTeachingTip
         private readonly static DependencyProperty TailPolygonMarginProperty = DependencyProperty.Register(
             nameof(TailPolygonMargin), typeof(Thickness), typeof(ZTeachingTip), new PropertyMetadata(default(Thickness)));
 
-        private Thickness TailPolygonMargin
+        public Thickness TailPolygonMargin
         {
             get => (Thickness)GetValue(TailPolygonMarginProperty);
             set => SetValue(TailPolygonMarginProperty, value);
@@ -180,18 +195,28 @@ namespace ZTeachingTip
             get => _actualPlacement;
             private set
             {
+                if (_actualPlacement == value)
+                {
+                    return;
+                }
                 _actualPlacement = value;
                 ActualPlacementChanged?.Invoke(this, new ActualPlacementChangedEventArgs(_actualPlacement));
             }
         }
 
+
         public event Action<ZTeachingTip, ActualPlacementChangedEventArgs> ActualPlacementChanged;
 
-        public Action<object, RoutedEventArgs> CloseButtonClicked;
+        public event Action<object, RoutedEventArgs> CloseButtonClicked;
+
+        public event Action<ZTeachingTip, ZTeachingTipOpenedEventArgs> Opened;
+
+        public event Action<ZTeachingTip, ZTeachingTipClosedEventArgs> Closed;
 
         #endregion
 
         #region PropertyChangedCallBack
+
         private static void TailBackGroundChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             if (d is ZTeachingTip tip && e.NewValue is Brush newBrush)
@@ -207,6 +232,15 @@ namespace ZTeachingTip
                 tip.RootContentPresenter.Height = height;
             }
         }
+        private static void ShadowCastTargetChangedCallBack(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            if (d is ZTeachingTip tip && e.NewValue is FrameworkElement newShadowCastTarget)
+            {
+                tip.RootShadow.CastTo = newShadowCastTarget;
+                tip.PolygonShadow.CastTo = newShadowCastTarget;
+            }
+        }
+
         private static void InnerContentWightChangedCallBack(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             if (d is ZTeachingTip tip && e.NewValue is double width)
@@ -250,7 +284,7 @@ namespace ZTeachingTip
 
         private static void ShouldBoundToXamlRootChangedCallBack(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            if (d is ZTeachingTip teachingTip && e.NewValue is bool oldValue && e.NewValue is bool newValue)
+            if (d is ZTeachingTip teachingTip && e.OldValue is bool oldValue && e.NewValue is bool newValue)
             {
                 if (oldValue != newValue)
                 {
@@ -277,7 +311,7 @@ namespace ZTeachingTip
                 if (!newElement.Equals(e.OldValue as FrameworkElement))
                 {
                     teachingTip.ContentChanged(newElement);
-                    newElement.SizeChanged += teachingTip.ContentElement_SizeChanged;
+                    //newElement.SizeChanged += teachingTip.ContentElement_SizeChanged;
                 }
                 if (e.OldValue is FrameworkElement oldContentElement)
                 {
@@ -311,21 +345,37 @@ namespace ZTeachingTip
         {
             PositionPopUp();
         }
-
+        private void TailPositioningStates_CurrentStateChanged(object sender, VisualStateChangedEventArgs e)
+        {
+            if (e.NewState.Name.Equals(e.OldState.Name))
+            {
+                return;
+            }
+            ContentElement_SizeChanged(default,default);
+        }
 
         private void CloseButton_OnClick(object sender, RoutedEventArgs e)
         {
             CloseButtonClicked?.Invoke(this, e);
-            IsOpen = false; 
+            IsOpen = false;
         }
+
         private void ZTeachingTipContainerContentChangedCallBack(DependencyObject sender, DependencyProperty dp)
         {
-            var newContent = GetValue(dp) as FrameworkElement;
-            if (newContent is null)
+            if (!(GetValue(dp) is FrameworkElement newContent))
             {
                 return;
             }
-            ContentChanged(newContent); 
+            ContentChanged(newContent);
+        }
+        private void ZTeachingTipPopUp_Closed(object sender, object e)
+        {
+            IsOpen = false;
+            Closed?.Invoke(this, new ZTeachingTipClosedEventArgs());
+        }
+        private void ZTeachingTipPopUp_Opened(object sender, object e)
+        {
+            Opened?.Invoke(this, new ZTeachingTipOpenedEventArgs());
         }
 
 
@@ -334,26 +384,34 @@ namespace ZTeachingTip
 
         public ZTeachingTip()
         {
-            
+
             PlacementOffsets = PopulateOffsets();
             this.InitializeComponent();
             RegisterEventsAndProperties();
+
         }
-      
+
+
         private void RegisterEventsAndProperties()
         {
             //RegisterPropertyChangedCallback(ContentProperty, ZTeachingTipContainerContentChangedCallBack);
-            AssignShadowVectors();
+            AssignShadowTarget();
             ZTeachingTipPopUp.Loaded += ZTeachingTipPopUp_Loaded;
             ZTeachingTipPopUp.Closed += ZTeachingTipPopUp_Closed;
+            ZTeachingTipPopUp.Opened += ZTeachingTipPopUp_Opened;
             RootGrid.Loaded += RootGrid_Loaded;
             RootGrid.SizeChanged += ContentElement_SizeChanged;
             ActualPlacementChanged += ZTeachingTip_ActualPlacementChanged;
+            TailPositioningStates.CurrentStateChanged += TailPositioningStates_CurrentStateChanged;
 
-            void AssignShadowVectors()
+            void AssignShadowTarget()
             {
-                var vector = new Vector3(0, 0, 35);
-                RootScrollViewer.Translation += vector;
+                if (!(Window.Current.Content is FrameworkElement rootElement))
+                {
+                    return;
+                }
+                RootShadow.CastTo = rootElement;
+                PolygonShadow.CastTo = rootElement;
             }
         }
 
@@ -361,29 +419,29 @@ namespace ZTeachingTip
 
         private void ZTeachingTipPopUp_Loaded(object sender, RoutedEventArgs e)
         {
-           Bindings.Update();
+            Bindings.Update();
         }
 
         protected override Size ArrangeOverride(Size finalSize)
         {
-            return new Size(0.0,0.0);
+            return new Size(0.0, 0.0);
         }
         protected override Size MeasureOverride(Size availableSize)
         {
-            return new Size(0.0,0.0);
+            return new Size(0.0, 0.0);
         }
 
-        
+
         private void ContentChanged(FrameworkElement newContentElement)
         {
             RootContentPresenter.Content = newContentElement;
-            RootGrid.Measure(new Size(double.MaxValue, double.MaxValue));
             if (newContentElement.IsLoaded)
             {
                 _popUpHeight = RootGrid.ActualHeight;
                 _popUpWidth = RootGrid.ActualWidth;
                 return;
             }
+            RootGrid.Measure(new Size(double.MaxValue, double.MaxValue));
             _popUpHeight = RootGrid.DesiredSize.Height;
             _popUpWidth = RootGrid.DesiredSize.Width;
         }
@@ -400,6 +458,128 @@ namespace ZTeachingTip
         #endregion
 
 
+     
+
+        #region TailPositioningAndMarginCalculation
+
+        private readonly double _tailCornerMargin = 15;
+
+        private void ZTeachingTip_ActualPlacementChanged(ZTeachingTip cntrl, ActualPlacementChangedEventArgs arg)
+        {
+            if (arg.ActualPlacement == null)
+            {
+                return;
+            }
+            AssignTailPlacementBasedOnPlacementPReference(arg.ActualPlacement.Value);
+        }
+        private void AssignTailPlacementBasedOnPlacementPReference(ZTeachingTipPlacement placement)
+        {
+            var horizontalCornerTailOffset = CalculateHorizontalTailCornerMargin();
+            var verticalCornerTailOffset = CalculateVerticalTailCornerMargin();
+            switch (placement)
+            {
+
+                case ZTeachingTipPlacement.Top:
+                    VisualStateManager.GoToState(this, nameof(Top), false);
+                    AssignPolygonMargin(new Thickness(0, -1.5, 0, 0));
+                    break;
+                case ZTeachingTipPlacement.TopLeft:
+                    VisualStateManager.GoToState(this, nameof(TopLeft), false);
+                    AssignPolygonMargin(new Thickness(horizontalCornerTailOffset, -1.5, 0, 0));
+
+                    break;
+                case ZTeachingTipPlacement.TopRight:
+                    VisualStateManager.GoToState(this, nameof(TopRight), false);
+                    AssignPolygonMargin(new Thickness(0, -1.5, horizontalCornerTailOffset, 0));
+                    break;
+                case ZTeachingTipPlacement.Bottom:
+                    VisualStateManager.GoToState(this, nameof(Bottom), false);
+                    AssignPolygonMargin(new Thickness(0, 0, 0, -1.5));
+                    break;
+                case ZTeachingTipPlacement.BottomRight:
+                    VisualStateManager.GoToState(this, nameof(BottomRight), false);
+                    AssignPolygonMargin(new Thickness(0, 0, horizontalCornerTailOffset, -1.5));
+
+                    break;
+                case ZTeachingTipPlacement.BottomLeft:
+                    VisualStateManager.GoToState(this, nameof(BottomLeft), false);
+                    AssignPolygonMargin(new Thickness(horizontalCornerTailOffset, 0, 0, -1.5));
+
+                    break;
+                case ZTeachingTipPlacement.Left:
+                    VisualStateManager.GoToState(this, nameof(Left), false);
+                    AssignPolygonMargin(new Thickness(-1.5, 0, 0, 0));
+                    break;
+                case ZTeachingTipPlacement.LeftTop:
+                    VisualStateManager.GoToState(this, nameof(LeftTop), false);
+                    AssignPolygonMargin(new Thickness(-1.5, verticalCornerTailOffset, 0, 0));
+
+                    break;
+                case ZTeachingTipPlacement.LeftBottom:
+                    VisualStateManager.GoToState(this, nameof(LeftBottom), false);
+                    AssignPolygonMargin(new Thickness(-1.5, 0, 0, verticalCornerTailOffset));
+
+                    break;
+                case ZTeachingTipPlacement.Right:
+                    VisualStateManager.GoToState(this, nameof(Right), false);
+                    AssignPolygonMargin(new Thickness(0, 0, -1.5, 0));
+                    break;
+                case ZTeachingTipPlacement.RightTop:
+                    VisualStateManager.GoToState(this, nameof(RightTop), false);
+                    AssignPolygonMargin(new Thickness(0, verticalCornerTailOffset, -1.5, 0));
+
+                    break;
+                case ZTeachingTipPlacement.RightBottom:
+                    VisualStateManager.GoToState(this, nameof(RightBottom), false);
+                    AssignPolygonMargin(new Thickness(0, 0, -1.5, verticalCornerTailOffset));
+                    break;
+                default:
+                    break;
+            }
+            void AssignPolygonMargin(Thickness polygonMargin)
+            {
+                TailPolygonMargin = polygonMargin;
+            }
+
+
+            //Tail Will  align With Target's Center if Target is Smaller  Than popup else tail will Offset From corner using Default Values   
+            double CalculateHorizontalTailCornerMargin()
+            {
+                if (Target is null)
+                {
+                    return _tailCornerMargin;
+                }
+                var oneThirdWidthOfPopUp = PopUpCoordinatesInCoreWindowSpace.Width / 3;
+                if (TargetCoordinatesInCoreWindowSpace.Width <= oneThirdWidthOfPopUp)
+                {
+                    var targetCenterPoint = TargetCoordinatesInCoreWindowSpace.Width / 2;
+                    var tailHalfWidth = TailPolygon.ActualWidth / 2;
+                    return targetCenterPoint - tailHalfWidth;
+                }
+                return _tailCornerMargin;
+            }
+
+            double CalculateVerticalTailCornerMargin()
+            {
+                if (Target is null)
+                {
+                    return _tailCornerMargin;
+                }
+                var oneThirdHeightOfPopup = PopUpCoordinatesInCoreWindowSpace.Height / 3;
+                if (TargetCoordinatesInCoreWindowSpace.Height <= oneThirdHeightOfPopup)
+                {
+                    var targetCenterPoint = TargetCoordinatesInCoreWindowSpace.Height / 2;
+                    var tailHalfHeight = TailPolygon.ActualHeight / 2;
+                    return targetCenterPoint - tailHalfHeight;
+                }
+                return _tailCornerMargin;
+            }
+
+        }
+        #endregion
+
+      
+
         private void IsOpenPropertyChanged()
         {
             if (IsOpen)
@@ -407,122 +587,11 @@ namespace ZTeachingTip
                 //SelfAddToRootElementWithTargetIfParentNotAvailable();
                 SubscribeToSizeChangeNotification();
                 ZTeachingTipPopUp.IsOpen = true;
-                PositionPopUp();
                 return;
             }
             UnSubscribeToSizeChangeNotification();
             ZTeachingTipPopUp.IsOpen = false;
         }
-
-        //private void SelfAddToRootElementWithTargetIfParentNotAvailable()
-        //{
-        //    if (Parent is null || !IsLoaded)
-        //    {
-        //        if (Target is FrameworkElement target)
-        //        {
-        //            AddAsChildrenIfPanel(target);
-        //        }
-        //    }
-
-        //    bool AddAsChildrenIfPanel(FrameworkElement frameworkElement)
-        //    {
-        //        if (frameworkElement is null)
-        //        {
-        //            return false;
-        //        }
-        //        if (!(frameworkElement is Panel panel))
-        //        {
-        //            return AddAsChildrenIfPanel(frameworkElement.Parent as FrameworkElement);
-        //        }
-        //        panel.Children.Add(this);
-        //        return true;
-        //    }
-        //}
-
-        #region TailPositioningAndMarginCalculation
-
-        private readonly double _tailCornerMargin = 12;
-        private void ZTeachingTip_ActualPlacementChanged(ZTeachingTip cntrl, ActualPlacementChangedEventArgs arg)
-        {
-            if (arg.ActualPlacement == null)
-            {
-                return;
-            }
-            switch (arg.ActualPlacement)
-            {
-
-                case ZTeachingTipPlacement.Top:
-                    AssignPolygonMargin(new Thickness(0, -1.5, 0, 0));
-                    VisualStateManager.GoToState(this, nameof(Top), false);
-                    break;
-                case ZTeachingTipPlacement.TopLeft:
-                    AssignPolygonMargin(new Thickness(_tailCornerMargin, -1.5, 0, 0));
-
-                    VisualStateManager.GoToState(this, nameof(TopLeft), false);
-                    break;
-                case ZTeachingTipPlacement.TopRight:
-                    AssignPolygonMargin(new Thickness(0, -1.5, _tailCornerMargin, 0));
-
-                    VisualStateManager.GoToState(this, nameof(TopRight), false);
-                    break;
-                case ZTeachingTipPlacement.Bottom:
-                    AssignPolygonMargin(new Thickness(0, 0, 0, -1.5));
-                    VisualStateManager.GoToState(this, nameof(Bottom), false);
-                    break;
-                case ZTeachingTipPlacement.BottomRight:
-                    AssignPolygonMargin(new Thickness(0, 0, _tailCornerMargin, -1.5));
-                    VisualStateManager.GoToState(this, nameof(BottomRight), false);
-
-                    break;
-                case ZTeachingTipPlacement.BottomLeft:
-                    AssignPolygonMargin(new Thickness(_tailCornerMargin, 0, 0, -1.5));
-                    VisualStateManager.GoToState(this, nameof(BottomLeft), false);
-
-                    break;
-                case ZTeachingTipPlacement.Left:
-                    AssignPolygonMargin(new Thickness(-1.5, 0, 0, 0));
-                    VisualStateManager.GoToState(this, nameof(Left), false);
-                    break;
-                case ZTeachingTipPlacement.LeftTop:
-                    AssignPolygonMargin(new Thickness(-1.5, _tailCornerMargin, 0, 0));
-                    VisualStateManager.GoToState(this, nameof(LeftTop), false);
-
-                    break;
-                case ZTeachingTipPlacement.LeftBottom:
-                    AssignPolygonMargin(new Thickness(-1.5, 0, 0, _tailCornerMargin));
-                    VisualStateManager.GoToState(this, nameof(LeftBottom), false);
-
-                    break;
-                case ZTeachingTipPlacement.Right:
-                    AssignPolygonMargin(new Thickness(0, 0, -1.5, 0));
-                    VisualStateManager.GoToState(this, nameof(Right), false);
-                    break;
-                case ZTeachingTipPlacement.RightTop:
-                    AssignPolygonMargin(new Thickness(0, _tailCornerMargin, -1.5, 0));
-                    VisualStateManager.GoToState(this, nameof(RightTop), false);
-
-                    break;
-                case ZTeachingTipPlacement.RightBottom:
-                    AssignPolygonMargin(new Thickness(0, 0, -1.5, _tailCornerMargin));
-                    VisualStateManager.GoToState(this, nameof(RightBottom), false);
-                    break;
-                case null:
-                    break;
-                default:
-                    break;
-            }
-
-            void AssignPolygonMargin(Thickness polygonMargin)
-            {
-                TailPolygonMargin = polygonMargin;
-            }
-        }
-
-
-        #endregion
-
-
-
 
         private void UnSubscribeToSizeChangeNotification()
         {
@@ -531,11 +600,11 @@ namespace ZTeachingTip
             CoreWindow.GetForCurrentThread().SizeChanged -= CoreWindowResizeCompleted;
 
         }
+
         private void SubscribeToSizeChangeNotification()
         {
             UnSubscribeToSizeChangeNotification();
             Window.Current.SizeChanged += WindowSizeChanged;
-            CoreWindow.GetForCurrentThread().ResizeCompleted += CoreWindowResizeCompleted;
             CoreWindow.GetForCurrentThread().SizeChanged += CoreWindowResizeCompleted;
 
         }
@@ -545,13 +614,11 @@ namespace ZTeachingTip
         }
         private void ContentElement_SizeChanged(object sender, SizeChangedEventArgs e)
         {
-            if (sender is FrameworkElement contentElement)
-            {
-                _popUpHeight = RootGrid.ActualHeight;
-                _popUpWidth = RootGrid.ActualWidth;
-                AssignTargetDimentionIfExist();
-                PositionPopUp();
-            }
+            _popUpHeight = RootGrid.ActualHeight;
+            _popUpWidth = RootGrid.ActualWidth;
+            AssignTargetDimentionIfExist();
+            PositionPopUp();
+
         }
         private void AssignTargetDimentionIfExist()
         {
@@ -611,12 +678,6 @@ namespace ZTeachingTip
             PositionPopUp();
         }
 
-       // private bool _isAlreadyOpened;
-        private void ZTeachingTipPopUp_Closed(object sender, object e)
-        {
-            IsOpen = false;
-        }
-
         #region PopUpPlacementLogicRegion
 
         class ZTeachingTipOffset
@@ -646,18 +707,42 @@ namespace ZTeachingTip
         {
             return new List<ZTeachingTipPlacement>()
             {
-                { ZTeachingTipPlacement.TopLeft },
-                { ZTeachingTipPlacement.Top },
-                { ZTeachingTipPlacement.TopRight },
-                { ZTeachingTipPlacement.RightTop },
-                { ZTeachingTipPlacement.Right },
-                { ZTeachingTipPlacement.RightBottom },
-                { ZTeachingTipPlacement.BottomRight } ,
-                { ZTeachingTipPlacement.Bottom },
-                { ZTeachingTipPlacement.BottomLeft },
-                { ZTeachingTipPlacement.LeftBottom },
-                { ZTeachingTipPlacement.Left },
-                { ZTeachingTipPlacement.LeftTop }
+                {
+                    ZTeachingTipPlacement.TopLeft
+                },
+                {
+                    ZTeachingTipPlacement.Top
+                },
+                {
+                    ZTeachingTipPlacement.TopRight
+                },
+                {
+                    ZTeachingTipPlacement.RightTop
+                },
+                {
+                    ZTeachingTipPlacement.Right
+                },
+                {
+                    ZTeachingTipPlacement.RightBottom
+                },
+                {
+                    ZTeachingTipPlacement.BottomRight
+                },
+                {
+                    ZTeachingTipPlacement.Bottom
+                },
+                {
+                    ZTeachingTipPlacement.BottomLeft
+                },
+                {
+                    ZTeachingTipPlacement.LeftBottom
+                },
+                {
+                    ZTeachingTipPlacement.Left
+                },
+                {
+                    ZTeachingTipPlacement.LeftTop
+                }
 
             };
         }
@@ -672,7 +757,7 @@ namespace ZTeachingTip
             if (!ShouldBoundToXamlRoot || isTeachingTipFit)
             {
                 return;
-            }//if Control should be contained within xaml root but size not enough to show so  Hiding the PopUp to Avoid Clipping
+            } //if Control should be contained within xaml root but size not enough to show so  Hiding the PopUp to Avoid Clipping
             ActualPlacement = null;
             IsOpen = false;
         }
@@ -710,6 +795,7 @@ namespace ZTeachingTip
             if (!ShouldBoundToXamlRoot || requestedOffset.IsFittingWithinBounds)
             {
                 ActualPlacement = PreferredPlacement;
+                AssignTailPlacementBasedOnPlacementPReference(PreferredPlacement);
                 return requestedOffset;
             }
 
@@ -726,6 +812,7 @@ namespace ZTeachingTip
                 if (offsetForPlacement.IsFittingWithinBounds)
                 {
                     ActualPlacement = PlacementOffsets[startIndex];
+                    AssignTailPlacementBasedOnPlacementPReference(PreferredPlacement);
                     return offsetForPlacement;
                 }
             }
@@ -830,7 +917,8 @@ namespace ZTeachingTip
                     break;
                 case ZTeachingTipPlacement.TopLeft:
                     hasVerticalSpace = PopUpCoordinatesInCoreWindowSpace.Y + verticalOffset >= 0;
-                    hasHorizontalSpace = distanceX + PopUpCoordinatesInCoreWindowSpace.Width <= WindowBounds.Width;
+                    hasHorizontalSpace = PopUpCoordinatesInCoreWindowSpace.X + distanceX + PopUpCoordinatesInCoreWindowSpace.Width <= WindowBounds.Width;
+
                     break;
                 case ZTeachingTipPlacement.TopRight:
                     hasVerticalSpace = PopUpCoordinatesInCoreWindowSpace.Y + verticalOffset >= 0;
@@ -848,8 +936,7 @@ namespace ZTeachingTip
                     break;
                 case ZTeachingTipPlacement.BottomLeft:
                     hasVerticalSpace = PopUpCoordinatesInCoreWindowSpace.Y + verticalOffset + PopUpCoordinatesInCoreWindowSpace.Height <= WindowBounds.Height;
-                    hasHorizontalSpace = distanceX + PopUpCoordinatesInCoreWindowSpace.Width <= WindowBounds.Width;
-
+                    hasHorizontalSpace = PopUpCoordinatesInCoreWindowSpace.X + distanceX + PopUpCoordinatesInCoreWindowSpace.Width <= WindowBounds.Width;
                     break;
                 case ZTeachingTipPlacement.Left:
                     hasHorizontalSpace = PopUpCoordinatesInCoreWindowSpace.X + horizontalOffset >= 0;
@@ -862,7 +949,8 @@ namespace ZTeachingTip
                     break;
                 case ZTeachingTipPlacement.LeftBottom:
                     hasHorizontalSpace = PopUpCoordinatesInCoreWindowSpace.X + horizontalOffset >= 0;
-                    hasVerticalSpace = PopUpCoordinatesInCoreWindowSpace.Y + distanceY - PopUpCoordinatesInCoreWindowSpace.Height >= 0;
+                    hasVerticalSpace = PopUpCoordinatesInCoreWindowSpace.Y + distanceY - PopUpCoordinatesInCoreWindowSpace.Height >= 0 && PopUpCoordinatesInCoreWindowSpace.Y + verticalOffset + PopUpCoordinatesInCoreWindowSpace.Height <= WindowBounds.Height;
+
 
                     break;
                 case ZTeachingTipPlacement.Right:
@@ -877,7 +965,8 @@ namespace ZTeachingTip
                     break;
                 case ZTeachingTipPlacement.RightBottom:
                     hasHorizontalSpace = PopUpCoordinatesInCoreWindowSpace.X + horizontalOffset + PopUpCoordinatesInCoreWindowSpace.Width <= WindowBounds.Width;
-                    hasVerticalSpace = PopUpCoordinatesInCoreWindowSpace.Y + distanceY - PopUpCoordinatesInCoreWindowSpace.Height >= 0;
+                    hasVerticalSpace = PopUpCoordinatesInCoreWindowSpace.Y + distanceY - PopUpCoordinatesInCoreWindowSpace.Height >= 0 && PopUpCoordinatesInCoreWindowSpace.Y + verticalOffset + PopUpCoordinatesInCoreWindowSpace.Height <= WindowBounds.Height;
+
 
                     break;
                 default:
@@ -885,6 +974,7 @@ namespace ZTeachingTip
             }
 
             placementOffset.IsFittingWithinBounds = hasHorizontalSpace && hasVerticalSpace;
+
             Debug.WriteLine($"=============================IS Space Available to display ==================================");
             Debug.WriteLine($"{preferredPlacement} Has VerticalSpace To Display = {hasVerticalSpace} Has Horizontal Space to Display = {hasHorizontalSpace} ");
 
@@ -990,18 +1080,223 @@ namespace ZTeachingTip
 
         #endregion
 
+        #region TeachingTipAnimationRegion
+
+        //public void CreateExpandAnimation()
+        //{
+        //    var compositor = Window.Current.Compositor;
+
+        //    CompositionEasingFunction expandEasingFunction = null;
+        //    expandEasingFunction = () =>
+        //    {
+        //        if (m_expandEasingFunction == null)
+        //        {
+        //            var easingFunction = compositor.CreateCubicBezierEasingFunction(s_expandAnimationEasingCurveControlPoint1, s_expandAnimationEasingCurveControlPoint2);
+        //            m_expandEasingFunction = easingFunction;
+        //            return easingFunction;
+        //        }
+        //        return m_expandEasingFunction;
+        //    }();
+
+        //    m_expandAnimation = () =>
+        //    {
+        //        var expandAnimation = compositor.CreateVector3KeyFrameAnimation();
+        //        if (m_tailOcclusionGrid != null)
+        //        {
+        //            expandAnimation.SetScalarParameter("Width", (float)m_tailOcclusionGrid.ActualWidth);
+        //            expandAnimation.SetScalarParameter("Height", (float)m_tailOcclusionGrid.ActualHeight);
+        //        }
+        //        else
+        //        {
+        //            expandAnimation.SetScalarParameter("Width", s_defaultTipHeightAndWidth);
+        //            expandAnimation.SetScalarParameter("Height", s_defaultTipHeightAndWidth);
+        //        }
+
+        //        expandAnimation.InsertExpressionKeyFrame(0.0f, "Vector3(Min(0.01, 20.0 / Width), Min(0.01, 20.0 / Height), 1.0)");
+        //        expandAnimation.InsertKeyFrame(1.0f, new Vector3(1.0f, 1.0f, 1.0f), expandEasingFunction);
+        //        expandAnimation.Duration = m_expandAnimationDuration;
+        //        expandAnimation.Target = s_scaleTargetName;
+        //        return expandAnimation;
+        //    };
+
+        //    m_expandElevationAnimation = () =>
+        //    {
+        //        var expandElevationAnimation = compositor.CreateVector3KeyFrameAnimation();
+        //        expandElevationAnimation.InsertExpressionKeyFrame(1.0f, "Vector3(this.Target.Translation.X, this.Target.Translation.Y, contentElevation)", expandEasingFunction);
+        //        expandElevationAnimation.SetScalarParameter("contentElevation", m_contentElevation);
+        //        expandElevationAnimation.Duration = m_expandAnimationDuration;
+        //        expandElevationAnimation.Target = s_translationTargetName;
+        //        return expandElevationAnimation;
+        //    };
+        //}
+        //public void CreateContractAnimation()
+        //{
+        //    var compositor = Window.Current.Compositor;
+        //    var contractEasingFunction = () =>
+        //    {
+        //        if (m_contractEasingFunction == null)
+        //        {
+        //            var easingFunction = compositor.CreateCubicBezierEasingFunction(s_contractAnimationEasingCurveControlPoint1, s_contractAnimationEasingCurveControlPoint2);
+        //            m_contractEasingFunction = easingFunction;
+        //            return easingFunction;
+        //        }
+        //        return m_contractEasingFunction;
+        //    }();
+
+        //    m_contractAnimation = () =>
+        //    {
+        //        var contractAnimation = compositor.CreateVector3KeyFrameAnimation();
+        //        if (m_tailOcclusionGrid != null)
+        //        {
+        //            contractAnimation.SetScalarParameter("Width", (float)m_tailOcclusionGrid.ActualWidth);
+        //            contractAnimation.SetScalarParameter("Height", (float)m_tailOcclusionGrid.ActualHeight);
+        //        }
+        //        else
+        //        {
+        //            contractAnimation.SetScalarParameter("Width", s_defaultTipHeightAndWidth);
+        //            contractAnimation.SetScalarParameter("Height", s_defaultTipHeightAndWidth);
+        //        }
+
+        //        contractAnimation.InsertKeyFrame(0.0f, new Vector3(1.0f, 1.0f, 1.0f));
+        //        contractAnimation.InsertExpressionKeyFrame(1.0f, "Vector3(20.0 / Width, 20.0 / Height, 1.0)", contractEasingFunction);
+        //        contractAnimation.Duration = m_contractAnimationDuration;
+        //        contractAnimation.Target = s_scaleTargetName;
+        //        return contractAnimation;
+        //    };
+
+        //    m_contractElevationAnimation = () =>
+        //    {
+        //        var contractElevationAnimation = compositor.CreateVector3KeyFrameAnimation();
+        //        // animating to 0.01f instead of 0.0f as work around to internal issue 26001712 which was causing text clipping.
+        //        contractElevationAnimation.InsertExpressionKeyFrame(1.0f, "Vector3(this.Target.Translation.X, this.Target.Translation.Y, 0.01f)", contractEasingFunction);
+        //        contractElevationAnimation.Duration = m_contractAnimationDuration;
+        //        contractElevationAnimation.Target = s_translationTargetName;
+        //        return contractElevationAnimation;
+        //    };
+        //}
+        //{
+        //void TeachingTip.StartExpandToOpen()
+        //{
+        //    Debug.Assert(this is winrt.IUIElement9, "The contract and expand animations currently use facade's which were not available pre-RS5.");
+        //    if (m_expandAnimation == null)
+        //    {
+        //        CreateExpandAnimation();
+        //    }
+        //    var scopedBatch = Window.Current.Compositor().CreateScopedBatch(CompositionBatchTypes.Animation);
+        //    {
+        //        if (m_expandAnimation is { } expandAnimation)
+        //        {
+        //            if (m_tailOcclusionGrid is { } tailOcclusionGrid)
+        //            {
+        //                tailOcclusionGrid.StartAnimation(expandAnimation);
+        //                m_isExpandAnimationPlaying = true;
+        //            }
+        //            if (m_tailEdgeBorder is { }
+        //                    tailEdgeBorder)
+        //            {
+        //                tailEdgeBorder.StartAnimation(expandAnimation);
+        //                m_isExpandAnimationPlaying = true;
+        //            }
+        //        }
+        //        if (m_expandElevationAnimation is { } expandElevationAnimation)
+        //        {
+        //            if (m_contentRootGrid is { } contentRootGrid)
+        //            {
+        //                contentRootGrid.StartAnimation(expandElevationAnimation);
+        //                m_isExpandAnimationPlaying = true;
+        //            }
+        //        }
+        //    }
+        //    scopedBatch.End();
+
+        //    scopedBatch.Completed += (batch, status) =>
+        //    {
+        //        m_isExpandAnimationPlaying = false;
+        //        if (!m_isContractAnimationPlaying)
+        //        {
+        //            SetIsIdle(true);
+        //        }
+        //    };
+
+        //    // Under normal circumstances we would have launched an animation just now, if we did not then we should make sure that the idle state is correct
+        //    if (!m_isExpandAnimationPlaying && !m_isContractAnimationPlaying)
+        //    {
+        //        SetIsIdle(true);
+        //    }
+
+        //}
+        //public void StartContractToClose()
+        //{
+        //    if (!(this is winrt.IUIElement9))
+        //    {
+        //        throw new Exception("The contract and expand animations currently use facades which were not available pre RS5.");
+        //    }
+
+        //    if (m_contractAnimation == null)
+        //    {
+        //        CreateContractAnimation();
+        //    }
+
+        //    using (var scopedBatch = Window.Current.Compositor.CreateScopedBatch(CompositionBatchTypes.Animation))
+        //    {
+        //        if (m_contractAnimation != null)
+        //        {
+        //            if (m_tailOcclusionGrid != null)
+        //            {
+        //                m_tailOcclusionGrid.StartAnimation(m_contractAnimation);
+        //                m_isContractAnimationPlaying = true;
+        //            }
+        //            if (m_tailEdgeBorder != null)
+        //            {
+        //                m_tailEdgeBorder.StartAnimation(m_contractAnimation);
+        //                m_isContractAnimationPlaying = true;
+        //            }
+        //        }
+
+        //        if (m_contractElevationAnimation != null)
+        //        {
+        //            if (m_contentRootGrid != null)
+        //            {
+        //                m_contentRootGrid.StartAnimation(m_contractElevationAnimation);
+        //                m_isContractAnimationPlaying = true;
+        //            }
+        //        }
+
+        //        scopedBatch.End();
+
+        //        scopedBatch.Completed += (sender, args) =>
+        //        {
+        //            m_isContractAnimationPlaying = false;
+        //            ClosePopup();
+        //            if (!m_isExpandAnimationPlaying)
+        //            {
+        //                SetIsIdle(true);
+        //            }
+        //        };
+        //    }
+        //}
+
+        #endregion
 
     }
     public class ActualPlacementChangedEventArgs : EventArgs
     {
         public ZTeachingTipPlacement? ActualPlacement { get; }
+
         public ActualPlacementChangedEventArgs(ZTeachingTipPlacement? actualPlacement)
         {
             ActualPlacement = actualPlacement;
         }
 
     }
+    public class ZTeachingTipOpenedEventArgs : EventArgs
+    {
+        
+    }
+    public class ZTeachingTipClosedEventArgs : EventArgs
+    {
 
+    }
 
     public enum ZTeachingTipPlacement
     {
@@ -1018,5 +1313,4 @@ namespace ZTeachingTip
         RightTop,
         RightBottom,
     }
-
 }
