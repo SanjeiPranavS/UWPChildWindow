@@ -1,14 +1,10 @@
-﻿using System;
-using Windows.UI.ViewManagement;
+﻿using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Media;
-using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Shapes;
 using Microsoft.UI.Xaml.Controls;
-using ZTeachingTip;
-using ZTeachingTip.Zoho.UWP.Common.Extensions;
 
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
@@ -52,16 +48,19 @@ namespace ZTeachingTip
         {
             if (_redRectangleTeachingTip is null)
             {
-                _redRectangleTeachingTip = new ZTeachingTip();
-                _redRectangleTeachingTip.IsLightDismissEnabled = false;
-                _redRectangleTeachingTip.TeachingTipContent = new Rectangle()
+                _redRectangleTeachingTip = new ZTeachingTip
                 {
-                    Width = 300,
-                    Height = 300,
-                    Fill = new SolidColorBrush(Windows.UI.Colors.White)
+                    IsLightDismissEnabled = false,
+                    ZTeachingTipContent = new Rectangle()
+                    {
+                        Width = 300,
+                        Height = 300,
+                        Fill = new SolidColorBrush(Windows.UI.Colors.White),
+                    },
+                    Target = sender as FrameworkElement,
+                    PreferredPlacement = ZTeachingTipPlacement.Left,
+                    PlacementMargin = new Thickness(10) 
                 };
-                _redRectangleTeachingTip.Target = sender as FrameworkElement;
-                _redRectangleTeachingTip.PreferredPlacement = ZTeachingTipPlacement.Left;
 
             }
             _redRectangleTeachingTip.IsOpen = !_redRectangleTeachingTip.IsOpen;
@@ -78,11 +77,12 @@ namespace ZTeachingTip
             {
                 _teachingZTip = new ZTeachingTip
                 {
-                    TeachingTipContent = new PreviewControl(),
+                    ZTeachingTipContent = new PreviewControl(),
                     IsLightDismissEnabled = false,
                     Target = PersonPicture,
                     Padding = new Thickness(0),
                     PreferredPlacement = ZTeachingTipPlacement.Left,
+                    PlacementMargin = new Thickness(5),
                     TailBackGround = new SolidColorBrush(Windows.UI.Colors.White),
                     Background = new SolidColorBrush(Windows.UI.Colors.White)
                 };
@@ -96,37 +96,36 @@ namespace ZTeachingTip
         private TeachingTip UiXamlTeachingTip;
         private void ButtonBase_OnClick(object sender, RoutedEventArgs e)
         {
-            var textboxes = new TextBox
-            {
-                Text = "Some Content By microsoft Teaching Tip"
-            };
+            //var textboxes = new TextBox
+            //{
+            //    Text = "Some Content By microsoft Teaching Tip"
+            //};
+            //popup ??= new Popup()
+            //{
+            //    Child = new PreviewControl(){Width = 300,Height = 150}, IsLightDismissEnabled = true,MaxWidth = 300,MaxHeight = 150
+            //};
+            //popup.TryShowNear(sender as FrameworkElement, default, new[]
+            //{
+            //    PopUpPlacement.Left
+            //});
             if (UiXamlTeachingTip == null)
             {
-                UiXamlTeachingTip = new TeachingTip
-                {
-                    Content = new PreviewControl(),
-                    Target = PersonPicture,
-                    IsLightDismissEnabled = true,
-                    PreferredPlacement = TeachingTipPlacementMode.Right
-                };
+                UiXamlTeachingTip = new TeachingTip();
                 LayoutRoot.Children.Add(UiXamlTeachingTip);
             }
+            UiXamlTeachingTip.Content = new PreviewControl();
+            UiXamlTeachingTip.PreferredPlacement = TeachingTipPlacementMode.Bottom;
+            UiXamlTeachingTip.IsLightDismissEnabled = false;
+            UiXamlTeachingTip.Target = PersonPicture;
+            UiXamlTeachingTip.PlacementMargin = new Thickness(0,30,0,10);
             UiXamlTeachingTip.IsOpen = !UiXamlTeachingTip.IsOpen;
+
         }
+
         private void _teachingZTip_ActualPlacementChanged(ZTeachingTip arg1, ActualPlacementChangedEventArgs arg2)
         {
            ActualPlacementTextBox.Text = arg1?.ActualPlacement?.ToString() ?? string.Empty;
         }
-
-
-        //PreviewPopup.TryShowNear(sender as Button,default,new Side[]{Side.Right,Side.Top},new Alignment[]
-        //{
-        //    Alignment.Center
-        //},new Alignment[]
-        //{
-        //    Alignment.Right
-        //},isOverflowAllowed:true);
-
 
 
         private void MenuFlyoutItem_OnClick(object sender, RoutedEventArgs e)
@@ -253,7 +252,7 @@ namespace ZTeachingTip
                 double.TryParse(BottomMarginTextBlock.Text, out var bottomMargin))
             {
                 var placementOffset = new Thickness(leftMargin, topMargin, rightMargin, bottomMargin);
-                _teachingZTip.PlacementOffsetMargin = placementOffset;
+                _teachingZTip.PlacementOffset = placementOffset;
                 InfoTextBlock.Text = string.Empty;
                 return;
             }

@@ -122,6 +122,6 @@
         </StackPanel>
         <!--<local:ZTeachingTip Background="Red"   
                                         x:Name="TeachingZTip"
-                            Loaded="TeachingZTip_Loaded" />-->
+                            Loaded="TeachingZTip_Loaded" />--> 
     </Grid>
 </Page>

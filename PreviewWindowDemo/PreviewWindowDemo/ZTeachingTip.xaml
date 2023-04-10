@@ -1,31 +1,47 @@
 ﻿<UserControl x:Class="ZTeachingTip.ZTeachingTip"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
              xmlns:ui="using:Microsoft.Toolkit.Uwp.UI"
-             mc:Ignorable="d"
+             MaxWidth="500"
+             MaxHeight="500"
              Padding="0"
-             CornerRadius="4"
              x:DefaultBindMode="OneWay"
-             d:DesignHeight="300"
-             d:DesignWidth="400">
+             Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
+             CornerRadius="7"
+             mc:Ignorable="d">
+             <!--xmlns:shadow="using:Zoho.UWP.Components.Controls.AttachedDropShadow"-->
     <Popup x:Name="ZTeachingTipPopUp"
+           IsLightDismissEnabled="True"
            LightDismissOverlayMode="Auto"
-           ShouldConstrainToRootBounds="False"
-           IsLightDismissEnabled="True">
+           ShouldConstrainToRootBounds="False">
         <Popup.Resources>
+            <x:Double x:Key="ZAttachedShadowCornerRadius">4</x:Double>
             <ui:AttachedDropShadow x:Name="RootShadow"
-                                   Offset="0, 0,32"
-                                   CornerRadius="5"
-                                   Opacity="0.5"
-                                   IsMasked="True"/>
+                                       CornerRadius="{StaticResource ZAttachedShadowCornerRadius}"
+                                       IsMasked="True"
+                                       Opacity="0.5"
+                                       Offset="0, 0,32" />
             <ui:AttachedDropShadow x:Name="PolygonShadow"
-                                   Offset="-1, 0,32"
-                                   CornerRadius="5"
-                                   Opacity="0.5"
-                                   IsMasked="True"/>
+                                       CornerRadius="{StaticResource ZAttachedShadowCornerRadius}"
+                                       IsMasked="True"
+                                       Opacity="0.5"
+                                       Offset="-1, 0,32" />
+            <Style x:Key="CloseButtonStyle"
+                   TargetType="Button">
+                <Setter Property="Background"
+                        Value="Transparent" />
+                <Setter Property="BorderBrush"
+                        Value="Transparent" />
+                <Setter Property="CornerRadius"
+                        Value="4" />
+                <Setter Property="Padding"
+                        Value="3" />
+                <Setter Property="FontSize"
+                        Value="7" />
+            </Style>
         </Popup.Resources>
         <Popup.ChildTransitions>
             <TransitionCollection>
@@ -34,11 +50,11 @@
         </Popup.ChildTransitions>
         <Grid x:Name="RootGrid"
               Background="Transparent"
-              BorderBrush="Transparent ">
+              BorderBrush="Transparent">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="*" />
-                <ColumnDefinition  Width="Auto" />
+                <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
@@ -46,44 +62,43 @@
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
             <Polygon x:Name="TailPolygon"
-                     Fill="White"
-                     Stroke="White"
+                     Margin="{x:Bind TailPolygonMargin, Mode=OneWay}"
                      ui:Effects.Shadow="{StaticResource PolygonShadow}"
-                     Margin="{x:Bind TailPolygonMargin,Mode=OneWay}"
-                     Visibility="{x:Bind TailVisibility}"
-                     StrokeThickness="1"></Polygon>
-            <Button Grid.Column="1"
-                    x:Name="TeachingTipCloseBtn"
+                     Fill="{ThemeResource ApplicationPageBackgroundThemeBrush}"
+                     Stroke="{ThemeResource ApplicationPageBackgroundThemeBrush}"
+                     StrokeThickness="1"
+                     Visibility="{x:Bind TailVisibility}" />
+            <ScrollViewer x:Name="RootScrollViewer"
+                          Grid.Row="1"
+                          Grid.Column="1"
+                          VerticalScrollBarVisibility="Auto">
+                <ContentPresenter x:Name="RootContentPresenter"
+                                  MinWidth="150"
+                                  MinHeight="40"
+                                  MaxWidth="500"
+                                  MaxHeight="500"
+                                  Padding="{x:Bind Padding}"
+                                  HorizontalAlignment="Stretch"
+                                  VerticalAlignment="Stretch"
+                                  ui:Effects.Shadow="{StaticResource RootShadow}"
+                                  Background="{x:Bind Background}"
+                                  CornerRadius="{x:Bind CornerRadius}" />
+            </ScrollViewer>
+            <Button x:Name="TeachingTipCloseBtn"
                     Grid.Row="1"
-                    VerticalAlignment="Top"
+                    Grid.Column="1"
                     HorizontalAlignment="Right"
-                    Style="{x:Bind CloseButtonStyle}"
-                    Canvas.ZIndex="10"
+                    VerticalAlignment="Top"
                     x:Load="False"
-                    Click="CloseButton_OnClick">
+                    Click="CloseButton_OnClick"
+                    Style="{StaticResource CloseButtonStyle}">
                 <Button.Content>
-                    <FontIcon Glyph="&#xE711;"
+                    <FontIcon FontFamily="Segoe MDL2 Assets"
                               FontSize="18"
-                              FontFamily="Segoe Fluent Icons"
-                              Foreground="{ThemeResource  TextBoxButtonForegroundThemeBrush}" />
+                              Foreground="{ThemeResource TextBoxButtonForegroundThemeBrush}"
+                              Glyph="&#xE711;" />
                 </Button.Content>
             </Button>
-            <ScrollViewer VerticalScrollBarVisibility="Auto"
-                          Grid.Row="1"
-                          x:Name="RootScrollViewer"
-                          ui:Effects.Shadow="{StaticResource RootShadow}"
-                          Grid.Column="1">
-                <ContentPresenter x:Name="RootContentPresenter"
-                                  Padding="{x:Bind Padding}"
-                                  MinHeight="40"
-                                  MinWidth="200"
-                                  MaxHeight="{x:Bind MaxHeight}"
-                                  MaxWidth="{x:Bind MaxWidth}"
-                                  Background="{x:Bind Background}"
-                                  CornerRadius="{x:Bind CornerRadius}"
-                                  HorizontalAlignment="Stretch"
-                                  VerticalAlignment="Stretch" />
-            </ScrollViewer>
         </Grid>
         <VisualStateManager.VisualStateGroups>
             <VisualStateGroup x:Name="ListDismissStatesGroup">
@@ -127,7 +142,6 @@
                                 Value="Left" />
                         <Setter Target="TailPolygon.VerticalAlignment"
                                 Value="Top" />
-
                     </VisualState.Setters>
                 </VisualState>
                 <VisualState x:Name="TopRight">
@@ -142,7 +156,6 @@
                                 Value="Right" />
                         <Setter Target="TailPolygon.VerticalAlignment"
                                 Value="Top" />
-
                     </VisualState.Setters>
                 </VisualState>
                 <VisualState x:Name="Bottom">
@@ -258,7 +271,6 @@
                                 Value="Left" />
                         <Setter Target="TailPolygon.VerticalAlignment"
                                 Value="Top" />
-
                     </VisualState.Setters>
                 </VisualState>
                 <VisualState x:Name="LeftBottom">
