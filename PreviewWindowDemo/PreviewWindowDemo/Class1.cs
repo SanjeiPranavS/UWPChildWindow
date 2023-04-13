@@ -45,6 +45,30 @@ namespace Zoho.UWP.Common.Extensions
         public static Alignment[] CenterTopBottom = new Alignment[] { Alignment.Center, Alignment.Top, Alignment.Bottom };
         public static Alignment[] CenterBottomTop = new Alignment[] { Alignment.Center, Alignment.Bottom, Alignment.Top };
     }
+
+    public enum PopUpPlacement
+    {
+        Top,
+        TopLeft,
+        TopRight,
+        Bottom,
+        BottomRight,
+        BottomLeft,
+        Left,
+        LeftTop,
+        LeftBottom,
+        Right,
+        RightTop,
+        RightBottom,
+    }
+
+    public static class PopUpPlacementOrders
+    {
+        public static readonly IEnumerable<PopUpPlacement> BottomRightTopLeft = new[] { PopUpPlacement.Bottom, PopUpPlacement.BottomLeft, PopUpPlacement.BottomRight, PopUpPlacement.RightBottom, PopUpPlacement.Right, PopUpPlacement.RightTop, PopUpPlacement.TopLeft, PopUpPlacement.Top, PopUpPlacement.TopRight, PopUpPlacement.LeftTop, PopUpPlacement.Left, PopUpPlacement.LeftBottom };
+        public static readonly IEnumerable<PopUpPlacement> RightTopLeftBottom = new[] { PopUpPlacement.Right, PopUpPlacement.RightTop, PopUpPlacement.RightBottom, PopUpPlacement.TopLeft, PopUpPlacement.Top, PopUpPlacement.TopRight, PopUpPlacement.LeftTop, PopUpPlacement.Left, PopUpPlacement.LeftBottom, PopUpPlacement.BottomRight, PopUpPlacement.Bottom, PopUpPlacement.BottomLeft, };
+        public static readonly IEnumerable<PopUpPlacement> TopLeftBottomRight = new[] { PopUpPlacement.Top, PopUpPlacement.TopRight, PopUpPlacement.TopLeft, PopUpPlacement.LeftTop, PopUpPlacement.Left, PopUpPlacement.LeftBottom, PopUpPlacement.BottomRight, PopUpPlacement.Bottom, PopUpPlacement.BottomLeft, PopUpPlacement.RightBottom, PopUpPlacement.Right, PopUpPlacement.RightTop };
+        public static readonly IEnumerable<PopUpPlacement> LeftBottomRightTop = new[] { PopUpPlacement.Left, PopUpPlacement.LeftBottom, PopUpPlacement.LeftTop, PopUpPlacement.BottomRight, PopUpPlacement.Bottom, PopUpPlacement.BottomLeft, PopUpPlacement.RightBottom, PopUpPlacement.Right, PopUpPlacement.RightTop, PopUpPlacement.TopLeft, PopUpPlacement.Top, PopUpPlacement.TopRight, };
+    }
     #endregion
 
     public static class PopExtension
@@ -53,7 +77,6 @@ namespace Zoho.UWP.Common.Extensions
         #region Properties&Feilds
 
         private static Thickness PlacementMargin { get; set; }
-        private static Thickness PlacementOffset { get; set; }
 
         private static Rect PopUpCoordinatesInCoreWindowSpace { get; set; }
 
@@ -85,17 +108,20 @@ namespace Zoho.UWP.Common.Extensions
         /// Use this method to show a popup near a Point. Note that the popup must have MaxHeight and MaxWidth properties defined.
         /// Refer TryShowNear method above for usage instructions.
         /// </summary>
+        [Obsolete("This method is deprecated,(will Be Removed),Please Use PopUp.TryShowNearPoint()")]
         public static bool TryShowNear(this Popup popup, Point targetPoint, Side[] placementPreferenceOrder = null, Alignment[] verticalAlignmentPreferenceOrder = null, Alignment[] horizontalAlignmentPreferenceOrder = null, double margin = 10, bool isOverflowAllowed = false) //For BackWards Compatibility
         {
             return popup.TryShowNear(null, targetPoint, placementPreferenceOrder, verticalAlignmentPreferenceOrder, horizontalAlignmentPreferenceOrder, margin, isOverflowAllowed);
         }
+
+
         /// <summary>
         /// Use this method to show a popup near another FrameworkElement or a Point. Note that the popup must have MaxHeight and MaxWidth properties defined.
         /// <para>Steps to use this extension:</para>
         /// <list type="number">
         /// <item>Define popup's MaxHeight and MaxWidth properties. This is required for the extension to work as expected.</item>
         /// <item>Define the required placement preference order, horizontal alignment order and vertical alignment order. You can skip this step if the default values are enough.</item>
-        /// <item>Pass either a FrameworkElement or a Point to this method. Atleast one of the two are required. When both are given, the Point is targeted. </item>
+        /// <item>Pass either a FrameworkElement or a Point to this method. Atleast one of the two are required. When both are given, the Target FrameWorkElement  is targeted. </item>
         /// <item>Call TryShowNear extension and check the boolean returned by it.</item>
         /// <item>If it returns false, position popup manually or call this method with isOverflow = true.</item>
         /// </list>
@@ -108,15 +134,15 @@ namespace Zoho.UWP.Common.Extensions
         /// </param>
         /// <param name="placementPreferenceOrder">
         /// This preference order is used to decide which side of targetElement the popup should be placed on.
-        /// Default value is PlacementPreferenceOrders.Left.
+        /// Default value is PlacementPreferenceOrders.TopBottomLeftRight.
         /// </param>
         /// <param name="verticalAlignmentPreferenceOrder">
         /// When popup is placed to the left/right, this preference order is used to decide how the popup should be aligned vertically. 
-        /// Default value is VerticalAlignmentPreferenceOrders.Center.
+        /// Default value is VerticalAlignmentPreferenceOrders.TopCenterBottom.
         /// </param>
         /// <param name="horizontalAlignmentPreferenceOrder">
         /// When popup is placed to the top/bottom, this preference order is used to decide how the popup should be aligned vertically. 
-        /// Default value is VerticalAlignmentPreferenceOrders.Center.
+        /// Default value is HorizontalAlignmentPreferenceOrders.LeftCenterRight.
         /// </param>
         /// <param name="margin"></param>
         /// <param name="isOverflowAllowed">
@@ -127,23 +153,20 @@ namespace Zoho.UWP.Common.Extensions
         /// True when popup has been positioned in any of the sides in <paramref name="placementPreferenceOrder"/>. False otherwise.
         /// When the extension cannot position the popup with given preferences, check this flag and position popup manually.
         /// </returns>
+        [Obsolete("This method is deprecated,(will Be Removed),Please Use PopUp.TryShowNearFrameWorkElement()")]
         public static bool TryShowNear(this Popup popup, FrameworkElement targetElement, Point targetPoint = default, Side[] placementPreferenceOrder = null, Alignment[] verticalAlignmentPreferenceOrder = null, Alignment[] horizontalAlignmentPreferenceOrder = null, double margin = 10, bool isOverflowAllowed = false) //For BackwardsCompatibility
         {
+
+            if (targetElement == null && targetPoint == default)//Atleast Point or Framework Element is Required to Position PopUp
+            {
+                return false;
+            }
+
+            placementPreferenceOrder ??= PlacementPreferenceOrders.TopBottomLeftRight;
+            horizontalAlignmentPreferenceOrder ??= HorizontalAlignmentPreferenceOrders.LeftCenterRight;
+            verticalAlignmentPreferenceOrder ??= VerticalAlignmentPreferenceOrders.TopCenterBottom;
+
             var requestedPlacements = new List<PopUpPlacement>();
-
-            placementPreferenceOrder ??= new[]
-            {
-                    Side.Left
-            };
-            horizontalAlignmentPreferenceOrder ??= new[]
-            {
-                    Alignment.Center
-            };
-            verticalAlignmentPreferenceOrder ??= new[]
-            {
-                    Alignment.Center
-            };
-
             foreach (var side in placementPreferenceOrder)
             {
                 switch (side)
@@ -189,50 +212,156 @@ namespace Zoho.UWP.Common.Extensions
                 }
             }
 
-            return popup.TryShowNear(targetElement, targetPoint, requestedPlacements, new Thickness(margin),default ,!isOverflowAllowed);
+            if (targetPoint != default)//if point is Passed Placement based on point takes Priority
+            {
+                return popup.TryShowNearPoint(targetPoint, requestedPlacements, new Thickness(margin),
+                    !isOverflowAllowed);
+            }
+
+            return popup.TryShowNearElement(targetElement, requestedPlacements, new Thickness(margin), !isOverflowAllowed);
         }
-        public static bool TryShowNear(this Popup popup, Point targetPoint, IEnumerable<PopUpPlacement> preferredPlacement = default, Thickness placementMargin = default, Thickness placementOffset = default, bool shouldBoundToXamlRoot = true)
+
+        /// <summary>
+        /// Use this method to show a popup near another a  Point. Note that the popup must have MaxHeight and MaxWidth properties defined.
+        /// <para>Steps to use this extension:</para>
+        /// <list type="number">
+        /// <item>Define popUp's MaxHeight and MaxWidth properties. This is required for the extension to work as expected.</item>
+        /// <item>Define the required placement preference order, You can skip this step if the default values are enough.</item>
+        /// <item>Pass a  Point ,transformed With Respect to <see cref="Window.Current.Content"/> </item>
+        /// <item>Call TryShowNear extension and check the boolean returned by it.</item>
+        /// <item>If it returns false, position popup manually or call this method with isOverflow = true.</item>
+        /// </list>
+        /// </summary>
+        /// <param name="targetPoint">
+        /// target Point Which is Transformed with To <see cref="Window.Current.Content"/>
+        /// </param>
+        /// <param name="preferredPlacement">
+        ///  Positions PopUp With Respect to list of placements in Provided Order
+        ///  positioning order will be Enumerate if Size for Positioning pop up is Not available(Enumerate will not occur if <seealso cref="shouldConstrainToRootBounds"/> is False),Popup Will be Positioned In the First Given Preference
+        ///  Default PlacementOrder <seealso cref="PopUpPlacementOrders.LeftBottomRightTop"/> will be Enumerate If Custom <see cref="preferredPlacement"/> Order is not given
+        /// </param>
+        /// <param name="placementMargin">
+        /// Adds a margin between a targeted teaching tip and its target 
+        /// </param>
+        /// <param name="shouldConstrainToRootBounds">
+        /// Default value is true.. When false, TryShowNear positions the popup in the first position that matches given preference, without checking if popup will be within bounds.
+        /// The popup may be outside the window or get clipped, depending on its' ShouldConstrainToRootBounds property.
+        /// </param>
+        /// <returns>
+        /// <see cref="bool"/>  True when popup has been positioned in any of the sides in <paramref name="preferredPlacement"/>. False otherwise.
+        /// When the extension cannot position the popup with given preferences, check this flag and position popup manually.
+        /// </returns>
+        public static bool TryShowNearPoint(this Popup popup, Point targetPoint,
+                                            IEnumerable<PopUpPlacement> preferredPlacement = default,
+                                            Thickness placementMargin = default, bool shouldConstrainToRootBounds = true)
         {
-            return targetPoint != default && popup.TryShowNear(null, targetPoint, preferredPlacement,placementMargin ,placementOffset, shouldBoundToXamlRoot);
+            //No Positioning Calculations Performed if targetPoint is default i.e(0.0)
+            if (targetPoint == default)
+            {
+                return false;
+            }
+
+            var popUpCoordinatesInCoreWindowSpace = popup.TransformToVisual(Window.Current.Content)
+                .TransformBounds(new Rect(0, 0, popup.MaxWidth, popup.MaxHeight));
+
+            var targetCoordinatesInCoreWindowSpace = new Rect(targetPoint.X, targetPoint.Y, 0.0, 0.0);
+
+            return popup.TryShowNearRect(popUpCoordinatesInCoreWindowSpace, targetCoordinatesInCoreWindowSpace,
+                preferredPlacement, placementMargin, shouldConstrainToRootBounds);
         }
-        public static bool TryShowNear(this Popup popup, FrameworkElement targetElement, Point targetPoint = default, IEnumerable<PopUpPlacement> preferredPlacement = default, Thickness placementMargin = default, Thickness placementOffset = default, bool shouldBoundToXamlRoot = true)
+
+        /// <summary>
+        /// Use this method to show a popup near another FrameworkElement. Note that the popup must have MaxHeight and MaxWidth properties defined.
+        /// <para>Steps to use this extension:</para>
+        /// <list type="number">
+        /// <item>Define popup's MaxHeight and MaxWidth properties. This is required for the extension to work as expected.</item>
+        /// <item>Define the required placement preference order, You can skip this step if the default values are enough.</item>
+        /// <item>Pass  a FrameworkElement Which is Already Loaded in Visual Tree Positioning is Based on Actual Width and Actual  Height of the <see cref="targetElement"/> </item>
+        /// <item>Call TryShowNear extension and check the boolean returned by it.</item>
+        /// <item>If it returns false, position popup manually or call this method with shouldConstrainToRootBounds = true.</item>
+        /// </list>
+        /// </summary>
+        /// <param name="popup"></param>
+        /// <param name="targetElement">
+        ///   <see cref="FrameworkElement"/> Should Already Loaded in Visual Tree,Pop up Positioning is Based On Target's Actual Width and Actual Height
+        /// </param>
+        /// <param name="preferredPlacement">
+        ///  Positions PopUp With Respect to list of placements in Provided Order
+        ///  positioning order will be Enumerate if Size for Positioning pop up is Not available(Enumerate will not occur if <seealso cref="shouldConstrainToRootBounds"/> is False),Popup Will be Positioned In the First Given Preference
+        ///  Default PlacementOrder <seealso cref="PopUpPlacementOrders.LeftBottomRightTop"/> will be Enumerate If Custom <see cref="preferredPlacement"/> Order is not given
+        /// </param>
+        /// <param name="placementMargin">
+        /// Adds a margin between a targeted teaching tip and its target 
+        /// </param>
+        /// <param name="shouldConstrainToRootBounds">
+        /// Default value is true.. When false, TryShowNear positions the popup in the first position that matches given preference, without checking if popup will be within bounds.
+        /// The popup may be outside the window or get clipped, depending on its' ShouldConstrainToRootBounds property.
+        /// </param>
+        /// <returns>
+        /// <see cref="bool"/>  True when popup has been positioned in any of the sides in <paramref name="preferredPlacement"/>. False otherwise.
+        /// When the extension cannot position the popup with given preferences, check this flag and position popup manually.
+        /// </returns>
+        public static bool TryShowNearElement(this Popup popup, FrameworkElement targetElement, IEnumerable<PopUpPlacement> preferredPlacement = default, Thickness placementMargin = default, bool shouldConstrainToRootBounds = true)
         {
-            if (targetElement is null && targetPoint == default)
+            if (targetElement is null)
             {
                 return false;
             }
             var popUpCoordinatesInCoreWindowSpace = popup.TransformToVisual(Window.Current.Content).TransformBounds(new Rect(0, 0, popup.MaxWidth, popup.MaxHeight));
 
 
-            var targetCoordinatesInCoreWindowSpace = targetElement != default ? targetElement.TransformToVisual(Window.Current.Content).TransformBounds(new Rect(0, 0, targetElement.ActualWidth, targetElement.ActualHeight))
-                                                                         : new Rect(targetPoint.X, targetPoint.Y, 0.0, 0.0);
+            var targetCoordinatesInCoreWindowSpace = targetElement.TransformToVisual(Window.Current.Content)
+                .TransformBounds(new Rect(0, 0, targetElement.ActualWidth, targetElement.ActualHeight));
 
-            return popup.TryShowNear(popUpCoordinatesInCoreWindowSpace, targetCoordinatesInCoreWindowSpace, preferredPlacement,placementMargin ,placementOffset, shouldBoundToXamlRoot);
+
+            return popup.TryShowNearRect(popUpCoordinatesInCoreWindowSpace, targetCoordinatesInCoreWindowSpace, preferredPlacement, placementMargin, shouldConstrainToRootBounds);
         }
-        public static bool TryShowNear(this Popup popup, Rect popCoordinatesInCoreWindowSpace, Rect targetCoordinatesInCoreWindowSpace, IEnumerable<PopUpPlacement> preferredPlacements = default,Thickness placementMargin = default,Thickness placementOffset = default, bool shouldBoundToXamlRoot = true)
+
+        /// <summary>
+        /// Positions PopUp With custom Measurements,No Max Width ,Max Height explicit mentioning not need ,PopUp Placement Calculation is Done Using Provided <see cref="Rect"/>
+        /// </summary>
+        /// <param name="popup"></param>
+        /// <param name="popCoordinatesInCoreWindowSpace">
+        /// <see cref="Rect"/> TransFormed Using <see cref="Window.Current.Content"/> and requested height,Width of Popup By Which Positioning is Done
+        /// </param>
+        /// <param name="targetCoordinatesInCoreWindowSpace">
+        ///  <see cref="Rect"/> TransFormed Using <see cref="Window.Current.Content"/> and requested height,Width of Target , <see cref="Popup"/> is Positioned Around <seealso cref="popCoordinatesInCoreWindowSpace"/>
+        /// </param>
+        /// <param name="preferredPlacements">
+        ///  desired placements positioning Order,positioning order will be Enumerate if Size for Positioning pop up is Not available(Enumerate will not occur if <seealso cref="shouldConstrainToRootBounds"/> is False),Popup Will be Positioned In the First Given Preference
+        ///  Default PlacementOrder <seealso cref="PopUpPlacementOrders.LeftBottomRightTop"/> will be Enumerate If Custom <see cref="preferredPlacements"/> Order is not given
+        /// </param>
+        /// <param name="placementMargin">
+        ///  Adds a margin between a targeted FrameworkWorkElement or Point and  Popup 
+        /// </param>
+        /// <param name="shouldConstrainToRootBounds">
+        ///  Default value is true.. When false, TryShowNear positions the popup in the first position that matches given preference, without checking if popup will be within bounds.
+        /// The popup may be outside the window or get clipped, depending on its' ShouldConstrainToRootBounds property.
+        /// </param>
+        /// <returns>
+        ///  <see cref="bool"/>  True when popup has been positioned in any of the <see cref="PopUpPlacement"/> in <paramref name="preferredPlacements"/>. False otherwise.
+        /// When the extension cannot position the popup with given preferences, check this flag and position popup manually.
+        /// </returns>
+        public static bool TryShowNearRect(this Popup popup, Rect popCoordinatesInCoreWindowSpace, Rect targetCoordinatesInCoreWindowSpace, IEnumerable<PopUpPlacement> preferredPlacements = default, Thickness placementMargin = default, bool shouldConstrainToRootBounds = true)
         {
 
             PopUpCoordinatesInCoreWindowSpace = popCoordinatesInCoreWindowSpace;
 
             TargetCoordinatesInCoreWindowSpace = targetCoordinatesInCoreWindowSpace;
 
-            PlacementOffset = placementOffset;
-
             PlacementMargin = placementMargin;
 
-            preferredPlacements ??= new[]
-            {
-                    PopUpPlacement.Left
-            };
+            preferredPlacements ??= PopUpPlacementOrders.LeftBottomRightTop;
+
 
             foreach (var preferredPlacement in preferredPlacements)
             {
 
                 var requestedOffset = CalculatePlacementOffsetForPopUp(preferredPlacement);
-                popup.HorizontalOffset = requestedOffset.HorizontalOffSet + HorizontalOffsetDeviation();
-                popup.VerticalOffset = requestedOffset.VerticalOffSet + VerticalOffsetDeviation();
+                popup.HorizontalOffset = requestedOffset.HorizontalOffSet;
+                popup.VerticalOffset = requestedOffset.VerticalOffSet;
 
-                if (!shouldBoundToXamlRoot || requestedOffset.IsFittingWithinBounds)
+                if (!shouldConstrainToRootBounds || requestedOffset.IsFittingWithinBounds) //if ShouldBoundToXamlRoot is set to false popup is positioned Regardless of Size availability  
                 {
                     return popup.IsOpen = true;
                 }
@@ -247,7 +376,7 @@ namespace Zoho.UWP.Common.Extensions
 
 
         /// <summary>
-        /// Calculates Horizontal Offset,Vertical Offset, And If Space For Pop is Available 
+        /// Calculates Horizontal Offset,Vertical Offset, And If Space for Positioning Pop is Available 
         /// </summary>
         /// <param name="requestedPlacement"></param>
         /// <returns></returns>
@@ -320,13 +449,14 @@ namespace Zoho.UWP.Common.Extensions
 
             return placementOffset;
         }
+
+
         private static void CheckIfSpaceForPopupPositioningAvailableAvailable(PopUpOffset placementOffset, PopUpPlacement preferredPlacement, double distanceX, double distanceY)
         {
             bool hasVerticalSpace = default;
             bool hasHorizontalSpace = default;
-            var verticalOffset = placementOffset.VerticalOffSet - VerticalOffsetDeviation();
-            var horizontalOffset = placementOffset.HorizontalOffSet - HorizontalOffsetDeviation();
-
+            var verticalOffset = placementOffset.VerticalOffSet;
+            var horizontalOffset = placementOffset.HorizontalOffSet;
             switch (preferredPlacement)
             {
 
@@ -396,17 +526,6 @@ namespace Zoho.UWP.Common.Extensions
 
         }
 
-
-        private static double VerticalOffsetDeviation()
-        {
-            return PlacementOffset.Top - PlacementOffset.Bottom;
-        }
-
-        private static double HorizontalOffsetDeviation()
-        {
-            return PlacementOffset.Left - PlacementOffset.Right;
-        }
-
         private static double CalculateOffsetForSidePlacement(double distanceX, double distanceY, Side side)
         {
             return side switch
@@ -421,25 +540,25 @@ namespace Zoho.UWP.Common.Extensions
 
                 _ => default
             };
-           
+
         }
 
-        private static double CalculateOffsetForAlignment(double distance, Alignment alignment, double targetElementDimention, double popUpElementDimentions)
+        private static double CalculateOffsetForAlignment(double distance, Alignment alignment, double targetElementDimension, double popUpElementDimensions)
         {
-            return  alignment switch
+            return alignment switch
             {
-                Alignment.Center => distance - (popUpElementDimentions - targetElementDimention) / 2,
+                Alignment.Center => distance - (popUpElementDimensions - targetElementDimension) / 2,
 
-                Alignment.Right => distance - popUpElementDimentions + targetElementDimention,
+                Alignment.Right => distance - popUpElementDimensions + targetElementDimension,
 
                 Alignment.Left => distance,
 
                 Alignment.Top => distance,
 
-                Alignment.Bottom => distance - popUpElementDimentions + targetElementDimention,
+                Alignment.Bottom => distance - popUpElementDimensions + targetElementDimension,
                 _ => default
             };
-          
+
         }
 
 
@@ -447,19 +566,5 @@ namespace Zoho.UWP.Common.Extensions
 
 
     }
-    public enum PopUpPlacement
-    {
-        Top,
-        TopLeft,
-        TopRight,
-        Bottom,
-        BottomRight,
-        BottomLeft,
-        Left,
-        LeftTop,
-        LeftBottom,
-        Right,
-        RightTop,
-        RightBottom,
-    }
+
 }

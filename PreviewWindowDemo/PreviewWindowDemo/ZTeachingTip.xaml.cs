@@ -6,10 +6,7 @@ using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Markup;
 using Windows.UI.Xaml.Media;
-using Microsoft.UI.Xaml.Controls;
 using Zoho.UWP.Common.Extensions;
-using ColorCode.Compilation.Languages;
-using System.Data;
 
 // The User Control item template is documented at https://go.microsoft.com/fwlink/?LinkId=234236
 
@@ -22,13 +19,14 @@ namespace ZTeachingTip
         #region Dependendcy PRoperty And Dp CallBAcks
 
         /// <summary>Enables light-dismiss functionality so that a teaching tip will dismiss when a user scrolls or interacts with other elements of the application.</summary>
-        public bool IsLightDismissEnabled 
+        public bool IsLightDismissEnabled
         {
             get => (bool)GetValue(IsLightDismissEnabledProperty);
             set => SetValue(IsLightDismissEnabledProperty, value);
         }
 
-        public readonly static DependencyProperty IsLightDismissEnabledProperty = DependencyProperty.Register(
+
+        public static readonly DependencyProperty IsLightDismissEnabledProperty = DependencyProperty.Register(
             nameof(IsLightDismissEnabled), typeof(bool), typeof(ZTeachingTip), new PropertyMetadata(true, LightDismissPropertyChanged));
 
         private static void LightDismissPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -48,7 +46,7 @@ namespace ZTeachingTip
             set => SetValue(IsOpenProperty, value);
         }
 
-        public readonly static DependencyProperty IsOpenProperty = DependencyProperty.Register(
+        public static readonly DependencyProperty IsOpenProperty = DependencyProperty.Register(
             nameof(IsOpen), typeof(bool), typeof(ZTeachingTip), new PropertyMetadata(false, TeachingTipClosingChanged));
 
         private static void TeachingTipClosingChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -62,14 +60,14 @@ namespace ZTeachingTip
             }
         }
 
-       /// <summary>Gets or sets a value that indicates whether the teaching tip will constrain to the bounds of its xaml root.</summary>
+        /// <summary>Gets or sets a value that indicates whether the teaching tip will constrain to the bounds of its xaml root.</summary>
         public bool ShouldBoundToXamlRoot
         {
             get => (bool)GetValue(ShouldBoundToXamlRootProperty);
             set => SetValue(ShouldBoundToXamlRootProperty, value);
         }
 
-        public readonly static DependencyProperty ShouldBoundToXamlRootProperty = DependencyProperty.Register(
+        public static readonly DependencyProperty ShouldBoundToXamlRootProperty = DependencyProperty.Register(
             nameof(ShouldBoundToXamlRoot), typeof(bool), typeof(ZTeachingTip), new PropertyMetadata(true, ShouldBoundToXamlRootChangedCallBack));
 
         private static void ShouldBoundToXamlRootChangedCallBack(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -94,7 +92,7 @@ namespace ZTeachingTip
             set => SetValue(ZTeachingTipContentProperty, value);
         }
 
-        public readonly static DependencyProperty ZTeachingTipContentProperty = DependencyProperty.Register(
+        public static readonly DependencyProperty ZTeachingTipContentProperty = DependencyProperty.Register(
             nameof(ZTeachingTipContent), typeof(FrameworkElement), typeof(ZTeachingTip), new PropertyMetadata(default, TeachingTipContentChanged));
 
         private static void TeachingTipContentChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -120,7 +118,7 @@ namespace ZTeachingTip
             set => SetValue(TargetProperty, value);
         }
 
-        public readonly static DependencyProperty TargetProperty = DependencyProperty.Register(
+        public static readonly DependencyProperty TargetProperty = DependencyProperty.Register(
             nameof(Target), typeof(FrameworkElement), typeof(ZTeachingTip), new PropertyMetadata(default(FrameworkElement), (TargetPropertyChangedCallBack)));
 
 
@@ -143,8 +141,8 @@ namespace ZTeachingTip
             set => SetValue(PlacementMarginProperty, value);
         }
 
-        public readonly static DependencyProperty PlacementMarginProperty = DependencyProperty.Register(
-            nameof(PlacementMargin), typeof(Thickness), typeof(ZTeachingTip), new PropertyMetadata(default(Thickness),PlacementMarginChangedCallBack));
+        public static readonly DependencyProperty PlacementMarginProperty = DependencyProperty.Register(
+            nameof(PlacementMargin), typeof(Thickness), typeof(ZTeachingTip), new PropertyMetadata(default(Thickness), PlacementMarginChangedCallBack));
 
         private static void PlacementMarginChangedCallBack(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
@@ -154,23 +152,6 @@ namespace ZTeachingTip
             }
         }
 
-        /// <summary>Adds Extra offset To Teaching Tip Control with respect to current Displaying Position in Xaml root </summary>
-        public Thickness PlacementOffset
-        {
-            get => (Thickness)GetValue(PlacementOffsetProperty);
-            set => SetValue(PlacementOffsetProperty, value);
-        }
-
-        public readonly static DependencyProperty PlacementOffsetProperty = DependencyProperty.Register(
-            nameof(PlacementOffset), typeof(Thickness), typeof(ZTeachingTip), new PropertyMetadata(new Thickness(0), PlacementOffsetMarginPropertyChangedCallBack));
-
-        private static void PlacementOffsetMarginPropertyChangedCallBack(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            if (d is ZTeachingTip teachingTip)
-            {
-                teachingTip.OnPlacementMarginOffsetChanged();
-            }
-        }
 
         /// <summary>Preferred placement to be used for the teaching tip. If there is not enough space to show at the preferred placement, a new placement will be automatically chosen.
         /// Placement is relative to its target if Target is non-null or to the <see cref="Window.Current.Content"/>  if Target is null.
@@ -185,7 +166,7 @@ namespace ZTeachingTip
             set => SetValue(PreferredPlacementProperty, value);
         }
 
-        public readonly static DependencyProperty PreferredPlacementProperty = DependencyProperty.Register(
+        public static readonly DependencyProperty PreferredPlacementProperty = DependencyProperty.Register(
             nameof(PreferredPlacement), typeof(ZTeachingTipPlacement), typeof(ZTeachingTip), new PropertyMetadata(ZTeachingTipPlacement.LeftTop, (PlacementPReferenceOnPropertyChanged)));
 
 
@@ -200,7 +181,7 @@ namespace ZTeachingTip
             }
         }
 
-        private readonly static DependencyProperty TailPolygonMarginProperty = DependencyProperty.Register(
+        private static readonly DependencyProperty TailPolygonMarginProperty = DependencyProperty.Register(
             nameof(TailPolygonMargin), typeof(Thickness), typeof(ZTeachingTip), new PropertyMetadata(default(Thickness)));
 
         /// <summary>
@@ -220,14 +201,14 @@ namespace ZTeachingTip
             set => SetValue(CloseButtonStyleProperty, value);
         }
 
-        public readonly static DependencyProperty CloseButtonStyleProperty = DependencyProperty.Register(
+        public static readonly DependencyProperty CloseButtonStyleProperty = DependencyProperty.Register(
             nameof(CloseButtonStyle), typeof(Style), typeof(ZTeachingTip), new PropertyMetadata(default, (CloseButtonStyleChangedCallBack)));
 
         private static void CloseButtonStyleChangedCallBack(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            if (d is  ZTeachingTip teachingTip && e.NewValue is Style closeButtonStyle)
+            if (d is ZTeachingTip teachingTip && e.NewValue is Style closeButtonStyle)
             {
-               teachingTip.TeachingTipCloseBtn.Style = closeButtonStyle;
+                teachingTip.TeachingTipCloseBtn.Style = closeButtonStyle;
             }
         }
 
@@ -238,7 +219,7 @@ namespace ZTeachingTip
             set => SetValue(LightDismissModeProperty, value);
         }
 
-        public readonly static DependencyProperty LightDismissModeProperty = DependencyProperty.Register(
+        public static readonly DependencyProperty LightDismissModeProperty = DependencyProperty.Register(
             nameof(LightDismissMode), typeof(LightDismissOverlayMode), typeof(ZTeachingTip), new PropertyMetadata(LightDismissOverlayMode.Auto, OnLightDismissModePropertyChanged));
 
 
@@ -262,7 +243,7 @@ namespace ZTeachingTip
             set => SetValue(TailBackGroundProperty, value);
         }
 
-        public readonly static DependencyProperty TailBackGroundProperty = DependencyProperty.Register(
+        public static readonly DependencyProperty TailBackGroundProperty = DependencyProperty.Register(
             nameof(TailBackGround), typeof(Brush), typeof(ZTeachingTip), new PropertyMetadata(default(Brush), (TailBackGroundChangedCallback)));
 
         private static void TailBackGroundChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -282,7 +263,7 @@ namespace ZTeachingTip
             set => SetValue(TailVisibilityProperty, value);
         }
 
-        public readonly static DependencyProperty TailVisibilityProperty = DependencyProperty.Register(
+        public static readonly DependencyProperty TailVisibilityProperty = DependencyProperty.Register(
             nameof(TailVisibility), typeof(Visibility), typeof(ZTeachingTip), new PropertyMetadata(Visibility.Visible));
 
 
@@ -292,7 +273,7 @@ namespace ZTeachingTip
             set => SetValue(ContentHeightProperty, value);
         }
 
-        public readonly static DependencyProperty ContentHeightProperty = DependencyProperty.Register(
+        public static readonly DependencyProperty ContentHeightProperty = DependencyProperty.Register(
             nameof(ContentHeight), typeof(double), typeof(ZTeachingTip), new PropertyMetadata(default(double), (InnerContentHeightChangedCallBack)));
 
         private static void InnerContentHeightChangedCallBack(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -309,7 +290,7 @@ namespace ZTeachingTip
             set => SetValue(ContentWidthProperty, value);
         }
 
-        public readonly static DependencyProperty ContentWidthProperty = DependencyProperty.Register(
+        public static readonly DependencyProperty ContentWidthProperty = DependencyProperty.Register(
             nameof(ContentWidth), typeof(double), typeof(ZTeachingTip), new PropertyMetadata(default(double), (InnerContentWightChangedCallBack)));
 
         private static void InnerContentWightChangedCallBack(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -326,7 +307,7 @@ namespace ZTeachingTip
             get => (object)GetValue(CloseButtonContentProperty);
             set => SetValue(CloseButtonContentProperty, value);
         }
-        public readonly static DependencyProperty CloseButtonContentProperty = DependencyProperty.Register(
+        public static readonly DependencyProperty CloseButtonContentProperty = DependencyProperty.Register(
             nameof(CloseButtonContent), typeof(object), typeof(ZTeachingTip), new PropertyMetadata(default, (CloseButtonContentChangedCallBack)));
 
         private static void CloseButtonContentChangedCallBack(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -706,7 +687,7 @@ namespace ZTeachingTip
             PositionPopUp();
         }
 
-        #region PopUpPlacementLogicRegion
+
         private List<ZTeachingTipPlacement> PopulateOffsets()
         {
             return new List<ZTeachingTipPlacement>()
@@ -808,6 +789,7 @@ namespace ZTeachingTip
             //Calculation For Window Width and Placement is Done accordingly
             return false;
         }
+
         private bool PositionPopUpBasedOnTarget(FrameworkElement targetElement)
         {
             return CallExtensionToPositionPopUp();
@@ -817,10 +799,10 @@ namespace ZTeachingTip
         private bool CallExtensionToPositionPopUp()
         {
 
-            var isPopUpPositioned =CallTryShowNearWithMappedPlacement(PreferredPlacement);
+            var isPopUpPositioned = CallTryShowNearWithMappedPlacement(PreferredPlacement);
 
 
-            if (!ShouldBoundToXamlRoot ||isPopUpPositioned)
+            if (!ShouldBoundToXamlRoot || isPopUpPositioned)
             {
                 ActualPlacement = PreferredPlacement;
                 AssignTailPlacementBasedOnPlacementPReference(PreferredPlacement);
@@ -867,26 +849,22 @@ namespace ZTeachingTip
                 ZTeachingTipPlacement.RightBottom => PopUpPlacement.RightBottom,
                 _ => throw new ArgumentOutOfRangeException(nameof(placement), placement, null)
             };
-            return ZTeachingTipPopUp.TryShowNear(PopUpCoordinatesInCoreWindowSpace, 
-                 TargetCoordinatesInCoreWindowSpace, 
+            return ZTeachingTipPopUp.TryShowNearRect(PopUpCoordinatesInCoreWindowSpace,
+                 TargetCoordinatesInCoreWindowSpace,
                  new[] { mappedPlacement },
                  PlacementMargin,
-                PlacementOffset,
-                ShouldBoundToXamlRoot);
-            
+                 ShouldBoundToXamlRoot);
+
         }
 
 
-      
-
-      
-
-
         #endregion
 
-        #endregion
+
 
     }
+
+
     public class ActualPlacementChangedEventArgs : EventArgs
     {
         public ZTeachingTipPlacement? ActualPlacement { get; }
@@ -897,10 +875,12 @@ namespace ZTeachingTip
         }
 
     }
+
     public class ZTeachingTipOpenedEventArgs : EventArgs
     {
 
     }
+
     public class ZTeachingTipClosedEventArgs : EventArgs
     {
 

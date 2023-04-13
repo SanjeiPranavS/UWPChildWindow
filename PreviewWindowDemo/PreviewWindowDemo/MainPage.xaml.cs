@@ -252,7 +252,7 @@ namespace ZTeachingTip
                 double.TryParse(BottomMarginTextBlock.Text, out var bottomMargin))
             {
                 var placementOffset = new Thickness(leftMargin, topMargin, rightMargin, bottomMargin);
-                _teachingZTip.PlacementOffset = placementOffset;
+                _teachingZTip.PlacementMargin = placementOffset;
                 InfoTextBlock.Text = string.Empty;
                 return;
             }
