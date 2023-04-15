@@ -114,10 +114,10 @@ namespace ZTeachingTip
                 LayoutRoot.Children.Add(UiXamlTeachingTip);
             }
             UiXamlTeachingTip.Content = new PreviewControl();
-            UiXamlTeachingTip.PreferredPlacement = TeachingTipPlacementMode.Bottom;
+            UiXamlTeachingTip.PreferredPlacement = TeachingTipPlacementMode.Left;
             UiXamlTeachingTip.IsLightDismissEnabled = false;
-            UiXamlTeachingTip.Target = PersonPicture;
-            UiXamlTeachingTip.PlacementMargin = new Thickness(0,30,0,10);
+           // UiXamlTeachingTip.Target = PersonPicture;
+            UiXamlTeachingTip.PlacementMargin = new Thickness(-100,0,100,0);
             UiXamlTeachingTip.IsOpen = !UiXamlTeachingTip.IsOpen;
 
         }

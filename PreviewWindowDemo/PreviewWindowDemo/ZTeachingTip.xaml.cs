@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Windows.Foundation;
 using Windows.UI.Core;
 using Windows.UI.Xaml;
@@ -775,6 +776,10 @@ namespace ZTeachingTip
 
         private void PositionPopUp()
         {
+            if (!IsOpen)//No Positioning calculation are Made if Popup is Not opened 
+            {
+                return;
+            }
             var isTeachingTipFit = Target is null ? PositionPopUpUnTargeted() : PositionPopUpBasedOnTarget(Target);
             if (!ShouldBoundToXamlRoot || isTeachingTipFit)
             {
@@ -833,28 +838,108 @@ namespace ZTeachingTip
         private bool CallTryShowNearWithMappedPlacement(ZTeachingTipPlacement placement)
         {
 
-            var mappedPlacement = placement switch
-            {
-                ZTeachingTipPlacement.Top => PopUpPlacement.Top,
-                ZTeachingTipPlacement.TopLeft => PopUpPlacement.TopLeft,
-                ZTeachingTipPlacement.TopRight => PopUpPlacement.TopRight,
-                ZTeachingTipPlacement.Bottom => PopUpPlacement.Bottom,
-                ZTeachingTipPlacement.BottomRight => PopUpPlacement.BottomRight,
-                ZTeachingTipPlacement.BottomLeft => PopUpPlacement.BottomLeft,
-                ZTeachingTipPlacement.Left => PopUpPlacement.Left,
-                ZTeachingTipPlacement.LeftTop => PopUpPlacement.LeftTop,
-                ZTeachingTipPlacement.LeftBottom => PopUpPlacement.LeftBottom,
-                ZTeachingTipPlacement.Right => PopUpPlacement.Right,
-                ZTeachingTipPlacement.RightTop => PopUpPlacement.RightTop,
-                ZTeachingTipPlacement.RightBottom => PopUpPlacement.RightBottom,
-                _ => throw new ArgumentOutOfRangeException(nameof(placement), placement, null)
-            };
-            return ZTeachingTipPopUp.TryShowNearRect(PopUpCoordinatesInCoreWindowSpace,
+            var mappedPlacement = MapTeachingTipPlacementToPopUpPlacement(placement);
+
+            var popUpDimensionToBeConsideredForPositioning = AddPolygonDimensionToPopUpDimension(mappedPlacement);
+
+            return ZTeachingTipPopUp.TryShowNearRect(popUpDimensionToBeConsideredForPositioning,
                  TargetCoordinatesInCoreWindowSpace,
                  new[] { mappedPlacement },
                  PlacementMargin,
                  ShouldBoundToXamlRoot);
 
+        }
+
+        /*
+         * When performing Positioning Calculation for Popup ,Dimension of Polygon must be included to avoid Layout Cycle
+         * (i.e)if Actual Placement is Top(Initial placement is left there is no space ,so placement on top),
+         * Due To size changed event in RootGrid due to Polygon moving to different location, Positing popup Occurs again now when calculating space for left ,space is available
+         * because Polygon dimension  is not taken into consideration,when polygon moves to left (size changes occurs popup moves to top) cycles repeats,
+         * to Avoid the cycle polygon dimension are Taken into Consideration even if the polygon is not on respective Side  
+         */
+        private Rect AddPolygonDimensionToPopUpDimension(PopupPlacementMode requestedPlacement)
+        {
+            var popUpDimensionToBeConsideredForPositioning = PopUpCoordinatesInCoreWindowSpace;
+            const double polygonWidth = 10;
+
+            if (!(ActualPlacement is { } actualPlacement))//Popup Not yet Placed No Die
+            {
+                return popUpDimensionToBeConsideredForPositioning;
+            }
+
+            if (IsVerticalPlacement(MapTeachingTipPlacementToPopUpPlacement(actualPlacement)) == IsVerticalPlacement(requestedPlacement))//Calculating popUp Positioning,where requested placement Axis  current axis (Y or X Axis) is same or not 
+            {
+                return popUpDimensionToBeConsideredForPositioning;
+            }
+
+            if (IsHorizontalPlacement(requestedPlacement))//Popup is in Top or Bottom But Calculation Dimension should be Suitable for both Left and Right 
+            {
+
+                popUpDimensionToBeConsideredForPositioning.Width += polygonWidth;
+                return popUpDimensionToBeConsideredForPositioning;
+            }
+
+            if (IsVerticalPlacement(requestedPlacement))//Popup is in Left or Right  But Calculation Dimension should be Suitable for both Top and Bottom
+            {
+                popUpDimensionToBeConsideredForPositioning.Height += polygonWidth;
+                return popUpDimensionToBeConsideredForPositioning;
+            }
+
+            return popUpDimensionToBeConsideredForPositioning;
+
+
+            //Checking Whether The Given placement is Top or Bottom side placement
+            bool IsVerticalPlacement(PopupPlacementMode placement)
+            {
+                return placement switch
+                {
+                    PopupPlacementMode.TopLeft => true,
+                    PopupPlacementMode.TopRight => true,
+                    PopupPlacementMode.BottomLeft => true,
+                    PopupPlacementMode.BottomRight => true,
+                    PopupPlacementMode.Bottom => true,
+                    PopupPlacementMode.Top => true,
+                    _ => false,
+                };
+
+            }
+
+            //Checking Whether The Given placement is LEft or Right  side placement
+            bool IsHorizontalPlacement(PopupPlacementMode placement)
+            {
+                return placement switch
+                {
+                    PopupPlacementMode.Left => true,
+                    PopupPlacementMode.Right => true,
+                    PopupPlacementMode.LeftBottom => true,
+                    PopupPlacementMode.RightBottom => true,
+                    PopupPlacementMode.RightTop => true,
+                    PopupPlacementMode.LeftTop => true,
+                    _ => false
+                };
+
+            }
+        }
+
+        private PopupPlacementMode MapTeachingTipPlacementToPopUpPlacement(ZTeachingTipPlacement placement)
+        {
+            var mappedPlacement = placement switch
+            {
+                ZTeachingTipPlacement.Top => PopupPlacementMode.Top,
+                ZTeachingTipPlacement.TopLeft => PopupPlacementMode.TopLeft,
+                ZTeachingTipPlacement.TopRight => PopupPlacementMode.TopRight,
+                ZTeachingTipPlacement.Bottom => PopupPlacementMode.Bottom,
+                ZTeachingTipPlacement.BottomRight => PopupPlacementMode.BottomRight,
+                ZTeachingTipPlacement.BottomLeft => PopupPlacementMode.BottomLeft,
+                ZTeachingTipPlacement.Left => PopupPlacementMode.Left,
+                ZTeachingTipPlacement.LeftTop => PopupPlacementMode.LeftTop,
+                ZTeachingTipPlacement.LeftBottom => PopupPlacementMode.LeftBottom,
+                ZTeachingTipPlacement.Right => PopupPlacementMode.Right,
+                ZTeachingTipPlacement.RightTop => PopupPlacementMode.RightTop,
+                ZTeachingTipPlacement.RightBottom => PopupPlacementMode.RightBottom,
+                _ => throw new ArgumentOutOfRangeException(nameof(placement), placement, null)
+            };
+            return mappedPlacement;
         }
 
 

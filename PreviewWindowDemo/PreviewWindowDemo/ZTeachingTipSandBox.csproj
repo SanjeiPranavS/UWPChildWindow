@@ -102,6 +102,7 @@
     <Compile Include="DummyPage.xaml.cs">
       <DependentUpon>DummyPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Extension.cs" />
     <Compile Include="MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
