@@ -5,7 +5,7 @@ using Windows.Foundation;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls.Primitives;
 
-namespace Zoho.UWP.Common.Extensions
+namespace ZTeachingTip
 {
     #region Supporting Enums and Constants
 
@@ -357,7 +357,7 @@ namespace Zoho.UWP.Common.Extensions
                                        double margin = 10,
                                        bool isOverflowAllowed = false) //For BackwardsCompatibility
         {
-            
+
             placementPreferenceOrder ??= PlacementPreferenceOrders.TopBottomLeftRight;
             horizontalAlignmentPreferenceOrder ??= HorizontalAlignmentPreferenceOrders.LeftCenterRight;
             verticalAlignmentPreferenceOrder ??= VerticalAlignmentPreferenceOrders.TopCenterBottom;
@@ -454,7 +454,7 @@ namespace Zoho.UWP.Common.Extensions
                                             IEnumerable<PopupPlacementMode> preferredPlacement = default,
                                             Thickness placementMargin = default, bool shouldConstrainToRootBounds = true)
         {
-            
+
             var popUpCoordinatesInCoreWindowSpace = popup.TransformToVisual(Window.Current.Content)
                 .TransformBounds(new Rect(0, 0, popup.MaxWidth, popup.MaxHeight));
 

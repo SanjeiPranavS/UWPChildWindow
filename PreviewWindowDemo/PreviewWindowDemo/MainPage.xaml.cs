@@ -6,7 +6,6 @@ using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Shapes;
 using Microsoft.UI.Xaml.Controls;
-using Zoho.UWP.Common.Extensions;
 
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
@@ -92,7 +91,7 @@ namespace ZTeachingTip
                 
                 Bindings.Update();
             }
-            _teachingZTip.ShouldBoundToXamlRoot = true;
+           
             _teachingZTip.IsOpen = !_teachingZTip.IsOpen;
         }
 
@@ -131,9 +130,9 @@ namespace ZTeachingTip
            ActualPlacementTextBox.Text = arg1?.ActualPlacement?.ToString() ?? string.Empty;
            if (arg2.ActualPlacement == null)
            {
-               _teachingZTip.ShouldBoundToXamlRoot = false;
-               "IS open set to True in Actual PReference changed Callback".Print();
-                _teachingZTip.IsOpen = true;
+               //_teachingZTip.ShouldBoundToXamlRoot = false;
+               //"IS open set to True in Actual PReference changed Callback".Print();
+               // _teachingZTip.IsOpen = true;
            }
         }
 

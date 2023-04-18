@@ -7,7 +7,6 @@ using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Markup;
 using Windows.UI.Xaml.Media;
-using Zoho.UWP.Common.Extensions;
 
 // The User Control item template is documented at https://go.microsoft.com/fwlink/?LinkId=234236
 
@@ -330,6 +329,19 @@ namespace ZTeachingTip
                 tip.TeachingTipCloseBtn.Content = e.NewValue;
             }
         }
+
+
+        public bool ForcePlacement
+        {
+            get => (bool)GetValue(ForcePlacementProperty);
+            set => SetValue(ForcePlacementProperty, value);
+        }
+
+
+        public static readonly DependencyProperty ForcePlacementProperty = DependencyProperty.Register(
+            nameof(ForcePlacement), typeof(bool), typeof(ZTeachingTip), new PropertyMetadata(default(bool)));
+
+        
 
         /// <summary>
         /// Indicates  Actual Current Placement Of the TeachingTip Which PLaced Respect to Available Size, 
@@ -841,18 +853,19 @@ namespace ZTeachingTip
             ActualPlacement = null;
         }
 
-
         private bool CallExtensionToPositionPopUp()
         {
+            if (ForcePlacement) //No Positioning Logic will Be Carried Out
+            {
+                ForcePlaceRequestedPlacement(PreferredPlacement);
+            }
+            var isPopUpPositioned = CallTryShowNearWithMappedPlacement(PreferredPlacement,true);
 
-            var isPopUpPositioned = CallTryShowNearWithMappedPlacement(PreferredPlacement);
-
-
-            if (!ShouldBoundToXamlRoot || isPopUpPositioned)
+            if (isPopUpPositioned)
             {
                 ActualPlacement = PreferredPlacement;
                 AssignTailPlacementBasedOnPlacementPReference(PreferredPlacement);
-                return isPopUpPositioned;
+                return true;
             }
 
             var startIndex = PlacementOffsets.IndexOf(PreferredPlacement);
@@ -863,7 +876,7 @@ namespace ZTeachingTip
                 {
                     startIndex = -1;
                 }
-                isPopUpPositioned = CallTryShowNearWithMappedPlacement(PlacementOffsets[++startIndex]);
+                isPopUpPositioned = CallTryShowNearWithMappedPlacement(PlacementOffsets[++startIndex],true);
 
                 if (!isPopUpPositioned)
                 {
@@ -873,10 +886,29 @@ namespace ZTeachingTip
                 AssignTailPlacementBasedOnPlacementPReference(PlacementOffsets[startIndex]);
                 return true;
             }
+
+            if (!ShouldBoundToXamlRoot)//No Fitting Size in All Placement positions ,If User Set Tip can go out of Bounds so Placing in Requested position 
+            {
+                return ForcePlaceRequestedPlacement(PreferredPlacement);
+            }
             return false;
+
+            bool ForcePlaceRequestedPlacement(ZTeachingTipPlacement preferredPlacement)
+            {
+
+                var isPopUpDisplaying = CallTryShowNearWithMappedPlacement(preferredPlacement, false);
+                if (!isPopUpDisplaying)//if Space For Positioning Even in Outer is not Available returning false
+                {
+                    return false;
+                }
+                ActualPlacement = preferredPlacement;
+                AssignTailPlacementBasedOnPlacementPReference(preferredPlacement);
+                return true;
+
+            }
         }
 
-        private bool CallTryShowNearWithMappedPlacement(ZTeachingTipPlacement placement)
+        private bool CallTryShowNearWithMappedPlacement(ZTeachingTipPlacement placement,bool shouldBoundToXamlRoot)
         {
 
             var mappedPlacement = MapTeachingTipPlacementToPopUpPlacement(placement);
@@ -884,12 +916,13 @@ namespace ZTeachingTip
             var popUpDimensionToBeConsideredForPositioning = AddPolygonDimensionToPopUpDimension(mappedPlacement);
 
             return ZTeachingTipPopUp.TryShowNearRect(popUpDimensionToBeConsideredForPositioning,
-                 TargetCoordinatesInCoreWindowSpace,
-                 new[] { mappedPlacement },
-                 PlacementMargin,
-                 ShouldBoundToXamlRoot);
+                TargetCoordinatesInCoreWindowSpace,
+                new[] { mappedPlacement },
+                PlacementMargin,
+                shouldBoundToXamlRoot);
 
         }
+
 
         /*
          * When performing Positioning Calculation for Popup ,Dimension of Polygon must be included to avoid Layout Cycle
