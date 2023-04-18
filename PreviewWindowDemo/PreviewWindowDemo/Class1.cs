@@ -55,17 +55,65 @@ namespace Zoho.UWP.Common.Extensions
     // Refer https://learn.microsoft.com/en-us/windows/windows-app-sdk/api/winrt/microsoft.ui.xaml.controls.teachingtipplacementmode?view=windows-app-sdk-1.2#fields.
     public enum PopupPlacementMode
     {
+        /// <summary>
+        /// Along the Top side of the xaml root when non-targeted and Above the target element with centers aligned when targeted.
+        /// </summary>
         Top,
+
+        /// <summary>
+        /// The Tpo left corner of the xaml root when non-targeted and Above the target element aligning left sides when targeted
+        /// </summary>
         TopLeft,
+
+        /// <summary>
+        /// The Top right corner of the xaml root when non-targeted and Above the target element aligning Right sides when targeted
+        /// </summary>
         TopRight,
+
+        /// <summary>
+        /// Along the bottom side of the xaml root when non-targeted and below the target element with centers aligned when targeted.
+        /// </summary>
         Bottom,
+
+        /// <summary>
+        /// The bottom right corner of the xaml root when non-targeted and below the target element aligning Right sides when targeted
+        /// </summary>
         BottomRight,
+
+        /// <summary>
+        /// The bottom left corner of the xaml root when non-targeted and below the target element aligning left sides when targeted
+        /// </summary>
         BottomLeft,
+
+        /// <summary>
+        /// Along the left side of the xaml root when non-targeted and left side of the Target with centers aligned  when targeted.
+        /// </summary>
         Left,
+
+        /// <summary>
+        /// Along the left side of the xaml root when non-targeted and left side of the Target with Top aligned  when targeted.
+        /// </summary>
         LeftTop,
+
+
+        /// <summary>
+        /// Along the left side of the xaml root when non-targeted and left side of the Target with Bottom aligned  when targeted.
+        /// </summary>
         LeftBottom,
+
+        /// <summary>
+        /// Along the right side of the xaml root when non-targeted and Right side of the Target with centers aligned  when targeted.
+        /// </summary>
         Right,
+
+        /// <summary>
+        /// Along the right side of the xaml root when non-targeted and Right side of the Target with Top aligned  when targeted.
+        /// </summary>
         RightTop,
+
+        /// <summary>
+        /// Along the right side of the xaml root when non-targeted and Right side of the Target with Bottom aligned  when targeted.
+        /// </summary>
         RightBottom,
     }
 
@@ -309,11 +357,7 @@ namespace Zoho.UWP.Common.Extensions
                                        double margin = 10,
                                        bool isOverflowAllowed = false) //For BackwardsCompatibility
         {
-            if (targetElement == null && targetPoint == default)//Atleast Point or Framework Element is Required to Position PopUp
-            {
-                return false;
-            }
-
+            
             placementPreferenceOrder ??= PlacementPreferenceOrders.TopBottomLeftRight;
             horizontalAlignmentPreferenceOrder ??= HorizontalAlignmentPreferenceOrders.LeftCenterRight;
             verticalAlignmentPreferenceOrder ??= VerticalAlignmentPreferenceOrders.TopCenterBottom;
@@ -388,6 +432,7 @@ namespace Zoho.UWP.Common.Extensions
         /// </summary>
         /// <param name="targetPoint">
         /// target Point Which is Transformed with To <see cref="Window.Current.Content"/>
+        /// if Default is Passed popUp will be Positioned with respect to <see cref="Window.Current.Content"/>
         /// </param>
         /// <param name="preferredPlacement">
         ///  Positions PopUp With Respect to list of placements in Provided Order
@@ -409,12 +454,7 @@ namespace Zoho.UWP.Common.Extensions
                                             IEnumerable<PopupPlacementMode> preferredPlacement = default,
                                             Thickness placementMargin = default, bool shouldConstrainToRootBounds = true)
         {
-            //No Positioning Calculations Performed if targetPoint is default i.e(0.0)
-            if (targetPoint == default)
-            {
-                return false;
-            }
-
+            
             var popUpCoordinatesInCoreWindowSpace = popup.TransformToVisual(Window.Current.Content)
                 .TransformBounds(new Rect(0, 0, popup.MaxWidth, popup.MaxHeight));
 
@@ -437,7 +477,7 @@ namespace Zoho.UWP.Common.Extensions
         /// </summary>
         /// <param name="popup"></param>
         /// <param name="targetElement">
-        ///   <see cref="FrameworkElement"/> Should Already Loaded in Visual Tree,Pop up Positioning is Based On Target's Actual Width and Actual Height
+        ///   <see cref="FrameworkElement"/> Should Already Loaded in Visual Tree,Pop up Positioning is Based On Target's Actual Width and Actual Height ,If Target is Not Provided PopUp Will be positioned with respect to <see cref="Window.Current.Content"/> (i.e) <see cref="XamlRoot"/>
         /// </param>
         /// <param name="preferredPlacement">
         ///  Positions PopUp With Respect to list of placements in Provided Order
@@ -461,13 +501,10 @@ namespace Zoho.UWP.Common.Extensions
                                               Thickness placementMargin = default,
                                               bool shouldConstrainToRootBounds = true)
         {
-            if (targetElement is null)
-            {
-                return false;
-            }
+
             var popUpCoordinatesInCoreWindowSpace = popup.TransformToVisual(Window.Current.Content).TransformBounds(new Rect(0, 0, popup.MaxWidth, popup.MaxHeight));
 
-            var targetCoordinatesInCoreWindowSpace = targetElement.TransformToVisual(Window.Current.Content)
+            var targetCoordinatesInCoreWindowSpace = targetElement == null ? default : targetElement.TransformToVisual(Window.Current.Content)
                 .TransformBounds(new Rect(0, 0, targetElement.ActualWidth, targetElement.ActualHeight));
 
             return popup.TryShowNearRect(popUpCoordinatesInCoreWindowSpace, targetCoordinatesInCoreWindowSpace, preferredPlacement, placementMargin, shouldConstrainToRootBounds);
@@ -482,6 +519,7 @@ namespace Zoho.UWP.Common.Extensions
         /// </param>
         /// <param name="targetBoundsRelativeToWindow">
         /// Bounds of the target with respect to current window. Unlike other overloads, these bounds must be transformed to Window origin by user.
+        /// if Default is Passed popUp will be Positioned with respect to <see cref="Window.Current.Content"/>
         /// </param>
         /// <param name="preferredPlacements">
         ///  Order of positions in which method should try to position popup. Popup will be positioned in the first position matching other given preferences.
@@ -514,7 +552,11 @@ namespace Zoho.UWP.Common.Extensions
             ComputedPopupOffsets computedOffset;
             foreach (var preferredPlacement in preferredPlacements)
             {
-                computedOffset = GetOffsetForPreferrence(preferredPlacement, ref placementParams);//Todo: If Target Co-ordinates is not provided try position with respect to xamlRoot
+                computedOffset = targetBoundsRelativeToWindow == default
+                    ? GetOffsetForXamlRootPlacement(preferredPlacement,
+                        ref placementParams)
+                    : GetOffsetForPreferrence(preferredPlacement,
+                        ref placementParams); //Todo: If Target Co-ordinates is not provided try position with respect to xamlRoot
                 popup.HorizontalOffset = computedOffset.HorizontalOffSet;
                 popup.VerticalOffset = computedOffset.VerticalOffSet;
 
@@ -525,10 +567,152 @@ namespace Zoho.UWP.Common.Extensions
             }
             return false;
         }
+
+
+
+
         #endregion
         #endregion
 
         #region Offset calculation helper methods
+
+
+        /// <summary>
+        /// Calculates Vertical and Horizontal Offset, With Respect to <see cref="XamlRoot"/> 
+        /// </summary>
+        /// <param name="preferredPlacement"></param>
+        /// <param name="placementParams"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
+        private static ComputedPopupOffsets GetOffsetForXamlRootPlacement(
+            PopupPlacementMode preferredPlacement, ref GivenPlacementParams placementParams)
+        {
+            Rect customPopUpCoordinates = placementParams.InitialPopupBounds;
+            double xCord;
+            double yCord;
+
+            switch (preferredPlacement) //Finding Target Point With Respect To Current Window and Applying margin to PopUp' s Offset's Directly 
+            {
+                case PopupPlacementMode.Top:
+                    xCord = GetOffsetForAlignment(default, Alignment.Center, WindowBounds.Width,
+                        placementParams.InitialPopupBounds.Width);
+                    yCord = GetOffsetForAlignment(default, Alignment.Top, WindowBounds.Height,
+                        placementParams.InitialPopupBounds.Height);
+                    customPopUpCoordinates.Y -= placementParams.PlacementMargin.Top;
+
+                    break;
+                case PopupPlacementMode.TopLeft:
+                    xCord = GetOffsetForAlignment(default, Alignment.Left, WindowBounds.Width,
+                        placementParams.InitialPopupBounds.Width);
+                    yCord = GetOffsetForAlignment(default, Alignment.Top, WindowBounds.Height,
+                        placementParams.InitialPopupBounds.Height);
+                    customPopUpCoordinates.Y -= placementParams.PlacementMargin.Top;
+                    customPopUpCoordinates.X -= placementParams.PlacementMargin.Left;
+
+                    break;
+                case PopupPlacementMode.TopRight:
+                    xCord = GetOffsetForAlignment(default, Alignment.Right, WindowBounds.Width,
+                        placementParams.InitialPopupBounds.Width);
+                    yCord = GetOffsetForAlignment(default, Alignment.Top, WindowBounds.Height,
+                        placementParams.InitialPopupBounds.Height);
+                    customPopUpCoordinates.Y -= placementParams.PlacementMargin.Top;
+                    customPopUpCoordinates.X += placementParams.PlacementMargin.Right;
+
+                    break;
+
+                case PopupPlacementMode.Bottom:
+                    xCord = GetOffsetForAlignment(default, Alignment.Center, WindowBounds.Width,
+                        placementParams.InitialPopupBounds.Width);
+                    yCord = GetOffsetForAlignment(default, Alignment.Bottom, WindowBounds.Height,
+                        placementParams.InitialPopupBounds.Height);
+                    customPopUpCoordinates.Y += placementParams.PlacementMargin.Bottom;
+
+                    break;
+                case PopupPlacementMode.BottomRight:
+                    xCord = GetOffsetForAlignment(default, Alignment.Right, WindowBounds.Width,
+                        placementParams.InitialPopupBounds.Width);
+                    yCord = GetOffsetForAlignment(default, Alignment.Bottom, WindowBounds.Height,
+                        placementParams.InitialPopupBounds.Height);
+                    customPopUpCoordinates.Y += placementParams.PlacementMargin.Bottom;
+                    customPopUpCoordinates.X += placementParams.PlacementMargin.Right;
+
+                    break;
+                case PopupPlacementMode.BottomLeft:
+                    xCord = GetOffsetForAlignment(default, Alignment.Left, WindowBounds.Width,
+                        placementParams.InitialPopupBounds.Width);
+                    yCord = GetOffsetForAlignment(default, Alignment.Bottom, WindowBounds.Height,
+                        placementParams.InitialPopupBounds.Height);
+                    customPopUpCoordinates.Y += placementParams.PlacementMargin.Bottom;
+                    customPopUpCoordinates.X -= placementParams.PlacementMargin.Left;
+
+                    break;
+                case PopupPlacementMode.Left:
+                    xCord = GetOffsetForAlignment(default, Alignment.Left, WindowBounds.Width,
+                        placementParams.InitialPopupBounds.Width);
+                    yCord = GetOffsetForAlignment(default, Alignment.Center, WindowBounds.Height,
+                        placementParams.InitialPopupBounds.Width);
+                    customPopUpCoordinates.X -= placementParams.PlacementMargin.Left;
+
+                    break;
+                case PopupPlacementMode.LeftTop:
+                    xCord = GetOffsetForAlignment(default, Alignment.Left, WindowBounds.Width,
+                        placementParams.InitialPopupBounds.Width);
+                    yCord = GetOffsetForAlignment(default, Alignment.Top, WindowBounds.Height,
+                        placementParams.InitialPopupBounds.Height);
+                    customPopUpCoordinates.X -= placementParams.PlacementMargin.Left;
+                    customPopUpCoordinates.Y -= placementParams.PlacementMargin.Top;
+
+                    break;
+                case PopupPlacementMode.LeftBottom:
+                    xCord = GetOffsetForAlignment(default, Alignment.Left, WindowBounds.Width,
+                        placementParams.InitialPopupBounds.Width);
+                    yCord = GetOffsetForAlignment(default, Alignment.Bottom, WindowBounds.Height,
+                        placementParams.InitialPopupBounds.Height);
+                    customPopUpCoordinates.X -= placementParams.PlacementMargin.Left;
+                    customPopUpCoordinates.Y += placementParams.PlacementMargin.Bottom;
+
+                    break;
+                case PopupPlacementMode.Right:
+                    xCord = GetOffsetForAlignment(default, Alignment.Right, WindowBounds.Width,
+                        placementParams.InitialPopupBounds.Width);
+                    yCord = GetOffsetForAlignment(default, Alignment.Center, WindowBounds.Height,
+                        placementParams.InitialPopupBounds.Height);
+                    customPopUpCoordinates.X += placementParams.PlacementMargin.Right;
+
+                    break;
+                case PopupPlacementMode.RightTop:
+                    xCord = GetOffsetForAlignment(default, Alignment.Right, WindowBounds.Width,
+                        placementParams.InitialPopupBounds.Width);
+                    yCord = GetOffsetForAlignment(default, Alignment.Top, WindowBounds.Height,
+                        placementParams.InitialPopupBounds.Height);
+                    customPopUpCoordinates.X += placementParams.PlacementMargin.Right;
+                    customPopUpCoordinates.Y -= placementParams.PlacementMargin.Top;
+
+                    break;
+                case PopupPlacementMode.RightBottom:
+                    xCord = GetOffsetForAlignment(default, Alignment.Right, WindowBounds.Width,
+                        placementParams.InitialPopupBounds.Width);
+                    yCord = GetOffsetForAlignment(default, Alignment.Bottom, WindowBounds.Height,
+                        placementParams.InitialPopupBounds.Height);
+                    customPopUpCoordinates.X += placementParams.PlacementMargin.Right;
+                    customPopUpCoordinates.Y += placementParams.PlacementMargin.Bottom;
+
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(preferredPlacement), preferredPlacement, null);
+            }
+
+            var customPlacementParams = new GivenPlacementParams()
+            {
+                InitialPopupBounds = customPopUpCoordinates,
+                PlacementMargin = default, //margin values are applied to PopUp offset already so default is passed 
+                TargetPositionBounds = new Rect(xCord, yCord, default, default)
+            };
+
+            return GetOffsetForPreferrence(PopupPlacementMode.BottomLeft, ref customPlacementParams);//Since Target point  calculated represents TopLeft corner of PopUps new position,PopUpNeeds to Positioned BottomLeft Of the Point always
+
+        }
+
 
         /// <summary>
         /// Calculates Horizontal Offset,Vertical Offset, And If Space for Positioning Pop is Available 

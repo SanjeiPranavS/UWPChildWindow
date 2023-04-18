@@ -67,7 +67,7 @@
                      Fill="{ThemeResource ApplicationPageBackgroundThemeBrush}"
                      Stroke="{ThemeResource ApplicationPageBackgroundThemeBrush}"
                      StrokeThickness="1"
-                     Visibility="{x:Bind TailVisibility}" />
+                     />
             <ScrollViewer x:Name="RootScrollViewer"
                           Grid.Row="1"
                           Grid.Column="1"
@@ -285,6 +285,18 @@
                                 Value="Left" />
                         <Setter Target="TailPolygon.VerticalAlignment"
                                 Value="Bottom" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+            <VisualStateGroup x:Name="TailVisibilityGroup">
+                <VisualState x:Name="TailVisible">
+                    <VisualState.Setters>
+                        <Setter Target="TailPolygon.Visibility" Value="Visible"/>
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState x:Name="TailCollapsed">
+                    <VisualState.Setters>
+                        <Setter Target="TailPolygon.Visibility" Value="Collapsed"></Setter>
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>

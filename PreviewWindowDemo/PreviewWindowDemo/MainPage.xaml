@@ -23,7 +23,7 @@
         <StackPanel Margin="10 30 0 0">
             <CheckBox IsChecked="{x:Bind _teachingZTip.IsLightDismissEnabled,Mode=TwoWay}">IsLightDisMissEnabled</CheckBox>
             <CheckBox IsChecked="{x:Bind _teachingZTip.ShouldBoundToXamlRoot,Mode=TwoWay}">ShouldBoundToXamlRoot</CheckBox>
-            <CheckBox IsChecked="{x:Bind _teachingZTip.TailVisibility,Mode=TwoWay}">IsTailVisible</CheckBox>
+            <!--<CheckBox IsChecked="{x:Bind _teachingZTip.TailVisibility,Mode=TwoWay}">IsTailVisible</CheckBox>-->
             <TextBox Header="Actual Placement" 
                      x:Name="ActualPlacementTextBox"
                      IsReadOnly="True"/>
@@ -110,6 +110,7 @@
                     Click="ButtonBase_OnClick"
                     Content="Microsoft Teaching Tip" />
             <Button HorizontalAlignment="Center" Click="RectangleShowButtonOnClick">ShowRectangle Button</Button>
+            <Button Click="TryShowNEarTestBUtton_CLicked">TryShowNearTestButton</Button>
         </StackPanel>
         <StackPanel Orientation="Horizontal"
                     VerticalAlignment="Center" HorizontalAlignment="Center"

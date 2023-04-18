@@ -1,10 +1,12 @@
-﻿using Windows.UI.ViewManagement;
+﻿using System.Diagnostics;
+using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Shapes;
 using Microsoft.UI.Xaml.Controls;
+using Zoho.UWP.Common.Extensions;
 
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
@@ -80,16 +82,17 @@ namespace ZTeachingTip
                     ZTeachingTipContent = new PreviewControl(),
                     IsLightDismissEnabled = false,
                     Target = PersonPicture,
-                    Padding = new Thickness(0),
+                    Padding = new Thickness(0),TailVisibility = ZTeachingTipTailVisibility.Visible,
                     PreferredPlacement = ZTeachingTipPlacement.Left,
-                    PlacementMargin = new Thickness(5),
+                    PlacementMargin = new Thickness(0),
                     TailBackGround = new SolidColorBrush(Windows.UI.Colors.White),
-                    Background = new SolidColorBrush(Windows.UI.Colors.White)
+                    Background = new SolidColorBrush(Windows.UI.Colors.White),
                 };
                 _teachingZTip.ActualPlacementChanged += _teachingZTip_ActualPlacementChanged;
-               
+                
                 Bindings.Update();
             }
+            _teachingZTip.ShouldBoundToXamlRoot = true;
             _teachingZTip.IsOpen = !_teachingZTip.IsOpen;
         }
 
@@ -115,7 +118,8 @@ namespace ZTeachingTip
             }
             UiXamlTeachingTip.Content = new PreviewControl();
             UiXamlTeachingTip.PreferredPlacement = TeachingTipPlacementMode.Left;
-            UiXamlTeachingTip.IsLightDismissEnabled = false;
+            UiXamlTeachingTip.IsLightDismissEnabled = true;
+            UiXamlTeachingTip.TailVisibility = TeachingTipTailVisibility.Visible;
            // UiXamlTeachingTip.Target = PersonPicture;
             UiXamlTeachingTip.PlacementMargin = new Thickness(-100,0,100,0);
             UiXamlTeachingTip.IsOpen = !UiXamlTeachingTip.IsOpen;
@@ -125,6 +129,12 @@ namespace ZTeachingTip
         private void _teachingZTip_ActualPlacementChanged(ZTeachingTip arg1, ActualPlacementChangedEventArgs arg2)
         {
            ActualPlacementTextBox.Text = arg1?.ActualPlacement?.ToString() ?? string.Empty;
+           if (arg2.ActualPlacement == null)
+           {
+               _teachingZTip.ShouldBoundToXamlRoot = false;
+               "IS open set to True in Actual PReference changed Callback".Print();
+                _teachingZTip.IsOpen = true;
+           }
         }
 
 
@@ -246,6 +256,7 @@ namespace ZTeachingTip
 
         private void ChangeMarginBtn_OnClick(object sender, RoutedEventArgs e)
         {
+            Debug.WriteLine($"Height = {Window.Current.Bounds.Height} Width = {Window.Current.Bounds.Width} X = {Window.Current.Bounds.X} Y = {Window.Current.Bounds.Y} Right = {Window.Current.Bounds.Right} Left = {Window.Current.Bounds.Left} Top = {Window.Current.Bounds.Top} Bottom = {Window.Current.Bounds.Bottom}");
             if (double.TryParse(LeftMarginTextBlock.Text, out var leftMargin) &&
                 double.TryParse(TopMarginTextBlock.Text, out var topMargin) &&
                 double.TryParse(RightMarginTextBlock.Text, out var rightMargin) &&
@@ -259,7 +270,18 @@ namespace ZTeachingTip
             InfoTextBlock.Text = "Invalid Margin Format";
         }
 
-       
+        private Popup _tryShoeNearTestPopUp;
+        private void TryShowNEarTestBUtton_CLicked(object sender, RoutedEventArgs e)
+        {
+            _tryShoeNearTestPopUp ??= new Popup()
+            {
+                MaxHeight = 200,
+                MaxWidth = 400
+            };
+            _tryShoeNearTestPopUp.IsLightDismissEnabled = false;
+            _tryShoeNearTestPopUp.Child = new PreviewControl();
+            _tryShoeNearTestPopUp.TryShowNearElement(null,new [] { PopupPlacementMode.Bottom},placementMargin:new Thickness(20));
+        }
     }
 }
 

@@ -14,7 +14,7 @@ using Zoho.UWP.Common.Extensions;
 namespace ZTeachingTip
 {
     [ContentProperty(Name = nameof(ZTeachingTipContent))]
-    public sealed partial class ZTeachingTip : UserControl
+    public sealed partial class ZTeachingTip : UserControl, IDisposable
     {
 
         #region Dependendcy PRoperty And Dp CallBAcks
@@ -258,15 +258,27 @@ namespace ZTeachingTip
 
 
         /// <summary>Toggles collapse of a teaching tip's tail. Can be used to override auto behavior to make a tail visible on a non-targeted teaching tip and hidden on a targeted teaching tip.</summary>
-        public Visibility TailVisibility
+        public ZTeachingTipTailVisibility TailVisibility
         {
-            get => (Visibility)GetValue(TailVisibilityProperty);
+            get => (ZTeachingTipTailVisibility)GetValue(TailVisibilityProperty);
             set => SetValue(TailVisibilityProperty, value);
         }
 
         public static readonly DependencyProperty TailVisibilityProperty = DependencyProperty.Register(
-            nameof(TailVisibility), typeof(Visibility), typeof(ZTeachingTip), new PropertyMetadata(Visibility.Visible));
+            nameof(TailVisibility), typeof(ZTeachingTipTailVisibility), typeof(ZTeachingTip), new PropertyMetadata(ZTeachingTipTailVisibility.Auto, TailPolygonVisibilityPropertyChanged));
 
+        private static void TailPolygonVisibilityPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            if (!(d is ZTeachingTip tip) || !(e.OldValue is ZTeachingTipTailVisibility oldValue) ||
+                !(e.NewValue is ZTeachingTipTailVisibility newValue))
+            {
+                return;
+            }
+            if (oldValue != newValue)
+            {
+                tip.ChangeTailVisualStateBasedOnTailVisibility(newValue);
+            }
+        }
 
         public double ContentHeight
         {
@@ -328,10 +340,6 @@ namespace ZTeachingTip
             get => _actualPlacement;
             private set
             {
-                if (_actualPlacement == value)
-                {
-                    return;
-                }
                 _actualPlacement = value;
                 ActualPlacementChanged?.Invoke(this, new ActualPlacementChangedEventArgs(_actualPlacement));
             }
@@ -365,6 +373,8 @@ namespace ZTeachingTip
 
         private Thickness _spaceAroundTarget;
 
+        private bool _isProgrammaticClose;
+
         #endregion
 
         #region EventsAndRegistedDpCallbacks
@@ -383,10 +393,12 @@ namespace ZTeachingTip
         {
             PositionPopUp();
         }
+
         private void CoreWindowResizeCompleted(CoreWindow sender, object args)
         {
             PositionPopUp();
         }
+
         private void TailPositioningStates_CurrentStateChanged(object sender, VisualStateChangedEventArgs e)
         {
             if (e.NewState.Equals(e.OldState))
@@ -404,11 +416,28 @@ namespace ZTeachingTip
 
         private void ZTeachingTipPopUp_Closed(object sender, object e)
         {
-            IsOpen = false;
+            Debug.WriteLine("Teaching Tip Closed");
+            if (IsLightDismissEnabled)
+            {
+                /*
+                bool flag is used,inCase of Teaching tip not fitting within space ,Teaching tip is Closed
+                in placement logic ,By that Time we are Ignoring to Set IsOpen To false,
+                Because in Actual Placement Changed Event Control user may Wish change ShouldBound To XamlRoot True and Reopen the Teaching tip ,
+                And Here IsOpen is Explicitly set because We need to Track Light Dismiss Auto Close behaviour Since IsOpen is not TwoWay Bind to Popup.IsOPen 
+                */
+                if (_isProgrammaticClose)
+                {
+                    _isProgrammaticClose = false;
+                    return;
+                }
+                IsOpen = false;
+            }
             Closed?.Invoke(this, new ZTeachingTipClosedEventArgs());
         }
+
         private void ZTeachingTipPopUp_Opened(object sender, object e)
         {
+            Debug.WriteLine("Teaching Tip Opened");
             Opened?.Invoke(this, new ZTeachingTipOpenedEventArgs());
         }
 
@@ -422,6 +451,7 @@ namespace ZTeachingTip
             RegisterEventsAndProperties();
 
         }
+
         private void RegisterEventsAndProperties()
         {
             AssignShadowTarget();
@@ -433,7 +463,7 @@ namespace ZTeachingTip
             ActualPlacementChanged += ZTeachingTip_ActualPlacementChanged;
             TailPositioningStates.CurrentStateChanged += TailPositioningStates_CurrentStateChanged;
             RegisterPropertyChangedCallback(MaxHeightProperty, MaxHeightPropertyChanged);
-            RegisterPropertyChangedCallback(MaxWidthProperty, (MaxWidthPropertyChangedCallBack));
+            RegisterPropertyChangedCallback(MaxWidthProperty, MaxWidthPropertyChangedCallBack);
 
             void AssignShadowTarget()
             {
@@ -445,6 +475,7 @@ namespace ZTeachingTip
 
             }
         }
+
 
         #region ArrangementAndInitialPositioningCalaculation
 
@@ -462,7 +493,7 @@ namespace ZTeachingTip
         {
             _popUpHeight = RootGrid.ActualHeight;
             _popUpWidth = RootGrid.ActualWidth;
-            AssignTargetDimentionIfExist();
+            AssignTargetDimensionIfExist();
             PositionPopUp();
         }
 
@@ -625,12 +656,12 @@ namespace ZTeachingTip
         {
             _popUpHeight = RootGrid.ActualHeight;
             _popUpWidth = RootGrid.ActualWidth;
-            AssignTargetDimentionIfExist();
+            AssignTargetDimensionIfExist();
             PositionPopUp();
 
         }
 
-        private void AssignTargetDimentionIfExist()
+        private void AssignTargetDimensionIfExist()
         {
             if (Target == null)
             {
@@ -639,6 +670,32 @@ namespace ZTeachingTip
             _targetHeight = Target.ActualHeight;
             _targetWidth = Target.ActualWidth;
         }
+
+        private void ChangeTailVisualStateBasedOnTailVisibility(ZTeachingTipTailVisibility tailVisibility)
+        {
+            switch (tailVisibility)
+            {
+                case ZTeachingTipTailVisibility.Collapsed:
+                    VisualStateManager.GoToState(this, nameof(TailCollapsed), false);
+                    break;
+                case ZTeachingTipTailVisibility.Visible:
+                    VisualStateManager.GoToState(this, nameof(TailVisible), false);
+                    break;
+            }
+        }
+
+        private void ChangeTailVisibilityBasedOnTarget()
+        {
+            if (TailVisibility != ZTeachingTipTailVisibility.Auto)
+            {
+                return;
+            }
+            var tailVisibility = Target is null ? ZTeachingTipTailVisibility.Collapsed : ZTeachingTipTailVisibility.Visible;
+
+            ChangeTailVisualStateBasedOnTailVisibility(tailVisibility);
+
+        }
+
 
         private void ShouldBoundToXamlRootChanged()
         {
@@ -737,20 +794,11 @@ namespace ZTeachingTip
 
         private List<ZTeachingTipPlacement> PlacementOffsets { get; }
 
-        private Rect WindowBounds
-        {
-            get => Window.Current.Bounds;
-        }
+        private Rect WindowBounds => Window.Current.Bounds;
 
-        private Rect PopUpCoordinatesInCoreWindowSpace
-        {
-            get => ZTeachingTipPopUp.TransformToVisual(Window.Current.Content).TransformBounds(AssignDefaultsToRect(ref _popupRect, _popUpHeight, _popUpWidth));
-        }
+        private Rect PopUpCoordinatesInCoreWindowSpace => ZTeachingTipPopUp.TransformToVisual(Window.Current.Content).TransformBounds(AssignDefaultsToRect(ref _popupRect, _popUpHeight, _popUpWidth));
 
-        private Rect TargetCoordinatesInCoreWindowSpace
-        {
-            get => Target.TransformToVisual(Window.Current.Content).TransformBounds(AssignDefaultsToRect(ref _targetRect, _targetHeight, _targetWidth));
-        }
+        private Rect TargetCoordinatesInCoreWindowSpace => Target != null ? Target.TransformToVisual(Window.Current.Content).TransformBounds(AssignDefaultsToRect(ref _targetRect, _targetHeight, _targetWidth)) : default;
 
         private Thickness SpaceAroundTarget
         {
@@ -780,24 +828,17 @@ namespace ZTeachingTip
             {
                 return;
             }
-            var isTeachingTipFit = Target is null ? PositionPopUpUnTargeted() : PositionPopUpBasedOnTarget(Target);
+
+            ChangeTailVisibilityBasedOnTarget();//If Teaching Target Value is Not given Teaching tip Will Position with respect to Current Xaml Root In that Case No Tail Will Be Visible,while Visibility Preference is Auto
+
+            var isTeachingTipFit = CallExtensionToPositionPopUp();
             if (!ShouldBoundToXamlRoot || isTeachingTipFit)
             {
                 return;
             } //if Control should be contained within xaml root but size not enough to show so  Hiding the PopUp to Avoid Clipping
-            ActualPlacement = null;
+            _isProgrammaticClose = true;
             IsOpen = false;
-        }
-
-        private bool PositionPopUpUnTargeted()
-        {
-            //Calculation For Window Width and Placement is Done accordingly
-            return false;
-        }
-
-        private bool PositionPopUpBasedOnTarget(FrameworkElement targetElement)
-        {
-            return CallExtensionToPositionPopUp();
+            ActualPlacement = null;
         }
 
 
@@ -862,7 +903,7 @@ namespace ZTeachingTip
             var popUpDimensionToBeConsideredForPositioning = PopUpCoordinatesInCoreWindowSpace;
             const double polygonWidth = 10;
 
-            if (!(ActualPlacement is { } actualPlacement))//Popup Not yet Placed No Die
+            if (!(ActualPlacement is { } actualPlacement) || TailPolygon.Visibility != Visibility.Visible)//Popup Not yet Placed No Die
             {
                 return popUpDimensionToBeConsideredForPositioning;
             }
@@ -945,7 +986,35 @@ namespace ZTeachingTip
 
         #endregion
 
+        #region DisposeRegion
 
+        public void Dispose()
+        {
+            Bindings.StopTracking();
+            UnSubscribeToSizeChangeNotification();
+            ZTeachingTipPopUp.CancelDirectManipulations();
+            UnAttachShadows();
+            UnRegisterEventsAndProperties();
+        }
+
+
+        private void UnAttachShadows()
+        {
+            //RootShadow.DisconnectElement(RootContentPresenter);
+            //PolygonShadow.DisconnectElement(TailPolygon);
+        }
+
+        private void UnRegisterEventsAndProperties()
+        {
+            ZTeachingTipPopUp.Loaded -= ZTeachingTipPopUp_Loaded;
+            ZTeachingTipPopUp.Closed -= ZTeachingTipPopUp_Closed;
+            ZTeachingTipPopUp.Opened -= ZTeachingTipPopUp_Opened;
+            RootGrid.Loaded -= RootGrid_Loaded;
+            RootGrid.SizeChanged -= ContentElement_SizeChanged;
+            ActualPlacementChanged -= ZTeachingTip_ActualPlacementChanged;
+            TailPositioningStates.CurrentStateChanged -= TailPositioningStates_CurrentStateChanged;
+        }
+        #endregion
 
     }
 
@@ -973,17 +1042,72 @@ namespace ZTeachingTip
 
     public enum ZTeachingTipPlacement
     {
+        /// <summary>
+        /// Along the Top side of the xaml root when non-targeted and Above the target element with centers aligned when targeted.
+        /// </summary>
         Top,
+
+        /// <summary>
+        /// The Tpo left corner of the xaml root when non-targeted and Above the target element aligning left sides when targeted
+        /// </summary>
         TopLeft,
+
+        /// <summary>
+        /// The Top right corner of the xaml root when non-targeted and Above the target element aligning Right sides when targeted
+        /// </summary>
         TopRight,
+
+        /// <summary>
+        /// Along the bottom side of the xaml root when non-targeted and below the target element with centers aligned when targeted.
+        /// </summary>
         Bottom,
+
+        /// <summary>
+        /// The bottom right corner of the xaml root when non-targeted and below the target element aligning Right sides when targeted
+        /// </summary>
         BottomRight,
+
+        /// <summary>
+        /// The bottom left corner of the xaml root when non-targeted and below the target element aligning left sides when targeted
+        /// </summary>
         BottomLeft,
+
+        /// <summary>
+        /// Along the left side of the xaml root when non-targeted and left side of the Target with centers aligned  when targeted.
+        /// </summary>
         Left,
+
+        /// <summary>
+        /// Along the left side of the xaml root when non-targeted and left side of the Target with Top aligned  when targeted.
+        /// </summary>
         LeftTop,
+
+
+        /// <summary>
+        /// Along the left side of the xaml root when non-targeted and left side of the Target with Bottom aligned  when targeted.
+        /// </summary>
         LeftBottom,
+
+        /// <summary>
+        /// Along the right side of the xaml root when non-targeted and Right side of the Target with centers aligned  when targeted.
+        /// </summary>
         Right,
+
+        /// <summary>
+        /// Along the right side of the xaml root when non-targeted and Right side of the Target with Top aligned  when targeted.
+        /// </summary>
         RightTop,
+
+        /// <summary>
+        /// Along the right side of the xaml root when non-targeted and Right side of the Target with Bottom aligned  when targeted.
+        /// </summary>
         RightBottom,
+    }
+
+    public enum ZTeachingTipTailVisibility
+    {
+        Auto,
+        Visible,
+        Collapsed
     }
 }
