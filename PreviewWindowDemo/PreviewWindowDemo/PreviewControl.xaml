@@ -8,34 +8,56 @@
              d:DesignHeight="300"
              CornerRadius="6"
              d:DesignWidth="400">
-   <Image Source="Assets/Image File.png" Height="200" Width="400" Stretch="Fill" />
-    <!--<Grid Background="DarkGray">
-        <Border Margin="8"
-                Background="Azure"
-                BorderBrush="Black"
-                BorderThickness="0"
-                CornerRadius="8">
-            <StackPanel Orientation="Vertical">
-                <ListView HorizontalAlignment="Stretch"
-                          ItemsSource="{x:Bind StringSource,Mode=OneWay}" />
-                <Button HorizontalAlignment="Stretch"
-                        x:Name="FlyoutButton"
-                        Click="FlyoutButton_OnClick">
-                    FlyoutButton
-                </Button>
-                <Button HorizontalAlignment="Stretch"
-                        Click="ButtonBase_OnClick">Add item</Button>
-                <Button HorizontalAlignment="Stretch"
-                        Click="RemoveItemButton_OnClick">Remove Item</Button>
-            </StackPanel>
-        </Border>
-        <zTeachingTip:ZTeachingTip IsLightDismissEnabled="False"
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <StackPanel Orientation="Vertical">
+            <Button HorizontalAlignment="Stretch"
+                    Click="ButtonBase_OnClick">Add Vertical size</Button>
+            <Button HorizontalAlignment="Stretch"
+                    Click="RemoveItemButton_OnClick">Remove vertical size</Button>
+            <Button HorizontalAlignment="Stretch"
+                    x:Name="FlyoutButton"
+                    Click="FlyoutButton_OnClick">
+                Open another TeachingTip inside
+            </Button>
+            <ListView HorizontalAlignment="Stretch"
+                      ItemsSource="{x:Bind VerticalListViewStringSource,Mode=OneWay}" />
+
+        </StackPanel>
+        <StackPanel Orientation="Vertical"
+                    Background="Azure"
+                    CornerRadius="8"
+                    Grid.Row="1"
+                    Margin="8">
+            <Button HorizontalAlignment="Stretch" Margin="0"
+                    Click="HorizontalListViewAddButtonOnClick">Add Horizontal Width</Button>
+            <Button HorizontalAlignment="Stretch"
+                    Margin="0"
+                    Click="HorizontalListViewRemoveButtonOnClick">Remove Horizontal width</Button>
+            <ListView HorizontalAlignment="Stretch"
+                      ItemsSource="{x:Bind HorizontalListViewStringSource,Mode=OneWay}">
+                <ListView.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Orientation="Horizontal"></StackPanel>
+                    </ItemsPanelTemplate>
+                </ListView.ItemsPanel>
+
+            </ListView>
+        </StackPanel>
+        <zTeachingTip:ZTeachingTip IsLightDismissEnabled="True"
+                                   Grid.Row="0"
                                    x:Name="TeachingTip"
-                                   PreferredPlacement="Right" 
+                                   PreferredPlacement="Right" ForcePlacement="True"
                                    Target="{Binding ElementName=FlyoutButton}">
-            <zTeachingTip:ZTeachingTip.TeachingTipContent>
-                 <Image Height="100" Width="300" Stretch="Fill" Source="../Assets/the-grounded-angel-c0.jpg"></Image>
-            </zTeachingTip:ZTeachingTip.TeachingTipContent>
+            <zTeachingTip:ZTeachingTip.ZTeachingTipContent>
+                <Image Height="100"
+                       Width="300"
+                       Stretch="Fill"
+                       Source="../Assets/the-grounded-angel-c0.jpg"></Image>
+            </zTeachingTip:ZTeachingTip.ZTeachingTipContent>
         </zTeachingTip:ZTeachingTip>
-    </Grid>-->
+    </Grid>
 </UserControl>

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using Windows.Foundation;
 using Windows.UI.Core;
+using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Markup;
@@ -68,7 +69,7 @@ namespace ZTeachingTip
         }
 
         public static readonly DependencyProperty ShouldBoundToXamlRootProperty = DependencyProperty.Register(
-            nameof(ShouldBoundToXamlRoot), typeof(bool), typeof(ZTeachingTip), new PropertyMetadata(true, ShouldBoundToXamlRootChangedCallBack));
+            nameof(ShouldBoundToXamlRoot), typeof(bool), typeof(ZTeachingTip), new PropertyMetadata(default, ShouldBoundToXamlRootChangedCallBack));
 
         private static void ShouldBoundToXamlRootChangedCallBack(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
@@ -313,23 +314,6 @@ namespace ZTeachingTip
             }
         }
 
-        /// <summary>Gets or sets the content of the teaching tip's close button.</summary>
-        public object CloseButtonContent
-        {
-            get => (object)GetValue(CloseButtonContentProperty);
-            set => SetValue(CloseButtonContentProperty, value);
-        }
-        public static readonly DependencyProperty CloseButtonContentProperty = DependencyProperty.Register(
-            nameof(CloseButtonContent), typeof(object), typeof(ZTeachingTip), new PropertyMetadata(default, (CloseButtonContentChangedCallBack)));
-
-        private static void CloseButtonContentChangedCallBack(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            if (d is ZTeachingTip tip && e.NewValue != null)
-            {
-                tip.TeachingTipCloseBtn.Content = e.NewValue;
-            }
-        }
-
 
         public bool ForcePlacement
         {
@@ -402,12 +386,18 @@ namespace ZTeachingTip
         }
 
         private void WindowSizeChanged(object sender, WindowSizeChangedEventArgs e)
-        {
+        {  "Window Size Changed Event is Called".Print();
+            //if (ZTeachingTipPopUp.IsOpen && IsLightDismissEnabled)
+            //{ 
+            //    IsOpen = false;
+            //    "Is Open Property Set To False in Window SizeChanged".Print();
+            //    return;
+            //}
             PositionPopUp();
         }
 
         private void CoreWindowResizeCompleted(CoreWindow sender, object args)
-        {
+        { "CoreWindow Resize Completed Event is Called".Print();
             PositionPopUp();
         }
 
@@ -441,15 +431,18 @@ namespace ZTeachingTip
                 {
                     _isProgrammaticClose = false;
                     return;
-                }
+                } 
                 IsOpen = false;
+                "Is Open Set To false in Teaching Tip Closed Event".Print();
             }
+            VisualStateManager.GoToState(this, nameof(PopUpClosedState), false);
             Closed?.Invoke(this, new ZTeachingTipClosedEventArgs());
         }
 
         private void ZTeachingTipPopUp_Opened(object sender, object e)
         {
             Debug.WriteLine("Teaching Tip Opened");
+            VisualStateManager.GoToState(this, nameof(PopUpOpenedState), false);
             Opened?.Invoke(this, new ZTeachingTipOpenedEventArgs());
         }
 
@@ -636,27 +629,28 @@ namespace ZTeachingTip
             if (IsOpen)
             {
                 SubscribeToSizeChangeNotification();
-                ZTeachingTipPopUp.IsOpen = true;
+                ZTeachingTipPopUp.IsOpen = true; "PopUp is Open Set To || True || in OPen Property Changed Event".Print();
                 return;
             }
             UnSubscribeToSizeChangeNotification();
-            ZTeachingTipPopUp.IsOpen = false;
+            ZTeachingTipPopUp.IsOpen = false; 
         }
 
         private void UnSubscribeToSizeChangeNotification()
         {
             Window.Current.SizeChanged -= WindowSizeChanged;
-            CoreWindow.GetForCurrentThread().ResizeCompleted -= CoreWindowResizeCompleted;
-            CoreWindow.GetForCurrentThread().SizeChanged -= CoreWindowResizeCompleted;
-
+            
         }
 
         private void SubscribeToSizeChangeNotification()
         {
             UnSubscribeToSizeChangeNotification();
             Window.Current.SizeChanged += WindowSizeChanged;
-            CoreWindow.GetForCurrentThread().SizeChanged += CoreWindowResizeCompleted;
+        }
 
+        private void OnVisibleBoundsChanged(ApplicationView sender, object args)
+        {
+            "Visibilbe Bounds Changed".Print();
         }
 
         private void OnLightDismissModeChanged(LightDismissOverlayMode dissDismissMode)
@@ -849,7 +843,7 @@ namespace ZTeachingTip
                 return;
             } //if Control should be contained within xaml root but size not enough to show so  Hiding the PopUp to Avoid Clipping
             _isProgrammaticClose = true;
-            IsOpen = false;
+            IsOpen = false; "No Size For Positioning Pop UP Available Is Open Set To False".Print();
             ActualPlacement = null;
         }
 
@@ -857,9 +851,44 @@ namespace ZTeachingTip
         {
             if (ForcePlacement) //No Positioning Logic will Be Carried Out
             {
-                ForcePlaceRequestedPlacement(PreferredPlacement);
+               return ForcePlaceRequestedPlacement(PreferredPlacement);
             }
-            var isPopUpPositioned = CallTryShowNearWithMappedPlacement(PreferredPlacement,true);
+
+            if (IteratePlacementsAndAssignTailPosition(true))
+            {
+                return true;
+            }
+
+            if (!ShouldBoundToXamlRoot)//No Fitting Size in All Placement positions ,If User Set Tip can go out of Bounds so Placing in Requested position 
+            {
+               var isPlaced = IteratePlacementsAndAssignTailPosition(false);
+               return isPlaced || ForcePlaceRequestedPlacement(PreferredPlacement);
+            }
+            return false;
+
+            bool ForcePlaceRequestedPlacement(ZTeachingTipPlacement preferredPlacement)
+            {
+
+                var isPopUpDisplaying = CallTryShowNearWithMappedPlacement(preferredPlacement, false,false);
+                if (!isPopUpDisplaying)//if Space For Positioning Even in Outer is not Available returning false
+                {
+                    return false;
+                }
+                ActualPlacement = preferredPlacement;
+                AssignTailPlacementBasedOnPlacementPReference(preferredPlacement);
+                return true;
+
+            }
+        }
+
+
+        /*
+         * Method Iterates Through list of all Placement positions And Assigns  Tail position
+         * returns true If placement is Succeeded, returns False Auto positioning  Placement failed  
+         */
+        private bool IteratePlacementsAndAssignTailPosition(bool shouldBoundToXamlRoot = true)
+        {
+            var isPopUpPositioned = CallTryShowNearWithMappedPlacement(PreferredPlacement, shouldBoundToXamlRoot);
 
             if (isPopUpPositioned)
             {
@@ -876,39 +905,23 @@ namespace ZTeachingTip
                 {
                     startIndex = -1;
                 }
-                isPopUpPositioned = CallTryShowNearWithMappedPlacement(PlacementOffsets[++startIndex],true);
+
+                isPopUpPositioned = CallTryShowNearWithMappedPlacement(PlacementOffsets[++startIndex], shouldBoundToXamlRoot);
 
                 if (!isPopUpPositioned)
                 {
                     continue;
                 }
+
                 ActualPlacement = PlacementOffsets[startIndex];
                 AssignTailPlacementBasedOnPlacementPReference(PlacementOffsets[startIndex]);
                 return true;
             }
 
-            if (!ShouldBoundToXamlRoot)//No Fitting Size in All Placement positions ,If User Set Tip can go out of Bounds so Placing in Requested position 
-            {
-                return ForcePlaceRequestedPlacement(PreferredPlacement);
-            }
             return false;
-
-            bool ForcePlaceRequestedPlacement(ZTeachingTipPlacement preferredPlacement)
-            {
-
-                var isPopUpDisplaying = CallTryShowNearWithMappedPlacement(preferredPlacement, false);
-                if (!isPopUpDisplaying)//if Space For Positioning Even in Outer is not Available returning false
-                {
-                    return false;
-                }
-                ActualPlacement = preferredPlacement;
-                AssignTailPlacementBasedOnPlacementPReference(preferredPlacement);
-                return true;
-
-            }
         }
 
-        private bool CallTryShowNearWithMappedPlacement(ZTeachingTipPlacement placement,bool shouldBoundToXamlRoot)
+        private bool CallTryShowNearWithMappedPlacement(ZTeachingTipPlacement placement,bool shouldBoundToXamlRoot,bool shouldConstrainToScreenBounds =true)
         {
 
             var mappedPlacement = MapTeachingTipPlacementToPopUpPlacement(placement);
@@ -919,7 +932,8 @@ namespace ZTeachingTip
                 TargetCoordinatesInCoreWindowSpace,
                 new[] { mappedPlacement },
                 PlacementMargin,
-                shouldBoundToXamlRoot);
+                shouldBoundToXamlRoot,
+                shouldConstrainToScreenBounds);
 
         }
 

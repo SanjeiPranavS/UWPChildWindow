@@ -13,29 +13,56 @@ namespace ZTeachingTip
             this.InitializeComponent();
         }
 
-        public ObservableCollection<string> StringSource { get; }=new ObservableCollection<string>();
+        public ObservableCollection<string> VerticalListViewStringSource { get; }=new ObservableCollection<string>();
 
-        private int _count;
+        public ObservableCollection<string> HorizontalListViewStringSource { get; } = new ObservableCollection<string>();
+
+
+        private int _verticalHeightItemsCount;
+        private int _horizontalWidthItemsCount;
+
         private void ButtonBase_OnClick(object sender, RoutedEventArgs e)
         {
-            if (_count++ % 2 == 0)
+            if (_verticalHeightItemsCount++ % 2 == 0)
             {
-                StringSource.Add("Takes Any FrameWork Element As Content");
+                VerticalListViewStringSource.Add("Takes Any FrameWork Element As Content");
                 return;
-                
+
             }
-            StringSource.Add("This is A Resizable Control Target");
+            VerticalListViewStringSource.Add("This is A Resizable Control");
+
         }
+
         private void RemoveItemButton_OnClick(object sender, RoutedEventArgs e)
         {
-            if (StringSource.Count >= 1)
+            if (VerticalListViewStringSource.Count >= 1)
             {
-                StringSource.RemoveAt(0);
+                VerticalListViewStringSource.RemoveAt(0);
             }
         }
         private void FlyoutButton_OnClick(object sender, RoutedEventArgs e)
         {
-         //   TeachingTip.IsOpen = !TeachingTip.IsOpen;
+            TeachingTip.IsOpen = !TeachingTip.IsOpen;
+        }
+
+      
+        private void HorizontalListViewAddButtonOnClick(object sender, RoutedEventArgs e)
+        {
+            if (_horizontalWidthItemsCount++ % 2 == 0)
+            {
+                HorizontalListViewStringSource.Add("Takes Any FrameWork Element As Content");
+                return;
+
+            }
+            HorizontalListViewStringSource.Add("This is A Resizable Control");
+        }
+
+        private void HorizontalListViewRemoveButtonOnClick(object sender, RoutedEventArgs e)
+        {
+            if (HorizontalListViewStringSource.Count >= 1)
+            {
+                HorizontalListViewStringSource.RemoveAt(0);
+            }
         }
     }
 }

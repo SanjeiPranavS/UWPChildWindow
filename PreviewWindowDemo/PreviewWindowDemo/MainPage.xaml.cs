@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using Windows.UI.Shell;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -115,9 +116,9 @@ namespace ZTeachingTip
                 UiXamlTeachingTip = new TeachingTip();
                 LayoutRoot.Children.Add(UiXamlTeachingTip);
             }
-            UiXamlTeachingTip.Content = new PreviewControl();
+            UiXamlTeachingTip.Content = new PreviewControl(){Width = 700,Height =800 };
             UiXamlTeachingTip.PreferredPlacement = TeachingTipPlacementMode.Left;
-            UiXamlTeachingTip.IsLightDismissEnabled = true;
+            UiXamlTeachingTip.IsLightDismissEnabled = false;
             UiXamlTeachingTip.TailVisibility = TeachingTipTailVisibility.Visible;
            // UiXamlTeachingTip.Target = PersonPicture;
             UiXamlTeachingTip.PlacementMargin = new Thickness(-100,0,100,0);
@@ -204,49 +205,7 @@ namespace ZTeachingTip
 
         private TeachingTip TestTip;
 
-        private TestControl testControl;
-        private void ExtensionTestingBUtton_OnClick(object sender, RoutedEventArgs e)
-        {
-
-            //if (TestTip is null)
-            //{
-            //    TestTip = new TeachingTip
-            //    {
-            //        Content = "Show Something",
-            //        PreferredPlacement = TeachingTipPlacementMode.Left,
-
-            //    };
-            //    TestTip.Target = sender as FrameworkElement;
-            //    //LayoutRoot.Children.Add(TestTip);
-            //    TestTip.IsOpen = true;//!TestTip.IsOpen;
-            //    return;
-            //}
-            //TestTip.IsOpen = !TestTip.IsOpen;
-            //if (popup is null)
-            //{
-            //    popup = new Popup();
-            //    popup.Child = new PreviewControl()
-            //    {
-            //        Width = 300, Height = 300,
-            //    };
-            //    popup.Loaded += Popup_Loaded;
-            //    popup.IsLightDismissEnabled = false;
-            //    popup.IsOpen = true;
-            //}
-            //popup.IsOpen = !popup.IsOpen;
-
-            if (testControl is null)
-            {
-                testControl = new TestControl
-                {
-                    IsOpen = true
-                };
-                return;
-            }
-            testControl.IsOpen = !testControl.IsOpen;
-            //testControl.OpenSomePopUp();
-        }
-
+     
         private void Popup_Loaded(object sender, RoutedEventArgs e)
         {
            
@@ -267,6 +226,8 @@ namespace ZTeachingTip
                 return;
             }
             InfoTextBlock.Text = "Invalid Margin Format";
+            
+           
         }
 
         private Popup _tryShoeNearTestPopUp;

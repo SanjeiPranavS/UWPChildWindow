@@ -1,9 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using Windows.Foundation;
+using Windows.Graphics.Display;
+using Windows.System.Profile;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls.Primitives;
+using Microsoft.Toolkit.Uwp.Helpers;
 
 namespace ZTeachingTip
 {
@@ -279,6 +283,16 @@ namespace ZTeachingTip
             /// Margin to be applied while positioning the popup.
             /// </summary>
             public Thickness PlacementMargin { get; set; }
+
+            /// <summary>
+            /// Indicating Whether <see cref="Popup"/> Can position Outside Current Window
+            /// </summary>
+            public bool ShouldConstrainToWindowBounds { get; set; }
+
+            /// <summary>
+            /// Indicating Whether <see cref="Popup"/> can position inside Current Screen
+            /// </summary>
+            public bool ShouldConstrainToScreenBounds { get; set; }
         }
 
         /// <summary>
@@ -295,6 +309,9 @@ namespace ZTeachingTip
             /// </summary>
             public bool WillPopupFitInWindow { get; set; }
         }
+
+        
+
         #endregion
 
         #region TryShowNear and Overloads- TryShowNear, TryShowNearPoint, TryShowNearElement and TryShowNearRect.
@@ -419,6 +436,7 @@ namespace ZTeachingTip
         #endregion
 
         #region TryShowNear v2
+
         /// <summary>
         /// Use this method to show a popup near another Point. Note that the popup must have MaxHeight and MaxWidth properties defined.
         /// <para>Steps to use this extension:</para>
@@ -436,15 +454,19 @@ namespace ZTeachingTip
         /// </param>
         /// <param name="preferredPlacement">
         ///  Positions PopUp With Respect to list of placements in Provided Order
-        ///  positioning order will be Enumerate if Size for Positioning pop up is Not available(Enumerate will not occur if <seealso cref="shouldConstrainToRootBounds"/> is False),Popup Will be Positioned In the First Given Preference
+        ///  positioning order will be Enumerate if Size for Positioning pop up is Not available(Enumerate will not occur if <seealso cref="shouldConstrainToWindowBounds"/> is False),Popup Will be Positioned In the First Given Preference
         ///  Default PlacementOrder <seealso cref="PopupPlacementOrders.LeftBottomRightTop"/> will be Enumerate If Custom <see cref="preferredPlacement"/> Order is not given
         /// </param>
         /// <param name="placementMargin">
         /// Adds a margin between a targeted teaching tip and its target 
         /// </param>
-        /// <param name="shouldConstrainToRootBounds">
+        /// <param name="shouldConstrainToWindowBounds">
         /// Default value is true.. When false, TryShowNear positions the popup in the first position that matches given preference, without checking if popup will be within bounds.
         /// The popup may be outside the window or get clipped, depending on its' ShouldConstrainToRootBounds property.
+        /// </param>
+        /// <param name="shouldConstrainToScreenBounds">
+        /// Default Value is false , When Positioning PopUp Out of Current window (i.e <see cref="shouldConstrainToWindowBounds"/> is set to False), <see cref="shouldConstrainToScreenBounds"/> ensures
+        /// <see cref="Popup"/> doesn't bleed Out of Current <see cref="XamlRoot"/> Where PopUp is Positioned
         /// </param>
         /// <returns>
         /// <see cref="bool"/> True when popup has been positioned in any of the sides in <paramref name="preferredPlacement"/>. False otherwise.
@@ -452,7 +474,8 @@ namespace ZTeachingTip
         /// </returns>
         public static bool TryShowNearPoint(this Popup popup, Point targetPoint,
                                             IEnumerable<PopupPlacementMode> preferredPlacement = default,
-                                            Thickness placementMargin = default, bool shouldConstrainToRootBounds = true)
+                                            Thickness placementMargin = default, bool shouldConstrainToWindowBounds = true,
+                                            bool shouldConstrainToScreenBounds = false)
         {
 
             var popUpCoordinatesInCoreWindowSpace = popup.TransformToVisual(Window.Current.Content)
@@ -461,7 +484,7 @@ namespace ZTeachingTip
             var targetCoordinatesInCoreWindowSpace = new Rect(targetPoint.X, targetPoint.Y, 0.0, 0.0);
 
             return popup.TryShowNearRect(popUpCoordinatesInCoreWindowSpace, targetCoordinatesInCoreWindowSpace,
-                preferredPlacement, placementMargin, shouldConstrainToRootBounds);
+                preferredPlacement, placementMargin, shouldConstrainToWindowBounds,shouldConstrainToScreenBounds);
         }
 
         /// <summary>
@@ -472,7 +495,7 @@ namespace ZTeachingTip
         /// <item>Define the required placement preference order, You can skip this step if the default values are enough.</item>
         /// <item>Pass  a FrameworkElement Which is Already Loaded in Visual Tree Positioning is Based on Actual Width and Actual  Height of the <see cref="targetElement"/> </item>
         /// <item>Call TryShowNear extension and check the boolean returned by it.</item>
-        /// <item>If it returns false, position popup manually or call this method with shouldConstrainToRootBounds = true.</item>
+        /// <item>If it returns false, position popup manually or call this method with shouldConstrainToWindowBounds = true.</item>
         /// </list>
         /// </summary>
         /// <param name="popup"></param>
@@ -481,15 +504,19 @@ namespace ZTeachingTip
         /// </param>
         /// <param name="preferredPlacement">
         ///  Positions PopUp With Respect to list of placements in Provided Order
-        ///  positioning order will be Enumerate if Size for Positioning pop up is Not available(Enumerate will not occur if <seealso cref="shouldConstrainToRootBounds"/> is False),Popup Will be Positioned In the First Given Preference
+        ///  positioning order will be Enumerate if Size for Positioning pop up is Not available(Enumerate will not occur if <seealso cref="shouldConstrainToWindowBounds"/> is False),Popup Will be Positioned In the First Given Preference
         ///  Default PlacementOrder <seealso cref="PopupPlacementOrders.LeftBottomRightTop"/> will be Enumerate If Custom <see cref="preferredPlacement"/> Order is not given
         /// </param>
         /// <param name="placementMargin">
         /// Adds a margin between a targeted teaching tip and its target 
         /// </param>
-        /// <param name="shouldConstrainToRootBounds">
+        /// <param name="shouldConstrainToWindowBounds">
         /// Default value is true.. When false, TryShowNear positions the popup in the first position that matches given preference, without checking if popup will be within bounds.
         /// The popup may be outside the window or get clipped, depending on its' ShouldConstrainToRootBounds property.
+        /// </param>
+        /// <param name="shouldConstrainToScreenBounds">
+        /// Default Value is false , When Positioning PopUp Out of Current window (i.e <see cref="shouldConstrainToWindowBounds"/> is set to False), <see cref="shouldConstrainToScreenBounds"/> ensures
+        /// <see cref="Popup"/> doesn't bleed Out of Current <see cref="XamlRoot"/> Where PopUp is Positioned
         /// </param>
         /// <returns>
         /// <see cref="bool"/>  True when popup has been positioned in any of the sides in <paramref name="preferredPlacement"/>. False otherwise.
@@ -499,7 +526,8 @@ namespace ZTeachingTip
                                               FrameworkElement targetElement,
                                               IEnumerable<PopupPlacementMode> preferredPlacement = default,
                                               Thickness placementMargin = default,
-                                              bool shouldConstrainToRootBounds = true)
+                                              bool shouldConstrainToWindowBounds = true ,
+                                              bool shouldConstrainToScreenBounds = false)
         {
 
             var popUpCoordinatesInCoreWindowSpace = popup.TransformToVisual(Window.Current.Content).TransformBounds(new Rect(0, 0, popup.MaxWidth, popup.MaxHeight));
@@ -507,7 +535,7 @@ namespace ZTeachingTip
             var targetCoordinatesInCoreWindowSpace = targetElement == null ? default : targetElement.TransformToVisual(Window.Current.Content)
                 .TransformBounds(new Rect(0, 0, targetElement.ActualWidth, targetElement.ActualHeight));
 
-            return popup.TryShowNearRect(popUpCoordinatesInCoreWindowSpace, targetCoordinatesInCoreWindowSpace, preferredPlacement, placementMargin, shouldConstrainToRootBounds);
+            return popup.TryShowNearRect(popUpCoordinatesInCoreWindowSpace, targetCoordinatesInCoreWindowSpace, preferredPlacement, placementMargin, shouldConstrainToWindowBounds,shouldConstrainToScreenBounds);
         }
 
         /// <summary>
@@ -528,9 +556,13 @@ namespace ZTeachingTip
         /// <param name="placementMargin">
         ///  Margin to apply after positioning the popup. In most cases, this should be used only when a single preferred position is given.
         /// </param>
-        /// <param name="shouldConstrainToRootBounds">
+        /// <param name="shouldConstrainToWindowBounds">
         ///  Default value is true.. When false, method positions the popup in the first position that matches given preference, without checking if popup will be within bounds.
         ///  The popup may be outside the window or get clipped, depending on its' ShouldConstrainToRootBounds property.
+        /// </param>
+        /// <param name="shouldConstrainToScreenBounds">
+        /// Default Value is false , When Positioning PopUp Out of Current window (i.e <see cref="shouldConstrainToWindowBounds"/> is set to False), <see cref="shouldConstrainToScreenBounds"/> ensures
+        /// <see cref="Popup"/> doesn't bleed Out of Current <see cref="XamlRoot"/> Where PopUp is Positioned ,calculation For Screen Will not be considered When <see cref="shouldConstrainToWindowBounds"/> is True
         /// </param>
         /// <returns>
         ///  <see cref="bool"/>  True when popup has been positioned in any of the <see cref="PopupPlacementMode"/> in <paramref name="preferredPlacements"/>. False otherwise.
@@ -541,12 +573,15 @@ namespace ZTeachingTip
                                            Rect targetBoundsRelativeToWindow,
                                            IEnumerable<PopupPlacementMode> preferredPlacements = default,
                                            Thickness placementMargin = default,
-                                           bool shouldConstrainToRootBounds = true)
+                                           bool shouldConstrainToWindowBounds = true,
+                                           bool shouldConstrainToScreenBounds = false)
         {
-            GivenPlacementParams placementParams;
+            GivenPlacementParams placementParams = default;
             placementParams.InitialPopupBounds = popupBoundsRelativeToWindow;
             placementParams.TargetPositionBounds = targetBoundsRelativeToWindow;
             placementParams.PlacementMargin = placementMargin;
+            placementParams.ShouldConstrainToWindowBounds = shouldConstrainToWindowBounds;
+            placementParams.ShouldConstrainToScreenBounds = shouldConstrainToScreenBounds;
 
             preferredPlacements ??= PopupPlacementOrders.LeftBottomRightTop;
             ComputedPopupOffsets computedOffset;
@@ -555,14 +590,22 @@ namespace ZTeachingTip
                 computedOffset = targetBoundsRelativeToWindow == default
                     ? GetOffsetForXamlRootPlacement(preferredPlacement,
                         ref placementParams)
-                    : GetOffsetForPreferrence(preferredPlacement,
+                    : GetOffsetForPreference(preferredPlacement,
                         ref placementParams); //Todo: If Target Co-ordinates is not provided try position with respect to xamlRoot
                 popup.HorizontalOffset = computedOffset.HorizontalOffSet;
                 popup.VerticalOffset = computedOffset.VerticalOffSet;
 
-                if (!shouldConstrainToRootBounds || computedOffset.WillPopupFitInWindow) //if shouldConstrainToRootBounds is true, popup is positioned regardless of space availability.  
+
+                if (shouldConstrainToWindowBounds && computedOffset.WillPopupFitInWindow)
                 {
                     return popup.IsOpen = true;
+                }
+                if (shouldConstrainToWindowBounds is false)
+                {
+                    if (!shouldConstrainToScreenBounds || computedOffset.WillPopupFitInWindow)
+                    {
+                        return popup.IsOpen =true;
+                    }
                 }
             }
             return false;
@@ -709,7 +752,7 @@ namespace ZTeachingTip
                 TargetPositionBounds = new Rect(xCord, yCord, default, default)
             };
 
-            return GetOffsetForPreferrence(PopupPlacementMode.BottomLeft, ref customPlacementParams);//Since Target point  calculated represents TopLeft corner of PopUps new position,PopUpNeeds to Positioned BottomLeft Of the Point always
+            return GetOffsetForPreference(PopupPlacementMode.BottomLeft, ref customPlacementParams);//Since Target point  calculated represents TopLeft corner of PopUps new position,PopUpNeeds to Positioned BottomLeft Of the Point always
 
         }
 
@@ -720,7 +763,7 @@ namespace ZTeachingTip
         /// <param name="requestedPlacement"></param>
         /// <param name="placementParams"></param>
         /// <returns></returns>
-        private static ComputedPopupOffsets GetOffsetForPreferrence(PopupPlacementMode requestedPlacement, ref GivenPlacementParams placementParams)
+        private static ComputedPopupOffsets GetOffsetForPreference(PopupPlacementMode requestedPlacement, ref GivenPlacementParams placementParams)
         {
             // Attempts to position the popup in two steps.
             // Step 1: Placement (which side of targetElement/targetPoint should the popup be on?).
@@ -784,8 +827,120 @@ namespace ZTeachingTip
             }
 
             CheckIfWithinWindowBounds(ref placementOffsets, ref placementParams, requestedPlacement, distanceX, distanceY);
+            if (placementParams is { ShouldConstrainToWindowBounds: false, ShouldConstrainToScreenBounds: true })//Calculation for Whether popUp will Place outside of Screen is only done when placement Outside of the application is allowed
+            {
+                CheckIfWithinScreenBounds(ref placementOffsets, ref placementParams, requestedPlacement, distanceX, distanceY);
+            }
             return placementOffsets;
         }
+
+
+        /// <summary>
+        /// Checks if Pop Will Position inside current Screen
+        /// </summary>
+        private static void CheckIfWithinScreenBounds(ref ComputedPopupOffsets placementOffset,
+                                                      ref GivenPlacementParams placementParams,
+                                                      PopupPlacementMode preferredPlacement, double distanceX,
+                                                      double distanceY)
+        {
+
+            var taskBarPadding =ScreenUtil.GetTaskBarPadding();
+            var displayInfo = DisplayInformation.GetForCurrentView();
+            var windowBounds = WindowBounds;
+            var screenWidth = displayInfo.ScreenWidthInRawPixels / displayInfo.RawPixelsPerViewPixel;
+            var screenHeight = displayInfo.ScreenHeightInRawPixels / displayInfo.RawPixelsPerViewPixel;
+            bool hasHorizontalSpace = default;
+            bool hasVerticalSpace = default;
+
+
+            var spaceAroundTarget = new Thickness();
+            //Screen space OnLeft Side Of Target
+            spaceAroundTarget.Left = windowBounds.Left + placementParams.TargetPositionBounds.X - taskBarPadding.Left;
+            //Screen space OnRight Side of Target
+            spaceAroundTarget.Right = screenWidth - (spaceAroundTarget.Left + placementParams.TargetPositionBounds.Width) - taskBarPadding.Right;
+            //Screen Space On Top Of The Target
+            spaceAroundTarget.Top = windowBounds.Top + placementParams.TargetPositionBounds.Y - taskBarPadding.Top;
+            //Screen Space below  The Target
+            spaceAroundTarget.Bottom = screenHeight - (spaceAroundTarget.Top + placementParams.TargetPositionBounds.Height) - taskBarPadding.Bottom;
+
+
+            switch (preferredPlacement)
+            {
+                case PopupPlacementMode.Top:
+                    hasVerticalSpace = spaceAroundTarget.Top >= placementParams.InitialPopupBounds.Height;
+                    hasHorizontalSpace = WindowBounds.X + placementParams.InitialPopupBounds.X + placementOffset.HorizontalOffSet +
+                                         placementParams.InitialPopupBounds.Width <= screenWidth - taskBarPadding.Right //ignore Task Bar Width Form Total screen Width
+                                         && WindowBounds.X + placementParams.InitialPopupBounds.X + placementOffset.HorizontalOffSet >= 0;
+                    break;
+                case PopupPlacementMode.TopLeft:
+                    hasVerticalSpace = spaceAroundTarget.Top >= placementParams.InitialPopupBounds.Height;
+                    hasHorizontalSpace = WindowBounds.X + placementParams.InitialPopupBounds.X +
+                        placementOffset.HorizontalOffSet + placementParams.InitialPopupBounds.Width <= screenWidth - taskBarPadding.Right; //ignore Task Bar Width Form Total screen Width;
+                    break;
+                case PopupPlacementMode.TopRight:
+                    hasVerticalSpace = spaceAroundTarget.Top >= placementParams.InitialPopupBounds.Height;
+                    hasHorizontalSpace = WindowBounds.X + placementParams.InitialPopupBounds.X + placementOffset.HorizontalOffSet >= 0;
+                    break;
+                case PopupPlacementMode.Bottom:
+                    hasVerticalSpace = spaceAroundTarget.Bottom >= placementParams.InitialPopupBounds.Height;
+                    hasHorizontalSpace = WindowBounds.X + placementParams.InitialPopupBounds.X + placementOffset.HorizontalOffSet +
+                                         placementParams.InitialPopupBounds.Width <= screenWidth - taskBarPadding.Right //ignore Task Bar Width Form Total screen Width
+                                         && WindowBounds.X + placementParams.InitialPopupBounds.X + placementOffset.HorizontalOffSet >= 0;
+                    break;
+                case PopupPlacementMode.BottomRight:
+                    hasVerticalSpace = spaceAroundTarget.Bottom >= placementParams.InitialPopupBounds.Height;
+                    hasHorizontalSpace = WindowBounds.X + placementParams.InitialPopupBounds.X + placementOffset.HorizontalOffSet >= 0;
+
+                    break;
+                case PopupPlacementMode.BottomLeft:
+                    hasVerticalSpace = spaceAroundTarget.Bottom >= placementParams.InitialPopupBounds.Height;
+                    hasHorizontalSpace = WindowBounds.X + placementParams.InitialPopupBounds.X +
+                        placementOffset.HorizontalOffSet + placementParams.InitialPopupBounds.Width <= screenWidth - taskBarPadding.Right;//ignore Task Bar Width Form Total screen Width;
+                    break;
+                case PopupPlacementMode.Left:
+                    hasHorizontalSpace = spaceAroundTarget.Left >= placementParams.InitialPopupBounds.Width;
+                    hasVerticalSpace = placementParams.InitialPopupBounds.Y + placementOffset.VerticalOffSet + WindowBounds.Y >= 0 &&
+                                       placementParams.InitialPopupBounds.Y + placementOffset.VerticalOffSet + WindowBounds.Y +
+                                       placementParams.InitialPopupBounds.Height <= screenHeight - taskBarPadding.Bottom;
+                    break;
+                case PopupPlacementMode.LeftTop:
+                    hasHorizontalSpace = spaceAroundTarget.Left >= placementParams.InitialPopupBounds.Width;
+                    hasVerticalSpace = placementParams.InitialPopupBounds.Y + placementOffset.VerticalOffSet + WindowBounds.Y +
+                        placementParams.InitialPopupBounds.Height <= screenHeight - taskBarPadding.Bottom;
+                    break;
+                case PopupPlacementMode.LeftBottom:
+                    hasHorizontalSpace = spaceAroundTarget.Left >= placementParams.InitialPopupBounds.Width;
+                    hasVerticalSpace = placementParams.InitialPopupBounds.Y + placementOffset.VerticalOffSet + WindowBounds.Y >= 0 &&
+                                       placementParams.InitialPopupBounds.Y + placementOffset.VerticalOffSet + WindowBounds.Y +
+                                       placementParams.InitialPopupBounds.Height <= screenHeight - taskBarPadding.Bottom;
+                    break;
+                case PopupPlacementMode.Right:
+                    hasHorizontalSpace = spaceAroundTarget.Right >= placementParams.InitialPopupBounds.Width;
+                    hasVerticalSpace = placementParams.InitialPopupBounds.Y + placementOffset.VerticalOffSet + WindowBounds.Y >= 0 &&
+                                       placementParams.InitialPopupBounds.Y + placementOffset.VerticalOffSet + WindowBounds.Y +
+                                       placementParams.InitialPopupBounds.Height <= screenHeight - taskBarPadding.Bottom;
+                    break;
+                case PopupPlacementMode.RightTop:
+                    hasHorizontalSpace = spaceAroundTarget.Right >= placementParams.InitialPopupBounds.Width;
+                    hasVerticalSpace = placementParams.InitialPopupBounds.Y + placementOffset.VerticalOffSet + WindowBounds.Y +
+                        placementParams.InitialPopupBounds.Height <= screenHeight - taskBarPadding.Bottom;
+                    break;
+                case PopupPlacementMode.RightBottom:
+                    hasHorizontalSpace = spaceAroundTarget.Right >= placementParams.InitialPopupBounds.Width;
+                    hasVerticalSpace = placementParams.InitialPopupBounds.Y + placementOffset.VerticalOffSet + WindowBounds.Y >= 0 &&
+                                       placementParams.InitialPopupBounds.Y + placementOffset.VerticalOffSet + WindowBounds.Y +
+                                       placementParams.InitialPopupBounds.Height <= screenHeight - taskBarPadding.Bottom;//ignore Task Bar Height Form Total screen height
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(preferredPlacement), preferredPlacement, null);
+            }
+
+            $"{preferredPlacement} placement has Vertical Space To Display {hasVerticalSpace} || has HorizontalSpace To Display {hasHorizontalSpace} ".Print();
+
+            placementOffset.WillPopupFitInWindow = hasHorizontalSpace && hasVerticalSpace;
+        }
+
+
 
         private static void CheckIfWithinWindowBounds(ref ComputedPopupOffsets placementOffset, ref GivenPlacementParams placementParams, PopupPlacementMode preferredPlacement, double distanceX, double distanceY)
         {
@@ -799,7 +954,7 @@ namespace ZTeachingTip
 
                 case PopupPlacementMode.Top:
                     hasVerticalSpace = placementParams.InitialPopupBounds.Y + verticalOffset >= 0;
-                    hasHorizontalSpace = (placementParams.InitialPopupBounds.X + horizontalOffset >= 0 && placementParams.InitialPopupBounds.X + horizontalOffset + placementParams.InitialPopupBounds.Width <= WindowBounds.Width);
+                    hasHorizontalSpace = placementParams.InitialPopupBounds.X + horizontalOffset >= 0 && placementParams.InitialPopupBounds.X + horizontalOffset + placementParams.InitialPopupBounds.Width <= WindowBounds.Width;
                     break;
                 case PopupPlacementMode.TopLeft:
                     hasVerticalSpace = placementParams.InitialPopupBounds.Y + verticalOffset >= 0;
@@ -811,7 +966,7 @@ namespace ZTeachingTip
                     break;
                 case PopupPlacementMode.Bottom:
                     hasVerticalSpace = placementParams.InitialPopupBounds.Y + verticalOffset + placementParams.InitialPopupBounds.Height <= WindowBounds.Height;
-                    hasHorizontalSpace = (placementParams.InitialPopupBounds.X + horizontalOffset >= 0 && placementParams.InitialPopupBounds.X + horizontalOffset + placementParams.InitialPopupBounds.Width <= WindowBounds.Width);
+                    hasHorizontalSpace = placementParams.InitialPopupBounds.X + horizontalOffset >= 0 && placementParams.InitialPopupBounds.X + horizontalOffset + placementParams.InitialPopupBounds.Width <= WindowBounds.Width;
                     break;
                 case PopupPlacementMode.BottomRight:
                     hasVerticalSpace = placementParams.InitialPopupBounds.Y + verticalOffset + placementParams.InitialPopupBounds.Height <= WindowBounds.Height;
@@ -901,5 +1056,50 @@ namespace ZTeachingTip
             };
         }
         #endregion
+    }
+}
+
+public static class ScreenUtil
+{
+
+    /// <summary>
+    ///Default TaskBar position is Bottom and Task Bar height is 47 in 100% scaling in Win11 ,Cannot Change TaskBar Orientation unless User performs Registry Editor manipulation
+    /// </summary>
+    public const double DefaultTaskBarHeightWin11 = 47.0;
+
+    public const double DefaultTaskBarHeightWin10 = 47.0;
+
+    /// <summary>
+    /// In Win 10 Task can can be positioned on Right /Left in that case default Task Bar Width is 90 in 100% Scaling
+    /// </summary>
+    public const double DefaultTaskBarWidthWin10 = 90;
+
+    /// <summary>
+    /// Calculates TaskBar Thickness  with Respect To Windows Version 
+    /// </summary>
+    /// <returns></returns>
+    public static Thickness GetTaskBarPadding()
+    {
+
+        var scalingFactor = DisplayInformation.GetForCurrentView().RawPixelsPerViewPixel;
+
+        if (Environment.OSVersion.Version.Build >= 22000) // 22000 is the build number for Windows 11
+        {
+
+            var taskBarThickness = new Thickness(default, default, default, DefaultTaskBarHeightWin11 * scalingFactor);
+
+            return taskBarThickness;
+        }
+        else  // The app is running on Windows 10 or an older version
+        {
+
+            var taskBarThickness = new Thickness(DefaultTaskBarWidthWin10 * scalingFactor,
+                DefaultTaskBarHeightWin10 * scalingFactor,
+                DefaultTaskBarWidthWin10 * scalingFactor,
+                DefaultTaskBarHeightWin10 * scalingFactor);
+            return taskBarThickness;
+
+        }
+
     }
 }
